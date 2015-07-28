@@ -1,0 +1,6 @@
+.idea*
+lib_managed
+logs
+project/project
+project/target
+target
