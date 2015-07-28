@@ -3,7 +3,7 @@ Crypto
 
 [![Build Status](https://travis-ci.org/hmrc/crypto.svg)](https://travis-ci.org/hmrc/crypto) [ ![Download](https://api.bintray.com/packages/hmrc/releases/crypto/images/download.svg) ](https://bintray.com/hmrc/releases/crypto/_latestVersion)
 
-A micro-library for all Crypto related infrastructure.
+A micro-library for all Crypto related infrastructure of a Play application.
 
 There is integration with the Play! framework such that secret keys are read from a '.conf' file.
 
