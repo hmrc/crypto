@@ -16,7 +16,8 @@
 
 package uk.gov.hmrc.crypto
 
-import org.apache.commons.codec.binary.Base64
+import java.util.Base64
+
 import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 import play.api.test.FakeApplication
 import play.api.test.Helpers._
@@ -27,22 +28,22 @@ class CryptoWithKeysFromConfigSpec extends WordSpecLike with Matchers with Optio
 
   private object CurrentKey {
     val configKey = baseConfigKey + ".key"
-    val encryptionKey = Base64.encodeBase64String(Array[Byte](0, 1, 2, 3, 4, 5 ,6 ,7, 8 ,9, 10, 11, 12, 13, 14, 15))
+    val encryptionKey = Base64.getEncoder.encodeToString(Array[Byte](0, 1, 2, 3, 4, 5 ,6 ,7, 8 ,9, 10, 11, 12, 13, 14, 15))
     val plainMessage = PlainText("this is my message")
     val encryptedMessage = Crypted("up/76On5j54pAjzqZR1mqM5E28skTl8Aw0GkKi+zjkk=")
     val plainByteMessage = PlainBytes("this is a bunch of bytes".getBytes)
     val encryptedByteMessage = Crypted("z9MBLTvjyqRFi0UNZJ7qrIv3fvyuMGGjOU/npaJ7ucU=")
   }
-  
+
   private object PreviousKey1 {
-    val encryptionKey = Base64.encodeBase64String(Array[Byte](1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
+    val encryptionKey = Base64.getEncoder.encodeToString(Array[Byte](1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1))
     val plainMessage = PlainText("this is the first plain message")
     val plainByteMessage = PlainBytes("this is the first bunch of bytes".getBytes)
     val plainByteMessageResponse = PlainText("this is the first bunch of bytes")
   }
-  
+
   private object PreviousKey2 {
-    val encryptionKey = Base64.encodeBase64String(Array[Byte](2, 2 ,2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2))
+    val encryptionKey = Base64.getEncoder.encodeToString(Array[Byte](2, 2 ,2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2))
     val plainMessage = PlainText("this is the second plain message")
     val plainByteMessage = PlainBytes("this is the second bunch of bytes".getBytes)
     val plainByteMessageResponse = PlainText("this is the second bunch of bytes")

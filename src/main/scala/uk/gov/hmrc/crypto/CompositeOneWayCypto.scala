@@ -16,16 +16,16 @@
 
 package uk.gov.hmrc.crypto
 
+import java.nio.charset.StandardCharsets
+import java.util.Base64
 import javax.crypto.spec.SecretKeySpec
-
-import org.apache.commons.codec.binary.Base64
 
 trait Sha512Crypto extends Hasher with Verifier {
 
   protected val encryptionKey: String
 
   private lazy val encrypter = {
-    val encryptionKeyBytes = Base64.decodeBase64(encryptionKey.getBytes("UTF-8"))
+    val encryptionKeyBytes = Base64.getDecoder.decode(encryptionKey.getBytes(StandardCharsets.UTF_8))
     val secretKey = new SecretKeySpec(encryptionKeyBytes, "HmacSHA512")
     new SymmetricHasher(secretKey)
   }

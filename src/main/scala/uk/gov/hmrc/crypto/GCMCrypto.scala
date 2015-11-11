@@ -16,7 +16,9 @@
 
 package uk.gov.hmrc.crypto
 
-import org.apache.commons.codec.binary.Base64
+import java.nio.charset.StandardCharsets
+import java.util.Base64
+
 import uk.gov.hmrc.secure.GCMEncrypterDecrypter
 
 trait AesGCMCrypto extends Encrypter with Decrypter {
@@ -24,7 +26,7 @@ trait AesGCMCrypto extends Encrypter with Decrypter {
 
   protected val encryptionKey: String
 
-  private lazy val encryptionKeyBytes = Base64.decodeBase64(encryptionKey.getBytes("UTF-8"))
+  private lazy val encryptionKeyBytes = Base64.getDecoder.decode(encryptionKey.getBytes(StandardCharsets.UTF_8))
 
   private lazy val crypto = new GCMEncrypterDecrypter(encryptionKeyBytes, EMPTY_ASSOCIATE_TEXT.getBytes)
 

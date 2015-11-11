@@ -16,9 +16,10 @@
 
 package uk.gov.hmrc.crypto
 
+import java.nio.charset.StandardCharsets
+import java.util.Base64
 import javax.crypto.spec.SecretKeySpec
 
-import org.apache.commons.codec.binary.Base64
 import uk.gov.hmrc.secure.{SymmetricDecrypter, SymmetricEncrypter}
 
 import scala.util.{Success, Try}
@@ -27,7 +28,7 @@ trait AesCrypto extends Encrypter with Decrypter {
 
   protected val encryptionKey: String
 
-  private lazy val encryptionKeyBytes = Base64.decodeBase64(encryptionKey.getBytes("UTF-8"))
+  private lazy val encryptionKeyBytes = Base64.getDecoder.decode(encryptionKey.getBytes(StandardCharsets.UTF_8))
 
   private lazy val secretKey = new SecretKeySpec(encryptionKeyBytes, "AES")
 
