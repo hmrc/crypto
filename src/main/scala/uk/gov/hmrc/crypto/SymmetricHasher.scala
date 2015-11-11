@@ -26,7 +26,8 @@ class SymmetricHasher(secretKey: Key) {
     try {
       val sha512_HMAC = Mac.getInstance(secretKey.getAlgorithm)
       sha512_HMAC.init(secretKey)
-      Scrambled(Base64.getEncoder.encodeToString(sha512_HMAC.doFinal(data.value.getBytes(StandardCharsets.UTF_8))))
+      val bytes = data.value.getBytes(StandardCharsets.UTF_8)
+      Scrambled(new String(Base64.getEncoder.encode(sha512_HMAC.doFinal(bytes)), StandardCharsets.UTF_8))
     }
     catch {
       case nsae: NoSuchAlgorithmException => {

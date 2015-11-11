@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.crypto
 
+import java.nio.charset.StandardCharsets
+
 trait Encrypter {
   def encrypt(plain: PlainContent): Crypted
 }
@@ -34,12 +36,20 @@ trait Verifier {
   def verify(sample: PlainText, ncrypted: Scrambled): Boolean
 }
 
+trait Encoded {
+  def value: String
+
+  def utf8Bytes = value.getBytes(StandardCharsets.UTF_8)
+}
+
 sealed trait PlainContent
 
 case class PlainText(value: String) extends PlainContent
 
 case class PlainBytes(value: Array[Byte]) extends PlainContent
 
-case class Crypted(value: String) extends AnyVal
+case class Crypted(value: String) extends Encoded
 
-case class Scrambled(value: String) extends AnyVal
+case class Scrambled(value: String) extends Encoded
+
+case class Salt(value: String) extends Encoded
