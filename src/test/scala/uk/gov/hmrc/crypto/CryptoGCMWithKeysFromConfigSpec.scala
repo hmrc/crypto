@@ -17,8 +17,8 @@
 package uk.gov.hmrc.crypto
 
 import java.security.SecureRandom
+import java.util.Base64
 
-import org.apache.commons.codec.binary.Base64
 import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 import play.api.test.FakeApplication
 import play.api.test.Helpers._
@@ -38,21 +38,21 @@ class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with Op
 
   private object CurrentKey {
     val configKey = baseConfigKey + ".key"
-    val encryptionKey = Base64.encodeBase64String(keybytes)
+    val encryptionKey = Base64.getEncoder.encodeToString(keybytes)
     val plainMessage = PlainText("this is my message")
     val plainByteMessage = PlainBytes("this is a bunch of bytes".getBytes)
     val plainByteMessageResponse = PlainText("this is a bunch of bytes")
   }
-  
+
   private object PreviousKey1 {
-    val encryptionKey = Base64.encodeBase64String(previousKeybytes1)
+    val encryptionKey = Base64.getEncoder.encodeToString(previousKeybytes1)
     val plainMessage = PlainText("this is the first plain message")
     val plainByteMessage = PlainBytes("this is the first bunch of bytes".getBytes)
     val plainByteMessageResponse = PlainText("this is the first bunch of bytes")
   }
 
   private object PreviousKey2 {
-    val encryptionKey = Base64.encodeBase64String(previousKeybytes2)
+    val encryptionKey = Base64.getEncoder.encodeToString(previousKeybytes2)
     val plainMessage = PlainText("this is the second plain message")
     val plainByteMessage = PlainBytes("this is the second bunch of bytes".getBytes)
     val plainByteMessageResponse = PlainText("this is the second bunch of bytes")
