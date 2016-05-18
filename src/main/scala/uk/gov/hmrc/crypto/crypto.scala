@@ -16,6 +16,8 @@
 
 package uk.gov.hmrc.crypto
 
+import org.apache.commons.codec.binary.Base64
+
 trait Encrypter {
   def encrypt(plain: PlainContent): Crypted
 }
@@ -40,6 +42,14 @@ case class PlainText(value: String) extends PlainContent
 
 case class PlainBytes(value: Array[Byte]) extends PlainContent
 
-case class Crypted(value: String) extends AnyVal
+case class Crypted(value: String) {
+  def toBase64 = Base64.encodeBase64(value.getBytes("UTF-8"))
+}
 
-case class Scrambled(value: String) extends AnyVal
+object Crypted extends (String => Crypted) {
+  def fromBase64(s: String) = Crypted(new String(Base64.decodeBase64(s.getBytes("UTF-8"))))
+}
+
+case class Scrambled(value: String) {
+  def toBase64 = Base64.encodeBase64(value.getBytes("UTF-8"))
+}
