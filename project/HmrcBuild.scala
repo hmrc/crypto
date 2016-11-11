@@ -41,7 +41,7 @@ object Dependencies {
   import play.core.PlayVersion
 
   object Compile {
-    val secure = "uk.gov.hmrc" %% "secure" % "7.0.0"
+    val secure = "uk.gov.hmrc" %% "secure" % "7.1.0"
     val play = "com.typesafe.play" %% "play" % PlayVersion.current % "provided"
   }
 
