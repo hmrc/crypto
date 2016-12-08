@@ -25,7 +25,7 @@ Add the following to your SBT build:
 ```scala
 resolvers += Resolver.bintrayRepo("hmrc", "releases")
 
-libraryDependencies += "uk.gov.hmrc" % "crypto" % "[INSERT-VERSION]"
+libraryDependencies += "uk.gov.hmrc" %% "crypto" % "[INSERT-VERSION]"
 ```
 
 ## License ##
