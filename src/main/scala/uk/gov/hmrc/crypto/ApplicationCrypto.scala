@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,21 @@
 
 package uk.gov.hmrc.crypto
 
-object ApplicationCrypto {
+import javax.inject.Inject
 
-  private def sessionCookieCrypto = CryptoGCMWithKeysFromConfig(baseConfigKey = "cookie.encryption")
+import play.api.{Configuration, Play}
 
-  private def ssoPayloadCrypto = CryptoWithKeysFromConfig(baseConfigKey = "sso.encryption")
+trait ApplicationCrypto {
 
-  private def queryParameterCrypto = CryptoWithKeysFromConfig(baseConfigKey = "queryParameter.encryption")
+  val configuration: Configuration
 
-  private def jsonCrypto = CryptoWithKeysFromConfig(baseConfigKey = "json.encryption")
+  private def sessionCookieCrypto = CryptoGCMWithKeysFromConfig(baseConfigKey = "cookie.encryption", () => configuration)
+
+  private def ssoPayloadCrypto = CryptoWithKeysFromConfig(baseConfigKey = "sso.encryption", () => configuration)
+
+  private def queryParameterCrypto = CryptoWithKeysFromConfig(baseConfigKey = "queryParameter.encryption", () => configuration)
+
+  private def jsonCrypto = CryptoWithKeysFromConfig(baseConfigKey = "json.encryption", () => configuration)
 
   lazy val SessionCookieCrypto = sessionCookieCrypto
   lazy val SsoPayloadCrypto = ssoPayloadCrypto
@@ -40,4 +46,12 @@ object ApplicationCrypto {
   def verifyJsonConfiguration() {
     jsonCrypto
   }
+}
+
+object ApplicationCrypto extends ApplicationCrypto {
+  override val configuration: Configuration = Play.current.configuration
+}
+
+class ApplicationCryptoDI @Inject()(config: Configuration) extends ApplicationCrypto {
+  override val configuration: Configuration = config
 }

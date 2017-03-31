@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,16 +16,18 @@
 
 package uk.gov.hmrc.crypto
 
-import play.api.{Logger, Play}
+import play.api.{Configuration, Logger, Play}
 
 trait KeysFromConfigGCM {
   this: CompositeSymmetricCrypto =>
 
   val baseConfigKey: String
 
+  val configuration: () => Configuration = () => Play.current.configuration
+
   override protected val currentCrypto = {
     val configKey = baseConfigKey + ".key"
-    val currentEncryptionKey = Play.current.configuration.getString(configKey).getOrElse {
+    val currentEncryptionKey = configuration().getString(configKey).getOrElse {
       Logger.error(s"Missing required configuration entry: $configKey")
       throw new SecurityException(s"Missing required configuration entry: $configKey")
     }
@@ -34,7 +36,7 @@ trait KeysFromConfigGCM {
 
   override protected val previousCryptos = {
         val configKey = baseConfigKey + ".previousKeys"
-        val previousEncryptionKeys = Play.current.configuration.getStringSeq(configKey).getOrElse(Seq.empty)
+        val previousEncryptionKeys = configuration().getStringSeq(configKey).getOrElse(Seq.empty)
         previousEncryptionKeys.map(k => aesGCMCrypto(k, ""))
   }
 
@@ -56,4 +58,4 @@ trait KeysFromConfigGCM {
   }
 }
 
-case class CryptoGCMWithKeysFromConfig(baseConfigKey: String) extends CompositeSymmetricCrypto with KeysFromConfigGCM
+case class CryptoGCMWithKeysFromConfig(baseConfigKey: String, override val configuration: () => Configuration) extends CompositeSymmetricCrypto with KeysFromConfigGCM
