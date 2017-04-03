@@ -22,15 +22,15 @@ import play.api.{Configuration, Play}
 
 trait ApplicationCrypto {
 
-  val configuration: Configuration
+  implicit val configuration: Configuration
 
-  private def sessionCookieCrypto = CryptoGCMWithKeysFromConfig(baseConfigKey = "cookie.encryption", () => configuration)
+  private def sessionCookieCrypto = CryptoGCMWithKeysFromConfig(baseConfigKey = "cookie.encryption")
 
-  private def ssoPayloadCrypto = CryptoWithKeysFromConfig(baseConfigKey = "sso.encryption", () => configuration)
+  private def ssoPayloadCrypto = CryptoWithKeysFromConfig(baseConfigKey = "sso.encryption")
 
-  private def queryParameterCrypto = CryptoWithKeysFromConfig(baseConfigKey = "queryParameter.encryption", () => configuration)
+  private def queryParameterCrypto = CryptoWithKeysFromConfig(baseConfigKey = "queryParameter.encryption")
 
-  private def jsonCrypto = CryptoWithKeysFromConfig(baseConfigKey = "json.encryption", () => configuration)
+  private def jsonCrypto = CryptoWithKeysFromConfig(baseConfigKey = "json.encryption")
 
   lazy val SessionCookieCrypto = sessionCookieCrypto
   lazy val SsoPayloadCrypto = ssoPayloadCrypto
@@ -49,9 +49,9 @@ trait ApplicationCrypto {
 }
 
 object ApplicationCrypto extends ApplicationCrypto {
-  override val configuration: Configuration = Play.current.configuration
+  implicit val configuration: Configuration = Play.current.configuration
 }
 
 class ApplicationCryptoDI @Inject()(config: Configuration) extends ApplicationCrypto {
-  override val configuration: Configuration = config
+  implicit val configuration: Configuration = config
 }

@@ -48,6 +48,17 @@ class OneWayCryptoFromConfigSpec extends WordSpecLike with Matchers with OptionV
     }
   }
 
+  "A correctly constructed one way encrypter using new Play 2.5 DI" should {
+
+    "encrypt and verify a password" in running(fakeApplicationWithCurrentKey) {
+      implicit val configurationThunk = () => fakeApplicationWithCurrentKey.configuration
+      val cryptor = OneWayCryptoFromConfig(baseConfigKey)
+      val encrypted = cryptor.hash(PlainText("myPassword"))
+
+      cryptor.verify(PlainText("myPassword"), encrypted) should be (true)
+    }
+  }
+
   "Constructing a one way encrypter without current or previous keys" should {
 
     def fakeApplicationWithoutAnyKeys = FakeApplication()

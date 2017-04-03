@@ -23,7 +23,7 @@ trait KeysFromConfig {
 
   val baseConfigKey: String
 
-  val configuration: () => Configuration = () => Play.current.configuration
+  implicit val configuration: () => Configuration
 
   override protected val currentCrypto = {
     val configKey = baseConfigKey + ".key"
@@ -53,4 +53,4 @@ trait KeysFromConfig {
   }
 }
 
-case class CryptoWithKeysFromConfig(baseConfigKey: String, override val configuration: () => Configuration) extends CompositeSymmetricCrypto with KeysFromConfig
+case class CryptoWithKeysFromConfig(baseConfigKey: String)(implicit val configuration: () => Configuration = () => Play.current.configuration) extends CompositeSymmetricCrypto with KeysFromConfig

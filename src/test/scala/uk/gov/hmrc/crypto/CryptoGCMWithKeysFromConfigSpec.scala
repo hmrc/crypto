@@ -70,7 +70,7 @@ class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with Op
     ))
 
     "return a properly initialised, functional AuthenticatedEncryption object that works with the current key only" in running(fakeApplicationWithCurrentKeyOnly)  {
-      val crypto = CryptoGCMWithKeysFromConfig(baseConfigKey, () => fakeApplicationWithCurrentKeyOnly.configuration)
+      val crypto = CryptoGCMWithKeysFromConfig(baseConfigKey)
 
       crypto.decrypt(crypto.encrypt(CurrentKey.plainMessage)) shouldBe CurrentKey.plainMessage
       crypto.decrypt(crypto.encrypt(CurrentKey.plainByteMessage)) shouldBe CurrentKey.plainByteMessageResponse
@@ -91,7 +91,7 @@ class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with Op
     )
 
     "return a properly initialised, functional AuthenticatedEncryption object that works with the current key only" in running(fakeApplicationWithEmptyPreviousKeys)  {
-      val crypto = CryptoGCMWithKeysFromConfig(baseConfigKey, () => fakeApplicationWithEmptyPreviousKeys.configuration)
+      val crypto = CryptoGCMWithKeysFromConfig(baseConfigKey)
 
       crypto.decrypt(crypto.encrypt(CurrentKey.plainMessage)) shouldBe CurrentKey.plainMessage
       crypto.decrypt(crypto.encrypt(CurrentKey.plainByteMessage)) shouldBe CurrentKey.plainByteMessageResponse
@@ -112,7 +112,33 @@ class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with Op
     )
 
     "allows decrypting payloads that were encrypted using previous keys" in running(fakeApplicationWithCurrentAndPreviousKeys)  {
-      val crypto = CryptoGCMWithKeysFromConfig(baseConfigKey, () => fakeApplicationWithCurrentAndPreviousKeys.configuration)
+      val crypto = CryptoGCMWithKeysFromConfig(baseConfigKey)
+
+      val previousKey1Crypto = CompositeSymmetricCrypto.aesGCM(PreviousKey1.encryptionKey, Seq.empty)
+      val encryptedWithPreviousKey1 = crypto.encrypt(PreviousKey1.plainMessage, previousKey1Crypto)
+      val encryptedBytesWithPreviousKey1 = crypto.encrypt(PreviousKey1.plainByteMessage, previousKey1Crypto)
+      crypto.decrypt(encryptedWithPreviousKey1) shouldBe PreviousKey1.plainMessage
+      crypto.decrypt(encryptedBytesWithPreviousKey1) shouldBe PreviousKey1.plainByteMessageResponse
+
+      val previousKey2Crypto = CompositeSymmetricCrypto.aesGCM(PreviousKey2.encryptionKey, Seq.empty)
+      val encryptedWithPreviousKey2 = crypto.encrypt(PreviousKey2.plainMessage, previousKey2Crypto)
+      val encryptedBytesWithPreviousKey2 = crypto.encrypt(PreviousKey2.plainByteMessage, previousKey2Crypto)
+      crypto.decrypt(encryptedWithPreviousKey2) shouldBe PreviousKey2.plainMessage
+      crypto.decrypt(encryptedBytesWithPreviousKey2) shouldBe PreviousKey2.plainByteMessageResponse
+
+    }
+  }
+
+  "Constructing a CompositeCryptoWithKeysFromConfig with both current and previous keys using new Play 2.5 DI" should {
+
+    val fakeApplicationWithCurrentAndPreviousKeys = FakeApplication(additionalConfiguration = Map(
+      CurrentKey.configKey -> CurrentKey.encryptionKey,
+      PreviousKeys.configKey -> PreviousKeys.encryptionKeys)
+    )
+
+    "allows decrypting payloads that were encrypted using previous keys" in running(fakeApplicationWithCurrentAndPreviousKeys)  {
+      implicit val configurationThunk = () => fakeApplicationWithCurrentAndPreviousKeys.configuration
+      val crypto = CryptoGCMWithKeysFromConfig(baseConfigKey)
 
       val previousKey1Crypto = CompositeSymmetricCrypto.aesGCM(PreviousKey1.encryptionKey, Seq.empty)
       val encryptedWithPreviousKey1 = crypto.encrypt(PreviousKey1.plainMessage, previousKey1Crypto)
@@ -135,7 +161,7 @@ class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with Op
 
     "throw a SecurityException on construction" in running(fakeApplicationWithoutAnyKeys) {
       intercept[SecurityException]{
-        CryptoGCMWithKeysFromConfig(baseConfigKey, () => fakeApplicationWithoutAnyKeys.configuration)
+        CryptoGCMWithKeysFromConfig(baseConfigKey)
       }
     }
   }
@@ -148,7 +174,7 @@ class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with Op
 
     "throw a SecurityException on construction" in running(fakeApplicationWithPreviousKeysOnly) {
       intercept[SecurityException]{
-        CryptoGCMWithKeysFromConfig(baseConfigKey, () => fakeApplicationWithPreviousKeysOnly.configuration)
+        CryptoGCMWithKeysFromConfig(baseConfigKey)
       }
     }
   }
@@ -190,38 +216,38 @@ class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with Op
 
     "throw a SecurityException if the current key is too short" in running(fakeApplicationWithShortCurrentKey) {
       intercept[SecurityException]{
-        CryptoGCMWithKeysFromConfig(baseConfigKey, () => fakeApplicationWithShortCurrentKey.configuration)
+        CryptoGCMWithKeysFromConfig(baseConfigKey)
       }
     }
 
     "throw a SecurityException if the current key length is not 128 bits" in running(fakeApplicationWithInvalidKeySize) {
       intercept[SecurityException]{
-        CryptoGCMWithKeysFromConfig(baseConfigKey, () => fakeApplicationWithInvalidKeySize.configuration)
+        CryptoGCMWithKeysFromConfig(baseConfigKey)
       }
     }
 
 
     "throw a SecurityException if the first previous key is too short" in running(fakeApplicationWithShortFirstPreviousKey) {
       intercept[SecurityException]{
-        CryptoWithKeysFromConfig(baseConfigKey, () => fakeApplicationWithShortFirstPreviousKey.configuration)
+        CryptoWithKeysFromConfig(baseConfigKey)
       }
     }
 
     "throw a SecurityException if the first previous key cannot be base 64 decoded" in running(fakeApplicationWithInvalidBase64FirstPreviousKey) {
       intercept[SecurityException]{
-        CryptoWithKeysFromConfig(baseConfigKey, () => fakeApplicationWithInvalidBase64FirstPreviousKey.configuration)
+        CryptoWithKeysFromConfig(baseConfigKey)
       }
     }
 
     "throw a SecurityException if the other previous key is too short" in running(fakeApplicationWithShortOtherPreviousKey) {
       intercept[SecurityException]{
-        CryptoWithKeysFromConfig(baseConfigKey, () => fakeApplicationWithShortOtherPreviousKey.configuration)
+        CryptoWithKeysFromConfig(baseConfigKey)
       }
     }
 
     "throw a SecurityException if the other previous key cannot be base 64 decoded" in running(fakeApplicationWithInvalidBase64OtherPreviousKey) {
       intercept[SecurityException]{
-        CryptoWithKeysFromConfig(baseConfigKey, () => fakeApplicationWithInvalidBase64OtherPreviousKey.configuration)
+        CryptoWithKeysFromConfig(baseConfigKey)
       }
     }
 
