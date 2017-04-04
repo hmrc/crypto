@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -41,6 +41,17 @@ class OneWayCryptoFromConfigSpec extends WordSpecLike with Matchers with OptionV
   "A correctly constructed one way encrypter" should {
 
     "encrypt and verify a password" in running(fakeApplicationWithCurrentKey) {
+      val cryptor = OneWayCryptoFromConfig(baseConfigKey)
+      val encrypted = cryptor.hash(PlainText("myPassword"))
+
+      cryptor.verify(PlainText("myPassword"), encrypted) should be (true)
+    }
+  }
+
+  "A correctly constructed one way encrypter using new Play 2.5 DI" should {
+
+    "encrypt and verify a password" in running(fakeApplicationWithCurrentKey) {
+      implicit val configurationThunk = () => fakeApplicationWithCurrentKey.configuration
       val cryptor = OneWayCryptoFromConfig(baseConfigKey)
       val encrypted = cryptor.hash(PlainText("myPassword"))
 

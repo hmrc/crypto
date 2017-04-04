@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,7 +16,13 @@
 
 package uk.gov.hmrc.crypto
 
-object ApplicationCrypto {
+import javax.inject.Inject
+
+import play.api.{Configuration, Play}
+
+trait ApplicationCrypto {
+
+  implicit val configuration: Configuration
 
   private def sessionCookieCrypto = CryptoGCMWithKeysFromConfig(baseConfigKey = "cookie.encryption")
 
@@ -40,4 +46,12 @@ object ApplicationCrypto {
   def verifyJsonConfiguration() {
     jsonCrypto
   }
+}
+
+object ApplicationCrypto extends ApplicationCrypto {
+  implicit val configuration: Configuration = Play.current.configuration
+}
+
+class ApplicationCryptoDI @Inject()(config: Configuration) extends ApplicationCrypto {
+  implicit val configuration: Configuration = config
 }

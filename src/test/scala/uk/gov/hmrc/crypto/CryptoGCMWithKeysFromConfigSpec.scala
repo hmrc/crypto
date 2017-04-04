@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 HM Revenue & Customs
+ * Copyright 2017 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -112,6 +112,32 @@ class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with Op
     )
 
     "allows decrypting payloads that were encrypted using previous keys" in running(fakeApplicationWithCurrentAndPreviousKeys)  {
+      val crypto = CryptoGCMWithKeysFromConfig(baseConfigKey)
+
+      val previousKey1Crypto = CompositeSymmetricCrypto.aesGCM(PreviousKey1.encryptionKey, Seq.empty)
+      val encryptedWithPreviousKey1 = crypto.encrypt(PreviousKey1.plainMessage, previousKey1Crypto)
+      val encryptedBytesWithPreviousKey1 = crypto.encrypt(PreviousKey1.plainByteMessage, previousKey1Crypto)
+      crypto.decrypt(encryptedWithPreviousKey1) shouldBe PreviousKey1.plainMessage
+      crypto.decrypt(encryptedBytesWithPreviousKey1) shouldBe PreviousKey1.plainByteMessageResponse
+
+      val previousKey2Crypto = CompositeSymmetricCrypto.aesGCM(PreviousKey2.encryptionKey, Seq.empty)
+      val encryptedWithPreviousKey2 = crypto.encrypt(PreviousKey2.plainMessage, previousKey2Crypto)
+      val encryptedBytesWithPreviousKey2 = crypto.encrypt(PreviousKey2.plainByteMessage, previousKey2Crypto)
+      crypto.decrypt(encryptedWithPreviousKey2) shouldBe PreviousKey2.plainMessage
+      crypto.decrypt(encryptedBytesWithPreviousKey2) shouldBe PreviousKey2.plainByteMessageResponse
+
+    }
+  }
+
+  "Constructing a CompositeCryptoWithKeysFromConfig with both current and previous keys using new Play 2.5 DI" should {
+
+    val fakeApplicationWithCurrentAndPreviousKeys = FakeApplication(additionalConfiguration = Map(
+      CurrentKey.configKey -> CurrentKey.encryptionKey,
+      PreviousKeys.configKey -> PreviousKeys.encryptionKeys)
+    )
+
+    "allows decrypting payloads that were encrypted using previous keys" in running(fakeApplicationWithCurrentAndPreviousKeys)  {
+      implicit val configurationThunk = () => fakeApplicationWithCurrentAndPreviousKeys.configuration
       val crypto = CryptoGCMWithKeysFromConfig(baseConfigKey)
 
       val previousKey1Crypto = CompositeSymmetricCrypto.aesGCM(PreviousKey1.encryptionKey, Seq.empty)
