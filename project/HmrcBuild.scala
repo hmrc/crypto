@@ -18,7 +18,8 @@ object HmrcBuild extends Build {
       Test.scalaTest,
       Test.pegdown,
       Test.playTest,
-      Test.scalaCheck
+      Test.scalaCheck,
+      Test.mockito
     )
   }
 
@@ -50,6 +51,7 @@ object Dependencies {
     val pegdown = "org.pegdown" % "pegdown" % "1.5.0" % scope
     val playTest = "com.typesafe.play" %% "play-test" % PlayVersion.current % scope
     val scalaCheck = "org.scalacheck" %% "scalacheck" % "1.12.2" % scope
+    val mockito = "org.mockito" % "mockito-core" % "2.7.20" % scope
   }
 
   object Test extends Test("test")

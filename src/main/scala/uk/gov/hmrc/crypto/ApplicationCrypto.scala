@@ -22,7 +22,7 @@ import play.api.{Configuration, Play}
 
 trait ApplicationCrypto {
 
-  implicit val configuration: Configuration
+  implicit val configuration: () => Configuration
 
   private def sessionCookieCrypto = CryptoGCMWithKeysFromConfig(baseConfigKey = "cookie.encryption")
 
@@ -49,9 +49,9 @@ trait ApplicationCrypto {
 }
 
 object ApplicationCrypto extends ApplicationCrypto {
-  implicit val configuration: Configuration = Play.current.configuration
+  implicit val configuration: () => Configuration = () => Play.current.configuration
 }
 
 class ApplicationCryptoDI @Inject()(config: Configuration) extends ApplicationCrypto {
-  implicit val configuration: Configuration = config
+  implicit val configuration: () => Configuration = () => config
 }
