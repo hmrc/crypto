@@ -17,11 +17,15 @@
 package uk.gov.hmrc.crypto
 
 import org.apache.commons.codec.binary.Base64
+import org.mockito.Mockito.when
+import org.mockito.ArgumentMatchers._
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import play.api.Configuration
 import play.api.test.FakeApplication
 import play.api.test.Helpers._
 
-class OneWayCryptoFromConfigSpec extends WordSpecLike with Matchers with OptionValues {
+class OneWayCryptoFromConfigSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar {
 
   private val baseConfigKey = "crypto.spec"
 
@@ -50,9 +54,11 @@ class OneWayCryptoFromConfigSpec extends WordSpecLike with Matchers with OptionV
 
   "A correctly constructed one way encrypter using new Play 2.5 DI" should {
 
-    "encrypt and verify a password" in running(fakeApplicationWithCurrentKey) {
-      implicit val configurationThunk = () => fakeApplicationWithCurrentKey.configuration
-      val cryptor = OneWayCryptoFromConfig(baseConfigKey)
+    "encrypt and verify a password" in {
+      val configuration = mock[Configuration]
+      when(configuration.getString(CurrentKey.configKey)).thenReturn(Some(CurrentKey.encryptionKey))
+      when(configuration.getStringSeq(any())).thenReturn(None)
+      val cryptor = OneWayCryptoFromConfig(baseConfigKey, configuration)
       val encrypted = cryptor.hash(PlainText("myPassword"))
 
       cryptor.verify(PlainText("myPassword"), encrypted) should be (true)

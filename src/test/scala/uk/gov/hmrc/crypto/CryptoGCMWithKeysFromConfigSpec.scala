@@ -19,11 +19,16 @@ package uk.gov.hmrc.crypto
 import java.security.SecureRandom
 
 import org.apache.commons.codec.binary.Base64
+import org.mockito.Mockito._
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import play.api.Configuration
 import play.api.test.FakeApplication
 import play.api.test.Helpers._
 
-class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with OptionValues {
+
+
+class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar {
 
   private val keybytes = new Array[Byte](16 * 2)
   private val previousKeybytes1 = new Array[Byte](16 * 2)
@@ -131,14 +136,11 @@ class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with Op
 
   "Constructing a CompositeCryptoWithKeysFromConfig with both current and previous keys using new Play 2.5 DI" should {
 
-    val fakeApplicationWithCurrentAndPreviousKeys = FakeApplication(additionalConfiguration = Map(
-      CurrentKey.configKey -> CurrentKey.encryptionKey,
-      PreviousKeys.configKey -> PreviousKeys.encryptionKeys)
-    )
-
-    "allows decrypting payloads that were encrypted using previous keys" in running(fakeApplicationWithCurrentAndPreviousKeys)  {
-      implicit val configurationThunk = () => fakeApplicationWithCurrentAndPreviousKeys.configuration
-      val crypto = CryptoGCMWithKeysFromConfig(baseConfigKey)
+    "allows decrypting payloads that were encrypted using previous keys" in {
+      val configuration = mock[Configuration]
+      when(configuration.getString(CurrentKey.configKey)).thenReturn(Some(CurrentKey.encryptionKey))
+      when(configuration.getStringSeq(PreviousKeys.configKey)).thenReturn(Some(PreviousKeys.encryptionKeys))
+      val crypto = CryptoGCMWithKeysFromConfig(baseConfigKey, configuration)
 
       val previousKey1Crypto = CompositeSymmetricCrypto.aesGCM(PreviousKey1.encryptionKey, Seq.empty)
       val encryptedWithPreviousKey1 = crypto.encrypt(PreviousKey1.plainMessage, previousKey1Crypto)

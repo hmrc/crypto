@@ -22,11 +22,11 @@ private[crypto] trait JustKeysFromConfig {
   this: CompositeOneWayCrypto =>
 
   val baseConfigKey: String
-  implicit val configuration: () => Configuration
+  def configuration: Configuration
 
   override protected val currentCrypto = {
     val configKey = baseConfigKey + ".key"
-    val currentEncryptionKey = configuration().getString(configKey).getOrElse {
+    val currentEncryptionKey = configuration.getString(configKey).getOrElse {
       Logger.error(s"Missing required configuration entry: $configKey")
       throw new SecurityException(s"Missing required configuration entry: $configKey")
     }
@@ -35,7 +35,7 @@ private[crypto] trait JustKeysFromConfig {
 
   override protected val previousCryptos = {
     val configKey = baseConfigKey + ".previousKeys"
-    val previousEncryptionKeys = configuration().getStringSeq(configKey).getOrElse(Seq.empty)
+    val previousEncryptionKeys = configuration.getStringSeq(configKey).getOrElse(Seq.empty)
     previousEncryptionKeys.map(sha)
   }
 
@@ -52,4 +52,4 @@ private[crypto] trait JustKeysFromConfig {
   }
 }
 
-case class OneWayCryptoFromConfig(baseConfigKey: String)(implicit val configuration: () => Configuration = () => Play.current.configuration) extends CompositeOneWayCrypto with JustKeysFromConfig
+case class OneWayCryptoFromConfig(baseConfigKey: String, configuration: Configuration = Play.current.configuration) extends CompositeOneWayCrypto with JustKeysFromConfig
