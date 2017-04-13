@@ -17,11 +17,14 @@
 package uk.gov.hmrc.crypto
 
 import org.apache.commons.codec.binary.Base64
+import org.mockito.Mockito.when
+import org.scalatest.mock.MockitoSugar
 import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import play.api.Configuration
 import play.api.test.FakeApplication
 import play.api.test.Helpers._
 
-class CryptoWithKeysFromConfigSpec extends WordSpecLike with Matchers with OptionValues {
+class CryptoWithKeysFromConfigSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar {
 
   private val baseConfigKey = "crypto.spec"
 
@@ -126,14 +129,11 @@ class CryptoWithKeysFromConfigSpec extends WordSpecLike with Matchers with Optio
 
   "Constructing a CompositeCryptoWithKeysFromConfig with both current and previous keys using new Play 2.5 DI" should {
 
-    val fakeApplicationWithCurrentAndPreviousKeys = FakeApplication(additionalConfiguration = Map(
-      CurrentKey.configKey -> CurrentKey.encryptionKey,
-      PreviousKeys.configKey -> PreviousKeys.encryptionKeys)
-    )
-
-    "allows decrypting payloads that were encrypted using previous keys" in running(fakeApplicationWithCurrentAndPreviousKeys)  {
-      implicit val configurationThunk = () => fakeApplicationWithCurrentAndPreviousKeys.configuration
-      val crypto = CryptoWithKeysFromConfig(baseConfigKey)
+    "allows decrypting payloads that were encrypted using previous keys" in {
+      val configuration = mock[Configuration]
+      when(configuration.getString(CurrentKey.configKey)).thenReturn(Some(CurrentKey.encryptionKey))
+      when(configuration.getStringSeq(PreviousKeys.configKey)).thenReturn(Some(PreviousKeys.encryptionKeys))
+      val crypto = CryptoWithKeysFromConfig(baseConfigKey, configuration)
 
       val previousKey1Crypto = CompositeSymmetricCrypto.aes(PreviousKey1.encryptionKey, Seq.empty)
       val encryptedWithPreviousKey1 = crypto.encrypt(PreviousKey1.plainMessage, previousKey1Crypto)
@@ -217,7 +217,6 @@ class CryptoWithKeysFromConfigSpec extends WordSpecLike with Matchers with Optio
 
     "throw a SecurityException if the current key cannot be base 64 decoded" in running(fakeApplicationWithInvalidBase64CurrentKey) {
       intercept[SecurityException]{
-        implicit val configurationThunk = () => fakeApplicationWithInvalidBase64CurrentKey.configuration
         CryptoWithKeysFromConfig(baseConfigKey)
       }
     }

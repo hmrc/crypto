@@ -23,11 +23,11 @@ trait KeysFromConfig {
 
   val baseConfigKey: String
 
-  implicit val configuration: () => Configuration
+  def configuration: Configuration
 
   override protected val currentCrypto = {
     val configKey = baseConfigKey + ".key"
-    val currentEncryptionKey = configuration().getString(configKey).getOrElse {
+    val currentEncryptionKey = configuration.getString(configKey).getOrElse {
       Logger.error(s"Missing required configuration entry: $configKey")
       throw new SecurityException(s"Missing required configuration entry: $configKey")
     }
@@ -36,7 +36,7 @@ trait KeysFromConfig {
 
   override protected val previousCryptos = {
     val configKey = baseConfigKey + ".previousKeys"
-    val previousEncryptionKeys = configuration().getStringSeq(configKey).getOrElse(Seq.empty)
+    val previousEncryptionKeys = configuration.getStringSeq(configKey).getOrElse(Seq.empty)
     previousEncryptionKeys.map(aesCrypto)
   }
 
@@ -53,4 +53,4 @@ trait KeysFromConfig {
   }
 }
 
-case class CryptoWithKeysFromConfig(baseConfigKey: String)(implicit val configuration: () => Configuration = () => Play.current.configuration) extends CompositeSymmetricCrypto with KeysFromConfig
+case class CryptoWithKeysFromConfig(baseConfigKey: String, configuration: Configuration = Play.current.configuration) extends CompositeSymmetricCrypto with KeysFromConfig
