@@ -18,13 +18,12 @@ package uk.gov.hmrc.crypto
 
 import java.security.SecureRandom
 
+import com.typesafe.config.ConfigFactory
 import org.apache.commons.codec.binary.Base64
-import org.mockito.Mockito._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{Matchers, OptionValues, WordSpecLike}
-import play.api.Configuration
-import play.api.test.FakeApplication
-import play.api.test.Helpers._
+
+import collection.JavaConverters._
 
 class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar {
 
@@ -68,14 +67,14 @@ class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with Op
 
   "Constructing a CompositeCryptoWithKeysFromConfig with a current key, but no previous keys configured" should {
 
-    val fakeApplicationWithCurrentKeyOnly = FakeApplication(
-      additionalConfiguration = Map(
+    val config = ConfigFactory.parseMap(
+      Map(
         CurrentKey.configKey -> CurrentKey.encryptionKey
-      ))
+      ).asJava
+    )
 
-    "return a properly initialised, functional AuthenticatedEncryption object that works with the current key only" in running(
-      fakeApplicationWithCurrentKeyOnly) {
-      val crypto = CryptoGCMWithKeysFromConfig(baseConfigKey)
+    "return a properly initialised, functional AuthenticatedEncryption object that works with the current key only" in {
+      val crypto = new CryptoGCMWithKeysFromConfig(baseConfigKey, config)
 
       crypto.decrypt(crypto.encrypt(CurrentKey.plainMessage))     shouldBe CurrentKey.plainMessage
       crypto.decrypt(crypto.encrypt(CurrentKey.plainByteMessage)) shouldBe CurrentKey.plainByteMessageResponse
@@ -90,13 +89,15 @@ class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with Op
 
   "Constructing a CryptoGCMWithKeysFromConfig with a current key and empty previous keys" should {
 
-    val fakeApplicationWithEmptyPreviousKeys = FakeApplication(
-      additionalConfiguration =
-        Map(CurrentKey.configKey -> CurrentKey.encryptionKey, PreviousKeys.configKey -> List.empty))
+    val config = ConfigFactory.parseMap(
+      Map(
+        CurrentKey.configKey   -> CurrentKey.encryptionKey,
+        PreviousKeys.configKey -> List.empty.asJava
+      ).asJava
+    )
 
-    "return a properly initialised, functional AuthenticatedEncryption object that works with the current key only" in running(
-      fakeApplicationWithEmptyPreviousKeys) {
-      val crypto = CryptoGCMWithKeysFromConfig(baseConfigKey)
+    "return a properly initialised, functional AuthenticatedEncryption object that works with the current key only" in {
+      val crypto = new CryptoGCMWithKeysFromConfig(baseConfigKey, config)
 
       crypto.decrypt(crypto.encrypt(CurrentKey.plainMessage))     shouldBe CurrentKey.plainMessage
       crypto.decrypt(crypto.encrypt(CurrentKey.plainByteMessage)) shouldBe CurrentKey.plainByteMessageResponse
@@ -111,36 +112,15 @@ class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with Op
 
   "Constructing a CompositeCryptoWithKeysFromConfig with both current and previous keys" should {
 
-    val fakeApplicationWithCurrentAndPreviousKeys = FakeApplication(
-      additionalConfiguration =
-        Map(CurrentKey.configKey -> CurrentKey.encryptionKey, PreviousKeys.configKey -> PreviousKeys.encryptionKeys))
-
-    "allows decrypting payloads that were encrypted using previous keys" in running(
-      fakeApplicationWithCurrentAndPreviousKeys) {
-      val crypto = CryptoGCMWithKeysFromConfig(baseConfigKey)
-
-      val previousKey1Crypto             = CompositeSymmetricCrypto.aesGCM(PreviousKey1.encryptionKey, Seq.empty)
-      val encryptedWithPreviousKey1      = crypto.encrypt(PreviousKey1.plainMessage, previousKey1Crypto)
-      val encryptedBytesWithPreviousKey1 = crypto.encrypt(PreviousKey1.plainByteMessage, previousKey1Crypto)
-      crypto.decrypt(encryptedWithPreviousKey1)      shouldBe PreviousKey1.plainMessage
-      crypto.decrypt(encryptedBytesWithPreviousKey1) shouldBe PreviousKey1.plainByteMessageResponse
-
-      val previousKey2Crypto             = CompositeSymmetricCrypto.aesGCM(PreviousKey2.encryptionKey, Seq.empty)
-      val encryptedWithPreviousKey2      = crypto.encrypt(PreviousKey2.plainMessage, previousKey2Crypto)
-      val encryptedBytesWithPreviousKey2 = crypto.encrypt(PreviousKey2.plainByteMessage, previousKey2Crypto)
-      crypto.decrypt(encryptedWithPreviousKey2)      shouldBe PreviousKey2.plainMessage
-      crypto.decrypt(encryptedBytesWithPreviousKey2) shouldBe PreviousKey2.plainByteMessageResponse
-
-    }
-  }
-
-  "Constructing a CompositeCryptoWithKeysFromConfig with both current and previous keys using new Play 2.5 DI" should {
+    val config = ConfigFactory.parseMap(
+      Map(
+        CurrentKey.configKey   -> CurrentKey.encryptionKey,
+        PreviousKeys.configKey -> PreviousKeys.encryptionKeys.asJava
+      ).asJava
+    )
 
     "allows decrypting payloads that were encrypted using previous keys" in {
-      val configuration = mock[Configuration]
-      when(configuration.getString(CurrentKey.configKey)).thenReturn(Some(CurrentKey.encryptionKey))
-      when(configuration.getStringSeq(PreviousKeys.configKey)).thenReturn(Some(PreviousKeys.encryptionKeys))
-      val crypto = CryptoGCMWithKeysFromConfig(baseConfigKey, configuration)
+      val crypto = new CryptoGCMWithKeysFromConfig(baseConfigKey, config)
 
       val previousKey1Crypto             = CompositeSymmetricCrypto.aesGCM(PreviousKey1.encryptionKey, Seq.empty)
       val encryptedWithPreviousKey1      = crypto.encrypt(PreviousKey1.plainMessage, previousKey1Crypto)
@@ -158,114 +138,54 @@ class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with Op
   }
 
   "Constructing a CompositeCryptoWithKeysFromConfig without current or previous keys" should {
-
-    val fakeApplicationWithoutAnyKeys = FakeApplication()
-
-    "throw a SecurityException on construction" in running(fakeApplicationWithoutAnyKeys) {
+    "throw a SecurityException on construction" in {
       intercept[SecurityException] {
-        CryptoGCMWithKeysFromConfig(baseConfigKey)
+        new CryptoGCMWithKeysFromConfig(baseConfigKey, ConfigFactory.empty())
       }
     }
   }
 
   "Constructing a CompositeCryptoWithKeysFromConfig without a current key, but with previous keys" should {
+    "throw a SecurityException on construction" in {
+      val config = ConfigFactory.parseMap(
+        Map(
+          PreviousKeys.configKey -> PreviousKeys.encryptionKeys.asJava
+        ).asJava
+      )
 
-    val fakeApplicationWithPreviousKeysOnly = FakeApplication(
-      additionalConfiguration = Map(
-        PreviousKeys.configKey -> PreviousKeys.encryptionKeys
-      ))
-
-    "throw a SecurityException on construction" in running(fakeApplicationWithPreviousKeysOnly) {
       intercept[SecurityException] {
-        CryptoGCMWithKeysFromConfig(baseConfigKey)
+        new CryptoGCMWithKeysFromConfig(baseConfigKey, config)
       }
     }
   }
 
   "Constructing a CryptoGCMWithKeysFromConfig with an invalid key" should {
 
-    val keyWithInvalidNumberOfBits = "ZGVmZ2hpamtsbW4K"
-    val keyWithInvalidKeySize      = "defgh£jklmn"
+    "throw a SecurityException if the current key is too short" in {
+      val keyWithInvalidNumberOfBits = "ZGVmZ2hpamtsbW4K"
+      val config = ConfigFactory.parseMap(
+        Map(
+          CurrentKey.configKey   -> keyWithInvalidNumberOfBits,
+          PreviousKeys.configKey -> PreviousKeys.encryptionKeys.asJava
+        ).asJava
+      )
 
-    val fakeApplicationWithShortCurrentKey = FakeApplication(
-      additionalConfiguration = Map(
-        CurrentKey.configKey   -> keyWithInvalidNumberOfBits,
-        PreviousKeys.configKey -> PreviousKeys.encryptionKeys
-      ))
-
-    val fakeApplicationWithInvalidKeySize = FakeApplication(
-      additionalConfiguration = Map(
-        CurrentKey.configKey   -> keyWithInvalidKeySize,
-        PreviousKeys.configKey -> PreviousKeys.encryptionKeys
-      ))
-
-    val fakeApplicationWithShortFirstPreviousKey = FakeApplication(
-      additionalConfiguration = Map(
-        CurrentKey.configKey -> CurrentKey.encryptionKey,
-        PreviousKeys.configKey -> Seq(
-          keyWithInvalidNumberOfBits,
-          PreviousKey1.encryptionKey,
-          PreviousKey2.encryptionKey)
-      ))
-
-    val fakeApplicationWithInvalidBase64FirstPreviousKey = FakeApplication(
-      additionalConfiguration = Map(
-        CurrentKey.configKey   -> CurrentKey.encryptionKey,
-        PreviousKeys.configKey -> Seq(keyWithInvalidKeySize, PreviousKey1.encryptionKey, PreviousKey2.encryptionKey)
-      ))
-
-    val fakeApplicationWithShortOtherPreviousKey = FakeApplication(
-      additionalConfiguration = Map(
-        CurrentKey.configKey -> CurrentKey.encryptionKey,
-        PreviousKeys.configKey -> Seq(
-          PreviousKey1.encryptionKey,
-          keyWithInvalidNumberOfBits,
-          PreviousKey2.encryptionKey)
-      ))
-
-    val fakeApplicationWithInvalidBase64OtherPreviousKey = FakeApplication(
-      additionalConfiguration = Map(
-        CurrentKey.configKey   -> CurrentKey.encryptionKey,
-        PreviousKeys.configKey -> Seq(PreviousKey1.encryptionKey, keyWithInvalidKeySize, PreviousKey2.encryptionKey)
-      ))
-
-    "throw a SecurityException if the current key is too short" in running(fakeApplicationWithShortCurrentKey) {
       intercept[SecurityException] {
-        CryptoGCMWithKeysFromConfig(baseConfigKey)
+        new CryptoGCMWithKeysFromConfig(baseConfigKey, config)
       }
     }
 
-    "throw a SecurityException if the current key length is not 128 bits" in running(fakeApplicationWithInvalidKeySize) {
-      intercept[SecurityException] {
-        CryptoGCMWithKeysFromConfig(baseConfigKey)
-      }
-    }
+    "throw a SecurityException if the current key length is not 128 bits" in {
+      val keyWithInvalidKeySize = "defgh£jklmn"
+      val config = ConfigFactory.parseMap(
+        Map(
+          CurrentKey.configKey   -> keyWithInvalidKeySize,
+          PreviousKeys.configKey -> PreviousKeys.encryptionKeys.asJava
+        ).asJava
+      )
 
-    "throw a SecurityException if the first previous key is too short" in running(
-      fakeApplicationWithShortFirstPreviousKey) {
       intercept[SecurityException] {
-        CryptoWithKeysFromConfig(baseConfigKey)
-      }
-    }
-
-    "throw a SecurityException if the first previous key cannot be base 64 decoded" in running(
-      fakeApplicationWithInvalidBase64FirstPreviousKey) {
-      intercept[SecurityException] {
-        CryptoWithKeysFromConfig(baseConfigKey)
-      }
-    }
-
-    "throw a SecurityException if the other previous key is too short" in running(
-      fakeApplicationWithShortOtherPreviousKey) {
-      intercept[SecurityException] {
-        CryptoWithKeysFromConfig(baseConfigKey)
-      }
-    }
-
-    "throw a SecurityException if the other previous key cannot be base 64 decoded" in running(
-      fakeApplicationWithInvalidBase64OtherPreviousKey) {
-      intercept[SecurityException] {
-        CryptoWithKeysFromConfig(baseConfigKey)
+        new CryptoGCMWithKeysFromConfig(baseConfigKey, config)
       }
     }
 

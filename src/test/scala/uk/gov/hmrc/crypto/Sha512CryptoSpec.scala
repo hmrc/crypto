@@ -21,9 +21,9 @@ import org.scalatest.{Matchers, WordSpecLike}
 
 class Sha512CryptoSpec extends WordSpecLike with Matchers {
 
-  val sha512Crypto = new Sha512Crypto {
-    val encryptionKey = Base64.encodeBase64String(Array[Byte](0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15))
-  }
+  private val sha512Crypto = new Sha512Crypto(
+    Base64.encodeBase64String(Array[Byte](0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15))
+  )
 
   "A Sha-512 hasher" should {
 

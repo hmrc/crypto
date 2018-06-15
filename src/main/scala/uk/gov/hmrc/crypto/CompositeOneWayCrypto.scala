@@ -20,34 +20,41 @@ import com.typesafe.config.Config
 
 import scala.util.control.NonFatal
 
-class CryptoGCMWithKeysFromConfig(baseConfigKey: String, config: Config) extends CompositeSymmetricCrypto {
+class CompositeOneWayCrypto(baseConfigKey: String, config: Config) extends Hasher with Verifier {
 
-  override protected val currentCrypto = {
+  override def hash(value: PlainText): Scrambled = currentCrypto.hash(value)
+
+  override def verify(value: PlainText, ncrypted: Scrambled): Boolean = {
+    val encrypters = currentCrypto +: previousCryptos
+    encrypters.exists(d => d.verify(value, ncrypted))
+  }
+
+  private val currentCrypto: Sha512Crypto = {
     val configKey = baseConfigKey + ".key"
     val currentEncryptionKey = config.get[String](
       key       = configKey,
       ifMissing = throw new SecurityException(s"Missing required configuration entry: $configKey")
     )
-    aesGCMCrypto(currentEncryptionKey, "")
+    sha(currentEncryptionKey)
   }
 
-  override protected val previousCryptos = {
-    val configKey              = baseConfigKey + ".previousKeys"
-    val previousEncryptionKeys = config.get[List[String]](configKey, ifMissing = List.empty)
-    previousEncryptionKeys.map(k => aesGCMCrypto(k, ""))
+  private val previousCryptos: Seq[Verifier] = {
+    val configKey = baseConfigKey + ".previousKeys"
+    val previousEncryptionKeys = config.get[List[String]](
+      key       = configKey,
+      ifMissing = List.empty
+    )
+    previousEncryptionKeys.map(sha)
   }
 
-  private def aesGCMCrypto(key: String, additional: String) =
-    // Constructor initialisation - verify crypto before returning handle.
+  private def sha(key: String) =
     try {
-      val crypto = new AesGCMCrypto {
-        override val encryptionKey = key
-      }
-      val encrypted = crypto.encrypt(PlainText("assert-valid-key"))
-      crypto.decrypt(encrypted)
+      val crypto = new Sha512Crypto(key)
+      crypto.verify(PlainText("assert-valid-key"), crypto.hash(PlainText("assert-valid-key")))
       crypto
     } catch {
       case NonFatal(ex) =>
         throw new SecurityException("Invalid encryption key", ex)
     }
+
 }

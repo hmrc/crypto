@@ -16,16 +16,14 @@
 
 package uk.gov.hmrc.crypto
 
+import com.typesafe.config.ConfigFactory
 import org.apache.commons.codec.binary.Base64
-import org.mockito.Mockito.when
-import org.mockito.ArgumentMatchers._
 import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{Matchers, OptionValues, WordSpecLike}
-import play.api.Configuration
-import play.api.test.FakeApplication
-import play.api.test.Helpers._
 
-class OneWayCryptoFromConfigSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar {
+import scala.collection.JavaConverters._
+
+class CompositeOneWayCryptoSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar {
 
   private val baseConfigKey = "crypto.spec"
 
@@ -37,29 +35,15 @@ class OneWayCryptoFromConfigSpec extends WordSpecLike with Matchers with OptionV
     val encryptedMessage = "up/76On5j54pAjzqZR1mqM5E28skTl8Aw0GkKi+zjkk="
   }
 
-  def fakeApplicationWithCurrentKey =
-    FakeApplication(
-      additionalConfiguration = Map(
-        CurrentKey.configKey -> CurrentKey.encryptionKey
-      ))
-
   "A correctly constructed one way encrypter" should {
-
-    "encrypt and verify a password" in running(fakeApplicationWithCurrentKey) {
-      val cryptor   = OneWayCryptoFromConfig(baseConfigKey)
-      val encrypted = cryptor.hash(PlainText("myPassword"))
-
-      cryptor.verify(PlainText("myPassword"), encrypted) should be(true)
-    }
-  }
-
-  "A correctly constructed one way encrypter using new Play 2.5 DI" should {
-
     "encrypt and verify a password" in {
-      val configuration = mock[Configuration]
-      when(configuration.getString(CurrentKey.configKey)).thenReturn(Some(CurrentKey.encryptionKey))
-      when(configuration.getStringSeq(any())).thenReturn(None)
-      val cryptor   = OneWayCryptoFromConfig(baseConfigKey, configuration)
+      val config = ConfigFactory.parseMap(
+        Map(
+          CurrentKey.configKey -> CurrentKey.encryptionKey
+        ).asJava
+      )
+      val cryptor = new CompositeOneWayCrypto(baseConfigKey, config)
+
       val encrypted = cryptor.hash(PlainText("myPassword"))
 
       cryptor.verify(PlainText("myPassword"), encrypted) should be(true)
@@ -67,12 +51,9 @@ class OneWayCryptoFromConfigSpec extends WordSpecLike with Matchers with OptionV
   }
 
   "Constructing a one way encrypter without current or previous keys" should {
-
-    def fakeApplicationWithoutAnyKeys = FakeApplication()
-
-    "throw a SecurityException on construction" in running(fakeApplicationWithoutAnyKeys) {
+    "throw a SecurityException on construction" in {
       intercept[SecurityException] {
-        OneWayCryptoFromConfig(baseConfigKey)
+        new CompositeOneWayCrypto(baseConfigKey, ConfigFactory.empty)
       }
     }
   }

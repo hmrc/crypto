@@ -12,10 +12,10 @@ object HmrcBuild extends Build {
 
     Seq(
       Compile.secure,
-      Compile.play,
+      "com.typesafe" % "config"       % "1.3.3",
+      "javax.inject" % "javax.inject" % "1",
       Test.scalaTest,
       Test.pegdown,
-      Test.playTest,
       Test.scalaCheck,
       Test.mockito
     )
@@ -35,19 +35,15 @@ object HmrcBuild extends Build {
 
 object Dependencies {
 
-  import play.core.PlayVersion
-
   object Compile {
-    val secure = "uk.gov.hmrc"       %% "secure" % "7.2.0"
-    val play   = "com.typesafe.play" %% "play"   % PlayVersion.current % "provided"
+    val secure = "uk.gov.hmrc" %% "secure" % "7.2.0"
   }
 
   sealed abstract class Test(scope: String) {
-    val scalaTest  = "org.scalatest"     %% "scalatest"   % "3.0.1"             % scope
-    val pegdown    = "org.pegdown"       % "pegdown"      % "1.6.0"             % scope
-    val playTest   = "com.typesafe.play" %% "play-test"   % PlayVersion.current % scope
-    val scalaCheck = "org.scalacheck"    %% "scalacheck"  % "1.13.5"            % scope
-    val mockito    = "org.mockito"       % "mockito-core" % "2.10.0"            % scope
+    val scalaTest  = "org.scalatest"  %% "scalatest"   % "3.0.5"  % scope
+    val pegdown    = "org.pegdown"    % "pegdown"      % "1.6.0"  % scope
+    val scalaCheck = "org.scalacheck" %% "scalacheck"  % "1.13.5" % scope
+    val mockito    = "org.mockito"    % "mockito-core" % "2.10.0" % scope
   }
 
   object Test extends Test("test")

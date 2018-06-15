@@ -16,27 +16,23 @@
 
 package uk.gov.hmrc.crypto
 
-import play.api.{Configuration, Logger, Play}
+import com.typesafe.config.Config
+import scala.util.control.NonFatal
 
-trait KeysFromConfig {
-  this: CompositeSymmetricCrypto =>
-
-  val baseConfigKey: String
-
-  def configuration: Configuration
+class CryptoWithKeysFromConfig(baseConfigKey: String, config: Config) extends CompositeSymmetricCrypto {
 
   override protected val currentCrypto = {
     val configKey = baseConfigKey + ".key"
-    val currentEncryptionKey = configuration.getString(configKey).getOrElse {
-      Logger.error(s"Missing required configuration entry: $configKey")
-      throw new SecurityException(s"Missing required configuration entry: $configKey")
-    }
+    val currentEncryptionKey = config.get[String](
+      key       = configKey,
+      ifMissing = throw new SecurityException(s"Missing required configuration entry: $configKey")
+    )
     aesCrypto(currentEncryptionKey)
   }
 
   override protected val previousCryptos = {
     val configKey              = baseConfigKey + ".previousKeys"
-    val previousEncryptionKeys = configuration.getStringSeq(configKey).getOrElse(Seq.empty)
+    val previousEncryptionKeys = config.get[List[String]](configKey, ifMissing = List.empty)
     previousEncryptionKeys.map(aesCrypto)
   }
 
@@ -48,11 +44,7 @@ trait KeysFromConfig {
       crypto.decrypt(crypto.encrypt(PlainText("assert-valid-key")))
       crypto
     } catch {
-      case e: Exception =>
-        Logger.error(s"Invalid encryption key: $key", e); throw new SecurityException("Invalid encryption key", e)
+      case NonFatal(ex) =>
+        throw new SecurityException("Invalid encryption key", ex)
     }
 }
-
-case class CryptoWithKeysFromConfig(baseConfigKey: String, configuration: Configuration = Play.current.configuration)
-    extends CompositeSymmetricCrypto
-    with KeysFromConfig
