@@ -32,8 +32,8 @@ class Sha512CryptoSpec extends WordSpecLike with Matchers {
 
       encrypted should not be "somerandomtext"
 
-      sha512Crypto.verify(PlainText("somerandomtext"), encrypted) should be (true)
-      sha512Crypto.verify(PlainText("someRandomText"), encrypted) should be (false)
+      sha512Crypto.verify(PlainText("somerandomtext"), encrypted) should be(true)
+      sha512Crypto.verify(PlainText("someRandomText"), encrypted) should be(false)
     }
 
   }

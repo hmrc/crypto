@@ -30,8 +30,8 @@ class RSAEncryptDecrypt(contents: String) {
   private val RSA = "RSA"
 
   private val privateKey = AsymmetricDecrypter.buildPrivateKey(contents, RSA)
-  private val decrypter = new AsymmetricDecrypter(privateKey)
-  private val encrypter = new AsymmetricEncrypter(decrypter.getPublicKey(RSA))
+  private val decrypter  = new AsymmetricDecrypter(privateKey)
+  private val encrypter  = new AsymmetricEncrypter(decrypter.getPublicKey(RSA))
 
   def getAsymmetricDecrypter() = decrypter
 

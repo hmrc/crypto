@@ -35,13 +35,12 @@ trait KeysFromConfigGCM {
   }
 
   override protected val previousCryptos = {
-        val configKey = baseConfigKey + ".previousKeys"
-        val previousEncryptionKeys = configuration.getStringSeq(configKey).getOrElse(Seq.empty)
-        previousEncryptionKeys.map(k => aesGCMCrypto(k, ""))
+    val configKey              = baseConfigKey + ".previousKeys"
+    val previousEncryptionKeys = configuration.getStringSeq(configKey).getOrElse(Seq.empty)
+    previousEncryptionKeys.map(k => aesGCMCrypto(k, ""))
   }
 
-  private def aesGCMCrypto(key: String, additional: String) = {
-
+  private def aesGCMCrypto(key: String, additional: String) =
     // Constructor initialisation - verify crypto before returning handle.
     try {
       val crypto = new AesGCMCrypto {
@@ -55,7 +54,8 @@ trait KeysFromConfigGCM {
         Logger.error(s"Invalid encryption key: $key", e);
         throw new SecurityException("Invalid encryption key", e)
     }
-  }
 }
 
-case class CryptoGCMWithKeysFromConfig(baseConfigKey: String, configuration: Configuration = Play.current.configuration) extends CompositeSymmetricCrypto with KeysFromConfigGCM
+case class CryptoGCMWithKeysFromConfig(baseConfigKey: String, configuration: Configuration = Play.current.configuration)
+    extends CompositeSymmetricCrypto
+    with KeysFromConfigGCM

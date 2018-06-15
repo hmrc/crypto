@@ -34,12 +34,12 @@ private[crypto] trait JustKeysFromConfig {
   }
 
   override protected val previousCryptos = {
-    val configKey = baseConfigKey + ".previousKeys"
+    val configKey              = baseConfigKey + ".previousKeys"
     val previousEncryptionKeys = configuration.getStringSeq(configKey).getOrElse(Seq.empty)
     previousEncryptionKeys.map(sha)
   }
 
-  private def sha(key: String) = {
+  private def sha(key: String) =
     try {
       val crypto = new Sha512Crypto {
         override val encryptionKey = key
@@ -47,9 +47,11 @@ private[crypto] trait JustKeysFromConfig {
       crypto.verify(PlainText("assert-valid-key"), crypto.hash(PlainText("assert-valid-key")))
       crypto
     } catch {
-      case e: Exception => Logger.error(s"Invalid encryption key: $key", e); throw new SecurityException("Invalid encryption key", e)
+      case e: Exception =>
+        Logger.error(s"Invalid encryption key: $key", e); throw new SecurityException("Invalid encryption key", e)
     }
-  }
 }
 
-case class OneWayCryptoFromConfig(baseConfigKey: String, configuration: Configuration = Play.current.configuration) extends CompositeOneWayCrypto with JustKeysFromConfig
+case class OneWayCryptoFromConfig(baseConfigKey: String, configuration: Configuration = Play.current.configuration)
+    extends CompositeOneWayCrypto
+    with JustKeysFromConfig

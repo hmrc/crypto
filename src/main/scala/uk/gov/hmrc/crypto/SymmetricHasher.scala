@@ -23,13 +23,12 @@ import javax.crypto.Mac
 import org.apache.commons.codec.binary.Base64
 
 class SymmetricHasher(secretKey: Key) {
-  def hash(data: PlainText): Scrambled = {
+  def hash(data: PlainText): Scrambled =
     try {
       val sha512_HMAC = Mac.getInstance(secretKey.getAlgorithm)
       sha512_HMAC.init(secretKey)
       Scrambled(Base64.encodeBase64String(sha512_HMAC.doFinal(data.value.getBytes(StandardCharsets.UTF_8))))
-    }
-    catch {
+    } catch {
       case nsae: NoSuchAlgorithmException => {
         throw new SecurityException("Algorithm '" + secretKey.getAlgorithm + "' is not supported", nsae)
       }
@@ -40,5 +39,4 @@ class SymmetricHasher(secretKey: Key) {
         throw new SecurityException("Signature error", se)
       }
     }
-  }
 }

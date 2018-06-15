@@ -26,7 +26,7 @@ trait Sha512Crypto extends Hasher with Verifier {
 
   private lazy val encrypter = {
     val encryptionKeyBytes = Base64.decodeBase64(encryptionKey.getBytes("UTF-8"))
-    val secretKey = new SecretKeySpec(encryptionKeyBytes, "HmacSHA512")
+    val secretKey          = new SecretKeySpec(encryptionKeyBytes, "HmacSHA512")
     new SymmetricHasher(secretKey)
   }
 

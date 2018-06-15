@@ -36,12 +36,10 @@ trait AesGCMCrypto extends Encrypter with Decrypter {
     case _ => throw new RuntimeException(s"Unable to encrypt unknown message type: $plain")
   }
 
-  override def decrypt(encrypted: Crypted): PlainText = {
+  override def decrypt(encrypted: Crypted): PlainText =
     PlainText(crypto.decrypt(encrypted.value.getBytes))
-  }
 
-  override def decryptAsBytes(encrypted: Crypted): PlainBytes = {
+  override def decryptAsBytes(encrypted: Crypted): PlainBytes =
     PlainBytes(crypto.decrypt(encrypted.value.getBytes).getBytes)
-  }
 
 }

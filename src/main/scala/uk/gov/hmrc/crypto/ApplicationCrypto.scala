@@ -28,14 +28,15 @@ trait ApplicationCrypto {
 
   private def ssoPayloadCrypto = CryptoWithKeysFromConfig(baseConfigKey = "sso.encryption", configuration)
 
-  private def queryParameterCrypto = CryptoWithKeysFromConfig(baseConfigKey = "queryParameter.encryption", configuration)
+  private def queryParameterCrypto =
+    CryptoWithKeysFromConfig(baseConfigKey = "queryParameter.encryption", configuration)
 
   private def jsonCrypto = CryptoWithKeysFromConfig(baseConfigKey = "json.encryption", configuration)
 
-  lazy val SessionCookieCrypto = sessionCookieCrypto
-  lazy val SsoPayloadCrypto = ssoPayloadCrypto
+  lazy val SessionCookieCrypto  = sessionCookieCrypto
+  lazy val SsoPayloadCrypto     = ssoPayloadCrypto
   lazy val QueryParameterCrypto = queryParameterCrypto
-  lazy val JsonCrypto = jsonCrypto
+  lazy val JsonCrypto           = jsonCrypto
 
   def verifyConfiguration() {
     sessionCookieCrypto

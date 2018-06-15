@@ -37,8 +37,8 @@ trait AesCrypto extends Encrypter with Decrypter {
 
   override def encrypt(plain: PlainContent): Crypted = plain match {
     case PlainBytes(bytes) => Crypted(encrypter.encrypt(bytes))
-    case PlainText(text) => Crypted(encrypter.encrypt(text))
-    case _ => throw new Exception(s"Unable to encrypt unkown message type: $plain")
+    case PlainText(text)   => Crypted(encrypter.encrypt(text))
+    case _                 => throw new Exception(s"Unable to encrypt unkown message type: $plain")
   }
 
   override def decrypt(encrypted: Crypted): PlainText = PlainText(decrypter.decrypt(encrypted.value))
@@ -54,13 +54,11 @@ trait CompositeSymmetricCrypto extends Encrypter with Decrypter {
 
   override def encrypt(value: PlainContent): Crypted = encrypt(value, currentCrypto)
 
-  override def decrypt(scrambled: Crypted): PlainText = {
+  override def decrypt(scrambled: Crypted): PlainText =
     decrypt(d => Try(d.decrypt(scrambled)))
-  }
 
-  override def decryptAsBytes(scrambled: Crypted): PlainBytes = {
+  override def decryptAsBytes(scrambled: Crypted): PlainBytes =
     decrypt(d => Try(d.decryptAsBytes(scrambled)))
-  }
 
   private def decrypt[T <: PlainContent](tryDecryption: Decrypter => Try[T]): T = {
 
@@ -86,8 +84,9 @@ object CompositeSymmetricCrypto {
     }
 
     override protected val previousCryptos: Seq[Decrypter] = {
-      previousKeys.map(previousKey => new AesCrypto {
-        val encryptionKey: String = previousKey
+      previousKeys.map(previousKey =>
+        new AesCrypto {
+          val encryptionKey: String = previousKey
       })
     }
   }
@@ -99,11 +98,11 @@ object CompositeSymmetricCrypto {
     }
 
     override protected val previousCryptos: Seq[Decrypter] = {
-      previousKeys.map(previousKey => new AesGCMCrypto {
-        val encryptionKey: String = previousKey
+      previousKeys.map(previousKey =>
+        new AesGCMCrypto {
+          val encryptionKey: String = previousKey
       })
     }
   }
-
 
 }

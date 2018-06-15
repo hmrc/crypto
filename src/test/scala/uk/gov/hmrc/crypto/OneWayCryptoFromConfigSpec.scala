@@ -30,25 +30,26 @@ class OneWayCryptoFromConfigSpec extends WordSpecLike with Matchers with OptionV
   private val baseConfigKey = "crypto.spec"
 
   private object CurrentKey {
-    val configKey = baseConfigKey + ".key"
-    val encryptionKey = Base64.encodeBase64String(Array[Byte](0, 1, 2, 3, 4, 5 ,6 ,7, 8 ,9, 10, 11, 12, 13, 14, 15))
-    val aeadText = Base64.encodeBase64String("some additional text".getBytes)
-    val plainMessage = "this is my message"
+    val configKey        = baseConfigKey + ".key"
+    val encryptionKey    = Base64.encodeBase64String(Array[Byte](0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15))
+    val aeadText         = Base64.encodeBase64String("some additional text".getBytes)
+    val plainMessage     = "this is my message"
     val encryptedMessage = "up/76On5j54pAjzqZR1mqM5E28skTl8Aw0GkKi+zjkk="
   }
 
-  def fakeApplicationWithCurrentKey = FakeApplication(additionalConfiguration = Map(
-    CurrentKey.configKey -> CurrentKey.encryptionKey
-  ))
-
+  def fakeApplicationWithCurrentKey =
+    FakeApplication(
+      additionalConfiguration = Map(
+        CurrentKey.configKey -> CurrentKey.encryptionKey
+      ))
 
   "A correctly constructed one way encrypter" should {
 
     "encrypt and verify a password" in running(fakeApplicationWithCurrentKey) {
-      val cryptor = OneWayCryptoFromConfig(baseConfigKey)
+      val cryptor   = OneWayCryptoFromConfig(baseConfigKey)
       val encrypted = cryptor.hash(PlainText("myPassword"))
 
-      cryptor.verify(PlainText("myPassword"), encrypted) should be (true)
+      cryptor.verify(PlainText("myPassword"), encrypted) should be(true)
     }
   }
 
@@ -58,10 +59,10 @@ class OneWayCryptoFromConfigSpec extends WordSpecLike with Matchers with OptionV
       val configuration = mock[Configuration]
       when(configuration.getString(CurrentKey.configKey)).thenReturn(Some(CurrentKey.encryptionKey))
       when(configuration.getStringSeq(any())).thenReturn(None)
-      val cryptor = OneWayCryptoFromConfig(baseConfigKey, configuration)
+      val cryptor   = OneWayCryptoFromConfig(baseConfigKey, configuration)
       val encrypted = cryptor.hash(PlainText("myPassword"))
 
-      cryptor.verify(PlainText("myPassword"), encrypted) should be (true)
+      cryptor.verify(PlainText("myPassword"), encrypted) should be(true)
     }
   }
 
@@ -70,7 +71,7 @@ class OneWayCryptoFromConfigSpec extends WordSpecLike with Matchers with OptionV
     def fakeApplicationWithoutAnyKeys = FakeApplication()
 
     "throw a SecurityException on construction" in running(fakeApplicationWithoutAnyKeys) {
-      intercept[SecurityException]{
+      intercept[SecurityException] {
         OneWayCryptoFromConfig(baseConfigKey)
       }
     }
