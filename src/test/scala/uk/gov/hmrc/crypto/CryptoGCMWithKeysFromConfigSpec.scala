@@ -20,7 +20,7 @@ import java.security.SecureRandom
 
 import org.apache.commons.codec.binary.Base64
 import org.mockito.Mockito._
-import org.scalatest.mock.MockitoSugar
+import org.scalatest.mockito.MockitoSugar
 import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 import play.api.Configuration
 import play.api.test.FakeApplication
