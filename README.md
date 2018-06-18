@@ -3,9 +3,7 @@ Crypto
 
 [![Build Status](https://travis-ci.org/hmrc/crypto.svg)](https://travis-ci.org/hmrc/crypto) [ ![Download](https://api.bintray.com/packages/hmrc/releases/crypto/images/download.svg) ](https://bintray.com/hmrc/releases/crypto/_latestVersion)
 
-A micro-library for all Crypto related infrastructure of a Play application.
-
-There is integration with the Play! framework such that secret keys are read from a '.conf' file.
+A micro-library for all Crypto related infrastructure.
 
 In the example below 'cookie.encryption' is the baseConfigKey that is specified when the crypto utility is created.  
 The 'previousKeys' element is optional.
