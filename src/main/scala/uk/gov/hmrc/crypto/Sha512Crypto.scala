@@ -17,12 +17,9 @@
 package uk.gov.hmrc.crypto
 
 import javax.crypto.spec.SecretKeySpec
-
 import org.apache.commons.codec.binary.Base64
 
-trait Sha512Crypto extends Hasher with Verifier {
-
-  protected val encryptionKey: String
+class Sha512Crypto(encryptionKey: String) extends Hasher with Verifier {
 
   private lazy val encrypter = {
     val encryptionKeyBytes = Base64.decodeBase64(encryptionKey.getBytes("UTF-8"))
@@ -35,19 +32,4 @@ trait Sha512Crypto extends Hasher with Verifier {
   override def verify(plainText: PlainText, ncrypted: Scrambled): Boolean =
     encrypter.hash(plainText) == ncrypted
 
-}
-
-trait CompositeOneWayCrypto extends Hasher with Verifier {
-
-  protected val currentCrypto: Hasher with Verifier
-
-  protected val previousCryptos: Seq[Verifier]
-
-  override def hash(value: PlainText): Scrambled = currentCrypto.hash(value)
-
-  override def verify(value: PlainText, ncrypted: Scrambled): Boolean = {
-
-    val encrypterStream = (currentCrypto +: previousCryptos).toStream
-    encrypterStream.map(d => d.verify(value, ncrypted)) contains true
-  }
 }

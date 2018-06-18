@@ -16,43 +16,23 @@
 
 package uk.gov.hmrc.crypto
 
+import com.typesafe.config.Config
 import javax.inject.Inject
 
-import play.api.{Configuration, Play}
+class ApplicationCrypto @Inject()(config: Config) {
 
-trait ApplicationCrypto {
+  lazy val SessionCookieCrypto  = new CryptoGCMWithKeysFromConfig(baseConfigKey = "cookie.encryption", config)
+  lazy val SsoPayloadCrypto     = new CryptoWithKeysFromConfig(baseConfigKey    = "sso.encryption", config)
+  lazy val QueryParameterCrypto = new CryptoWithKeysFromConfig(baseConfigKey    = "queryParameter.encryption", config)
+  lazy val JsonCrypto           = new CryptoWithKeysFromConfig(baseConfigKey    = "json.encryption", config)
 
-  def configuration: Configuration
-
-  private def sessionCookieCrypto = CryptoGCMWithKeysFromConfig(baseConfigKey = "cookie.encryption", configuration)
-
-  private def ssoPayloadCrypto = CryptoWithKeysFromConfig(baseConfigKey = "sso.encryption", configuration)
-
-  private def queryParameterCrypto =
-    CryptoWithKeysFromConfig(baseConfigKey = "queryParameter.encryption", configuration)
-
-  private def jsonCrypto = CryptoWithKeysFromConfig(baseConfigKey = "json.encryption", configuration)
-
-  lazy val SessionCookieCrypto  = sessionCookieCrypto
-  lazy val SsoPayloadCrypto     = ssoPayloadCrypto
-  lazy val QueryParameterCrypto = queryParameterCrypto
-  lazy val JsonCrypto           = jsonCrypto
-
-  def verifyConfiguration() {
-    sessionCookieCrypto
-    queryParameterCrypto
-    ssoPayloadCrypto
+  def verifyConfiguration(): Unit = {
+    SessionCookieCrypto
+    QueryParameterCrypto
+    SsoPayloadCrypto
   }
 
-  def verifyJsonConfiguration() {
-    jsonCrypto
-  }
-}
+  def verifyJsonConfiguration(): Unit =
+    JsonCrypto
 
-object ApplicationCrypto extends ApplicationCrypto {
-  lazy val configuration: Configuration = Play.current.configuration
-}
-
-class ApplicationCryptoDI @Inject()(config: Configuration) extends ApplicationCrypto {
-  lazy val configuration: Configuration = config
 }
