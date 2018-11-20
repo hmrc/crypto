@@ -3,7 +3,7 @@ import sbt._
 object LibDependencies {
 
   val compile = Seq(
-    "uk.gov.hmrc"  %% "secure"      % "7.2.0",
+    "uk.gov.hmrc"  %% "secure"      % "7.4.0",
     "com.typesafe" % "config"       % "1.3.3",
     "javax.inject" % "javax.inject" % "1"
   )
