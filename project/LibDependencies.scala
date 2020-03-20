@@ -14,5 +14,4 @@ object LibDependencies {
     "org.scalacheck" %% "scalacheck"  % "1.13.5" % Test,
     "org.mockito"    % "mockito-core" % "2.10.0" % Test
   )
-
 }
