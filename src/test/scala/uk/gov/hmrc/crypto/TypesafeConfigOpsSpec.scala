@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,7 +42,6 @@ class TypesafeConfigOpsSpec extends WordSpec with Matchers {
 
       a[ConfigException] should be thrownBy config.get[String]("foo")
     }
-
   }
 
   "Getting a list of strings" should {
@@ -66,7 +65,5 @@ class TypesafeConfigOpsSpec extends WordSpec with Matchers {
 
       a[ConfigException] should be thrownBy config.get[List[String]]("foo")
     }
-
   }
-
 }

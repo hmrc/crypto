@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@ package uk.gov.hmrc.crypto
 
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.codec.binary.Base64
-import org.scalatest.mockito.MockitoSugar
+import org.mockito.MockitoSugar
 import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 
 import collection.JavaConverters._
@@ -99,7 +99,6 @@ class CryptoWithKeysFromConfigSpec extends WordSpecLike with Matchers with Optio
       intercept[SecurityException] {
         crypto.decrypt(encryptedWithPreviousKey1)
       }
-
     }
   }
 
@@ -126,7 +125,6 @@ class CryptoWithKeysFromConfigSpec extends WordSpecLike with Matchers with Optio
       crypto.decrypt(encryptedWithPreviousKey2)      shouldBe PreviousKey2.plainMessage
       crypto.decrypt(encryptedBytesWithPreviousKey2) shouldBe PreviousKey2.plainByteMessageResponse
     }
-
   }
 
   "Constructing a CompositeCryptoWithKeysFromConfig without current or previous keys" should {

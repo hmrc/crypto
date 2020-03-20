@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 HM Revenue & Customs
+ * Copyright 2020 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,7 +26,6 @@ class Sha512CryptoSpec extends WordSpecLike with Matchers {
   )
 
   "A Sha-512 hasher" should {
-
     "successfully encrypt a string" in {
       val encrypted = sha512Crypto.hash(PlainText("somerandomtext"))
 
@@ -35,7 +34,5 @@ class Sha512CryptoSpec extends WordSpecLike with Matchers {
       sha512Crypto.verify(PlainText("somerandomtext"), encrypted) should be(true)
       sha512Crypto.verify(PlainText("someRandomText"), encrypted) should be(false)
     }
-
   }
-
 }

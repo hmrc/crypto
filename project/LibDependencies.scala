@@ -3,16 +3,15 @@ import sbt._
 object LibDependencies {
 
   val compile = Seq(
-    "uk.gov.hmrc"  %% "secure"      % "7.9.0",
-    "com.typesafe" % "config"       % "1.3.3",
-    "javax.inject" % "javax.inject" % "1"
+    "uk.gov.hmrc"  %% "secure"       % "7.11.0",
+    "com.typesafe" %  "config"       % "1.4.0",
+    "javax.inject" %  "javax.inject" % "1"
   )
 
   val test = Seq(
-    "org.scalatest"  %% "scalatest"   % "3.0.5"  % Test,
-    "org.pegdown"    % "pegdown"      % "1.6.0"  % Test,
-    "org.scalacheck" %% "scalacheck"  % "1.13.5" % Test,
-    "org.mockito"    % "mockito-core" % "2.10.0" % Test
+    "org.scalatest"        %% "scalatest"     % "3.1.0"   % Test,
+    "com.vladsch.flexmark" %  "flexmark-all"  % "0.35.10" % Test,
+    "org.scalacheck"       %% "scalacheck"    % "1.14.3"  % Test,
+    "org.mockito"          %% "mockito-scala" % "1.10.1"  % Test
   )
-
 }
