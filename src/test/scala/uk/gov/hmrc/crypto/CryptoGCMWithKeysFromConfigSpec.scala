@@ -20,7 +20,7 @@ import java.security.SecureRandom
 
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.codec.binary.Base64
-import org.scalatest.mockito.MockitoSugar
+import org.mockito.MockitoSugar
 import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 
 import collection.JavaConverters._
@@ -133,7 +133,6 @@ class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with Op
       val encryptedBytesWithPreviousKey2 = crypto.encrypt(PreviousKey2.plainByteMessage, previousKey2Crypto)
       crypto.decrypt(encryptedWithPreviousKey2)      shouldBe PreviousKey2.plainMessage
       crypto.decrypt(encryptedBytesWithPreviousKey2) shouldBe PreviousKey2.plainByteMessageResponse
-
     }
   }
 
@@ -188,6 +187,5 @@ class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with Op
         new CryptoGCMWithKeysFromConfig(baseConfigKey, config)
       }
     }
-
   }
 }

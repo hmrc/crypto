@@ -42,7 +42,6 @@ class TypesafeConfigOpsSpec extends WordSpec with Matchers {
 
       a[ConfigException] should be thrownBy config.get[String]("foo")
     }
-
   }
 
   "Getting a list of strings" should {
@@ -66,7 +65,5 @@ class TypesafeConfigOpsSpec extends WordSpec with Matchers {
 
       a[ConfigException] should be thrownBy config.get[List[String]]("foo")
     }
-
   }
-
 }

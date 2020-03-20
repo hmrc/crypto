@@ -23,7 +23,6 @@ import org.scalatest.{Matchers, WordSpecLike}
 class RSAEncryptDecryptSpec extends WordSpecLike with Matchers {
 
   "The RSA encrypter/decrypter " should {
-
     "successfully encrypt and decrypt using the RSA Encrypt Decrypt wrapper" in {
 
       val original: String = "osidg9n  rg jt wtjwitu4549gv  p9 u243t  93t2ut34ijt g"
@@ -44,5 +43,4 @@ class RSAEncryptDecryptSpec extends WordSpecLike with Matchers {
       rsa.getPublicKeySpec().getPublicExponent shouldBe exponent
     }
   }
-
 }

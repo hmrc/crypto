@@ -18,7 +18,7 @@ package uk.gov.hmrc.crypto
 
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.codec.binary.Base64
-import org.scalatest.mockito.MockitoSugar
+import org.mockito.MockitoSugar
 import org.scalatest.{Matchers, OptionValues, WordSpecLike}
 
 import scala.collection.JavaConverters._
@@ -57,5 +57,4 @@ class CompositeOneWayCryptoSpec extends WordSpecLike with Matchers with OptionVa
       }
     }
   }
-
 }
