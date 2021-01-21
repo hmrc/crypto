@@ -2,10 +2,11 @@ val name = "crypto"
 
 lazy val crypto = Project(name, file("."))
   .enablePlugins(SbtAutoBuildPlugin, SbtGitVersioning, SbtArtifactory)
+  .disablePlugins(JUnitXmlReportPlugin)
   .settings(
-    majorVersion := 5,
+    majorVersion := 6,
     makePublicallyAvailableOnBintray := true,
-    crossScalaVersions := List("2.11.12", "2.12.8"),
+    scalaVersion := "2.12.12",
     libraryDependencies ++= LibDependencies.compile ++ LibDependencies.test,
     resolvers := Seq(
       Resolver.bintrayRepo("hmrc", "releases"),
