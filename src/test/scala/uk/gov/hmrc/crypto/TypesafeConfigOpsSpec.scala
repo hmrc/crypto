@@ -17,9 +17,10 @@
 package uk.gov.hmrc.crypto
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
-class TypesafeConfigOpsSpec extends WordSpec with Matchers {
+class TypesafeConfigOpsSpec extends AnyWordSpecLike with Matchers {
 
   "Getting a string" should {
 

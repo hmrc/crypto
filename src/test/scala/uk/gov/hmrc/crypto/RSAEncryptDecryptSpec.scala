@@ -18,9 +18,10 @@ package uk.gov.hmrc.crypto
 
 import java.math.BigInteger
 
-import org.scalatest.{Matchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
-class RSAEncryptDecryptSpec extends WordSpecLike with Matchers {
+class RSAEncryptDecryptSpec extends AnyWordSpecLike with Matchers {
 
   "The RSA encrypter/decrypter " should {
     "successfully encrypt and decrypt using the RSA Encrypt Decrypt wrapper" in {

@@ -19,11 +19,12 @@ package uk.gov.hmrc.crypto
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.codec.binary.Base64
 import org.mockito.MockitoSugar
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
 import collection.JavaConverters._
 
-class CryptoWithKeysFromConfigSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar {
+class CryptoWithKeysFromConfigSpec extends AnyWordSpecLike with Matchers with MockitoSugar {
 
   private val baseConfigKey = "crypto.spec"
 

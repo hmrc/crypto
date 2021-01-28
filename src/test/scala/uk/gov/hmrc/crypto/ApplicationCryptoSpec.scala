@@ -17,11 +17,12 @@
 package uk.gov.hmrc.crypto
 
 import com.typesafe.config.ConfigFactory
-import org.scalatest.WordSpec
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
 import collection.JavaConverters._
 
-class ApplicationCryptoSpec extends WordSpec {
+class ApplicationCryptoSpec extends AnyWordSpecLike with Matchers {
 
   "ApplicationCrypto" should {
     "be correctly instantiated without application running" in {

@@ -21,11 +21,12 @@ import java.security.SecureRandom
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.codec.binary.Base64
 import org.mockito.MockitoSugar
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
 import collection.JavaConverters._
 
-class CryptoGCMWithKeysFromConfigSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar {
+class CryptoGCMWithKeysFromConfigSpec extends AnyWordSpecLike with Matchers with MockitoSugar {
 
   private val keybytes          = new Array[Byte](16 * 2)
   private val previousKeybytes1 = new Array[Byte](16 * 2)
