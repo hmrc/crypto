@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,12 @@ package uk.gov.hmrc.crypto
 import com.typesafe.config.ConfigFactory
 import org.apache.commons.codec.binary.Base64
 import org.mockito.MockitoSugar
-import org.scalatest.{Matchers, OptionValues, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
 import scala.collection.JavaConverters._
 
-class CompositeOneWayCryptoSpec extends WordSpecLike with Matchers with OptionValues with MockitoSugar {
+class CompositeOneWayCryptoSpec extends AnyWordSpecLike with Matchers with MockitoSugar {
 
   private val baseConfigKey = "crypto.spec"
 

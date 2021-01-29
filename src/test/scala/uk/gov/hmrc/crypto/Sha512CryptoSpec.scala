@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@
 package uk.gov.hmrc.crypto
 
 import org.apache.commons.codec.binary.Base64
-import org.scalatest.{Matchers, WordSpecLike}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
-class Sha512CryptoSpec extends WordSpecLike with Matchers {
+class Sha512CryptoSpec extends AnyWordSpecLike with Matchers {
 
   private val sha512Crypto = new Sha512Crypto(
     Base64.encodeBase64String(Array[Byte](0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15))

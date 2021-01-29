@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 HM Revenue & Customs
+ * Copyright 2021 HM Revenue & Customs
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,9 +17,10 @@
 package uk.gov.hmrc.crypto
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
-import org.scalatest.{Matchers, WordSpec}
+import org.scalatest.matchers.should.Matchers
+import org.scalatest.wordspec.AnyWordSpecLike
 
-class TypesafeConfigOpsSpec extends WordSpec with Matchers {
+class TypesafeConfigOpsSpec extends AnyWordSpecLike with Matchers {
 
   "Getting a string" should {
 
