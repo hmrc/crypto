@@ -22,7 +22,7 @@ The 'previousKeys' element is optional.
 Add the following to your SBT build:
 
 ```scala
-resolvers += Resolver.bintrayRepo("hmrc", "releases")
+resolvers += MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefacts.tax.service.gov.uk/maven2")
 
 libraryDependencies += "uk.gov.hmrc" %% "crypto" % "[INSERT-VERSION]"
 ```
