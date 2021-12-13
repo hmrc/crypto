@@ -1,15 +1,14 @@
-val name = "crypto"
 
-lazy val crypto = Project(name, file("."))
-  .enablePlugins(SbtAutoBuildPlugin, SbtGitVersioning, SbtArtifactory)
+val scala2_12 = "2.12.15"
+val scala2_13 = "2.13.7"
+
+lazy val library = Project("crypto", file("."))
   .disablePlugins(JUnitXmlReportPlugin)
   .settings(
+    scalaVersion := scala2_12,
+    crossScalaVersions := Seq(scala2_12, scala2_13),
     majorVersion := 6,
-    makePublicallyAvailableOnBintray := true,
-    scalaVersion := "2.12.12",
+    isPublicArtefact := true,
     libraryDependencies ++= LibDependencies.compile ++ LibDependencies.test,
-    resolvers := Seq(
-      Resolver.bintrayRepo("hmrc", "releases"),
-      Resolver.typesafeRepo("releases")
-    )
+    resolvers += Resolver.typesafeRepo("releases")
   )
