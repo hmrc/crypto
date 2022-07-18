@@ -17,7 +17,6 @@
 package uk.gov.hmrc.crypto.secure
 
 import java.security.{NoSuchAlgorithmException, SecureRandom}
-import java.util.Base64
 import javax.crypto.{Cipher, SecretKey}
 import javax.crypto.spec.{GCMParameterSpec, SecretKeySpec}
 import scala.util.{Failure, Success, Try}
@@ -29,15 +28,19 @@ import scala.util.{Failure, Success, Try}
 // https://tools.ietf.org/html/rfc5116
 // http://crypto.stackexchange.com/questions/6711/how-to-use-gcm-mode-and-associated-data-properly
 
-// Note: The result of the GSM encryption is {nonce:16bytes}{encrypted GCM result}. To decrypt the encrypted value, the
-// nonce is first extracted which is then used to decrypt the remaining GCM encrypted value.
+
+case class EncryptedBytes(
+  value: Array[Byte],
+  nonce: Array[Byte]
+)
+
 class GCMEncrypterDecrypter(
   private val key        : Array[Byte],
   private val nonceLength: Int         = 16
 ) {
   private val TAG_BIT_LENGTH = 128
-  protected val ALGORITHM_TO_TRANSFORM_STRING = "AES/GCM/PKCS5Padding"
-  protected val ALGORITHM_KEY = "AES"
+  private val ALGORITHM_TO_TRANSFORM_STRING = "AES/GCM/PKCS5Padding"
+  private val ALGORITHM_KEY = "AES"
 
   private lazy val secureRandom =
     try {
@@ -53,7 +56,7 @@ class GCMEncrypterDecrypter(
   private val secretKey = toSecretKey(key)
   encrypt("asd".getBytes, "asd".getBytes) // encrypt something to check if key is valid
 
-  def encrypt(valueToEncrypt: Array[Byte], associatedData: Array[Byte]): String = {
+  def encrypt(valueToEncrypt: Array[Byte], associatedData: Array[Byte]): EncryptedBytes = {
     validateAssociatedData(associatedData)
     val initialisationVector = generateInitialisationVector()
     val encrypted            = encryptBytes(
@@ -62,21 +65,18 @@ class GCMEncrypterDecrypter(
                                  gcmParameterSpec = new GCMParameterSpec(TAG_BIT_LENGTH, initialisationVector)
                                )
 
-    val combined = new Array[Byte](initialisationVector.length + encrypted.length)
-    System.arraycopy(initialisationVector, 0, combined, 0                          , initialisationVector.length)
-    System.arraycopy(encrypted           , 0, combined, initialisationVector.length, encrypted.length           )
-    new String(Base64.getEncoder.encode(combined))
+    EncryptedBytes(
+      nonce = initialisationVector,
+      value = encrypted
+    )
   }
 
-  def decrypt(encryptedString: String, associatedData: Array[Byte]): String = {
+  def decrypt(encryptedBytes: EncryptedBytes, associatedData: Array[Byte]): String = {
     validateAssociatedData(associatedData)
-    val encryptedBytes: Array[Byte] = Base64.getDecoder.decode(encryptedString)
-    val initialisationVector = encryptedBytes.take(nonceLength)
-    val valueToDecrypt       = encryptedBytes.drop(nonceLength)
     decryptBytes(
-      valueToDecrypt   = valueToDecrypt,
+      valueToDecrypt   = encryptedBytes.value,
       associatedData   = associatedData,
-      gcmParameterSpec = new GCMParameterSpec(TAG_BIT_LENGTH, initialisationVector)
+      gcmParameterSpec = new GCMParameterSpec(TAG_BIT_LENGTH, encryptedBytes.nonce)
     )
   }
 
@@ -124,7 +124,7 @@ class GCMEncrypterDecrypter(
       case Failure(ex)    => throw new SecurityException("Failed decrypting data", ex)
     }
 
-  protected def getCipherInstance(): Cipher =
+  private def getCipherInstance(): Cipher =
     Cipher.getInstance(ALGORITHM_TO_TRANSFORM_STRING)
 
   private def validateAssociatedData(associatedData: Array[Byte]) =

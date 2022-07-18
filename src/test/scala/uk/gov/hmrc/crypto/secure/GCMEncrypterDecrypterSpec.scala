@@ -52,7 +52,7 @@ class GCMEncrypterDecrypterSpec extends AnyWordSpecLike with Matchers {
       val cipher = new GCMEncrypterDecrypter("1234567890123456".getBytes)
 
       val encrypted = cipher.encrypt(valueToEncrypt.getBytes, associatedText.getBytes)
-      val invalidEncrypted = "aA" + encrypted.substring(2, encrypted.length)
+      val invalidEncrypted = encrypted.copy(nonce = "aA".getBytes ++ encrypted.nonce.drop(2))
 
       the [SecurityException] thrownBy {
         cipher.decrypt(invalidEncrypted, associatedText.getBytes)
