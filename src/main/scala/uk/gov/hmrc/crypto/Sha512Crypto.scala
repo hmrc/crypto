@@ -16,20 +16,20 @@
 
 package uk.gov.hmrc.crypto
 
+import java.util.Base64
 import javax.crypto.spec.SecretKeySpec
-import org.apache.commons.codec.binary.Base64
 
 class Sha512Crypto(encryptionKey: String) extends Hasher with Verifier {
 
   private lazy val encrypter = {
-    val encryptionKeyBytes = Base64.decodeBase64(encryptionKey.getBytes("UTF-8"))
+    val encryptionKeyBytes = Base64.getDecoder.decode(encryptionKey.getBytes("UTF-8"))
     val secretKey          = new SecretKeySpec(encryptionKeyBytes, "HmacSHA512")
     new SymmetricHasher(secretKey)
   }
 
-  override def hash(plainText: PlainText): Scrambled = encrypter.hash(plainText)
+  override def hash(plainText: PlainText): Scrambled =
+    encrypter.hash(plainText)
 
   override def verify(plainText: PlainText, ncrypted: Scrambled): Boolean =
     encrypter.hash(plainText) == ncrypted
-
 }

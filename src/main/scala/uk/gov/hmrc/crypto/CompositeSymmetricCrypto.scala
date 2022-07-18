@@ -16,9 +16,9 @@
 
 package uk.gov.hmrc.crypto
 
+import java.util.Base64
 import javax.crypto.spec.SecretKeySpec
 
-import org.apache.commons.codec.binary.Base64
 import uk.gov.hmrc.crypto.secure.{SymmetricDecrypter, SymmetricEncrypter}
 
 import scala.util.{Success, Try}
@@ -27,7 +27,8 @@ trait AesCrypto extends Encrypter with Decrypter {
 
   protected val encryptionKey: String
 
-  private lazy val encryptionKeyBytes = Base64.decodeBase64(encryptionKey.getBytes("UTF-8"))
+  private lazy val encryptionKeyBytes =
+    Base64.getDecoder.decode(encryptionKey.getBytes("UTF-8"))
 
   private lazy val secretKey = new SecretKeySpec(encryptionKeyBytes, "AES")
 
@@ -35,15 +36,18 @@ trait AesCrypto extends Encrypter with Decrypter {
 
   private lazy val decrypter = new SymmetricDecrypter(secretKey)
 
-  override def encrypt(plain: PlainContent): Crypted = plain match {
-    case PlainBytes(bytes) => Crypted(encrypter.encrypt(bytes))
-    case PlainText(text)   => Crypted(encrypter.encrypt(text))
-    case _                 => throw new Exception(s"Unable to encrypt unkown message type: $plain")
-  }
+  override def encrypt(plain: PlainContent): Crypted =
+    plain match {
+      case PlainBytes(bytes) => Crypted(encrypter.encrypt(bytes))
+      case PlainText(text)   => Crypted(encrypter.encrypt(text))
+      case _                 => throw new Exception(s"Unable to encrypt unkown message type: $plain")
+    }
 
-  override def decrypt(encrypted: Crypted): PlainText = PlainText(decrypter.decrypt(encrypted.value))
+  override def decrypt(encrypted: Crypted): PlainText =
+    PlainText(decrypter.decrypt(encrypted.value))
 
-  override def decryptAsBytes(encrypted: Crypted): PlainBytes = PlainBytes(decrypter.decryptAsBytes(encrypted.value))
+  override def decryptAsBytes(encrypted: Crypted): PlainBytes =
+    PlainBytes(decrypter.decryptAsBytes(encrypted.value))
 }
 
 trait CompositeSymmetricCrypto extends Encrypter with Decrypter {
@@ -52,7 +56,8 @@ trait CompositeSymmetricCrypto extends Encrypter with Decrypter {
 
   protected val previousCryptos: Seq[Decrypter]
 
-  override def encrypt(value: PlainContent): Crypted = encrypt(value, currentCrypto)
+  override def encrypt(value: PlainContent): Crypted =
+    encrypt(value, currentCrypto)
 
   override def decrypt(scrambled: Crypted): PlainText =
     decrypt(d => Try(d.decrypt(scrambled)))
@@ -61,48 +66,46 @@ trait CompositeSymmetricCrypto extends Encrypter with Decrypter {
     decrypt(d => Try(d.decryptAsBytes(scrambled)))
 
   private def decrypt[T <: PlainContent](tryDecryption: Decrypter => Try[T]): T = {
-
     val decrypterStream = (currentCrypto +: previousCryptos).toStream
 
-    val message = decrypterStream.map(tryDecryption).collectFirst {
-      case Success(msg) => msg
-    }
+    val message =
+      decrypterStream
+        .map(tryDecryption)
+        .collectFirst { case Success(msg) => msg }
 
     message.getOrElse(throw new SecurityException("Unable to decrypt value"))
   }
 
-  private[crypto] def encrypt(value: PlainContent, encrypter: Encrypter): Crypted = encrypter.encrypt(value)
-
+  private[crypto] def encrypt(value: PlainContent, encrypter: Encrypter): Crypted =
+    encrypter.encrypt(value)
 }
 
 object CompositeSymmetricCrypto {
 
-  def aes(currentKey: String, previousKeys: Seq[String]): CompositeSymmetricCrypto = new CompositeSymmetricCrypto {
-
-    override protected val currentCrypto: Encrypter with Decrypter = new AesCrypto {
-      val encryptionKey: String = currentKey
-    }
-
-    override protected val previousCryptos: Seq[Decrypter] = {
-      previousKeys.map(previousKey =>
+  def aes(currentKey: String, previousKeys: Seq[String]): CompositeSymmetricCrypto =
+    new CompositeSymmetricCrypto {
+      override protected val currentCrypto: Encrypter with Decrypter =
         new AesCrypto {
-          val encryptionKey: String = previousKey
-      })
+          val encryptionKey: String = currentKey
+        }
+
+      override protected val previousCryptos: Seq[Decrypter] =
+        previousKeys.map(previousKey =>
+          new AesCrypto {
+            val encryptionKey: String = previousKey
+        })
     }
-  }
 
-  def aesGCM(currentKey: String, previousKeys: Seq[String]): CompositeSymmetricCrypto = new CompositeSymmetricCrypto {
+  def aesGCM(currentKey: String, previousKeys: Seq[String]): CompositeSymmetricCrypto =
+    new CompositeSymmetricCrypto {
+      override protected val currentCrypto: Encrypter with Decrypter = new AesGCMCrypto {
+        val encryptionKey: String = currentKey
+      }
 
-    override protected val currentCrypto: Encrypter with Decrypter = new AesGCMCrypto {
-      val encryptionKey: String = currentKey
+      override protected val previousCryptos: Seq[Decrypter] =
+        previousKeys.map(previousKey =>
+          new AesGCMCrypto {
+            val encryptionKey: String = previousKey
+        })
     }
-
-    override protected val previousCryptos: Seq[Decrypter] = {
-      previousKeys.map(previousKey =>
-        new AesGCMCrypto {
-          val encryptionKey: String = previousKey
-      })
-    }
-  }
-
 }

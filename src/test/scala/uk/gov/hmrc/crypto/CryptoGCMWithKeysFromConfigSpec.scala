@@ -16,14 +16,13 @@
 
 package uk.gov.hmrc.crypto
 
-import java.security.SecureRandom
-
 import com.typesafe.config.ConfigFactory
-import org.apache.commons.codec.binary.Base64
 import org.mockito.MockitoSugar
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
+import java.security.SecureRandom
+import java.util.Base64
 import collection.JavaConverters._
 
 class CryptoGCMWithKeysFromConfigSpec extends AnyWordSpecLike with Matchers with MockitoSugar {
@@ -41,21 +40,21 @@ class CryptoGCMWithKeysFromConfigSpec extends AnyWordSpecLike with Matchers with
 
   private object CurrentKey {
     val configKey                = baseConfigKey + ".key"
-    val encryptionKey            = Base64.encodeBase64String(keybytes)
+    val encryptionKey            = Base64.getEncoder.encodeToString(keybytes)
     val plainMessage             = PlainText("this is my message")
     val plainByteMessage         = PlainBytes("this is a bunch of bytes".getBytes)
     val plainByteMessageResponse = PlainText("this is a bunch of bytes")
   }
 
   private object PreviousKey1 {
-    val encryptionKey            = Base64.encodeBase64String(previousKeybytes1)
+    val encryptionKey            = Base64.getEncoder.encodeToString(previousKeybytes1)
     val plainMessage             = PlainText("this is the first plain message")
     val plainByteMessage         = PlainBytes("this is the first bunch of bytes".getBytes)
     val plainByteMessageResponse = PlainText("this is the first bunch of bytes")
   }
 
   private object PreviousKey2 {
-    val encryptionKey            = Base64.encodeBase64String(previousKeybytes2)
+    val encryptionKey            = Base64.getEncoder.encodeToString(previousKeybytes2)
     val plainMessage             = PlainText("this is the second plain message")
     val plainByteMessage         = PlainBytes("this is the second bunch of bytes".getBytes)
     val plainByteMessageResponse = PlainText("this is the second bunch of bytes")

@@ -3,7 +3,6 @@ import sbt._
 object LibDependencies {
 
   val compile = Seq(
-    "commons-codec"    %  "commons-codec"  % "1.15",
     "org.bouncycastle" %  "bcprov-jdk15on" % "1.68",
     "com.typesafe"     %  "config"         % "1.4.1",
     "javax.inject"     %  "javax.inject"   % "1"

@@ -18,9 +18,8 @@ package uk.gov.hmrc.crypto.secure
 
 import java.nio.charset.StandardCharsets
 import java.security.Key
+import java.util.Base64
 import javax.crypto.Cipher
-
-import org.apache.commons.codec.binary.Base64
 
 trait Encrypter {
 
@@ -28,25 +27,25 @@ trait Encrypter {
 
   validateKey()
 
-  protected def validateKey() {
+  protected def validateKey(): Unit =
     if (key == null) throw new IllegalStateException("There is no Key defined for this Encrypter")
-  }
 
-  def encrypt(data: Array[Byte]): String = encrypt(data, key.getAlgorithm)
+  def encrypt(data: Array[Byte]): String =
+    encrypt(data, key.getAlgorithm)
 
-  def encrypt(data: String): String = encrypt(data.getBytes(StandardCharsets.UTF_8), key.getAlgorithm)
+  def encrypt(data: String): String =
+    encrypt(data.getBytes(StandardCharsets.UTF_8), key.getAlgorithm)
 
-  def encrypt(data: String, algorithm: String): String = encrypt(data.getBytes(StandardCharsets.UTF_8), algorithm)
+  def encrypt(data: String, algorithm: String): String =
+    encrypt(data.getBytes(StandardCharsets.UTF_8), algorithm)
 
   def encrypt(data: Array[Byte], algorithm: String): String = {
     try {
       val cipher: Cipher = Cipher.getInstance(algorithm)
       cipher.init(Cipher.ENCRYPT_MODE, key, cipher.getParameters)
-      new String(Base64.encodeBase64(cipher.doFinal(data)), StandardCharsets.UTF_8)
-    }
-    catch {
+      new String(Base64.getEncoder.encode(cipher.doFinal(data)), StandardCharsets.UTF_8)
+    } catch {
       case e: Exception => throw new SecurityException("Failed encrypting data", e)
     }
   }
-
 }

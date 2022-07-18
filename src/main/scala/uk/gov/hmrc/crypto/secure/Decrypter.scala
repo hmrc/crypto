@@ -18,9 +18,8 @@ package uk.gov.hmrc.crypto.secure
 
 import java.nio.charset.StandardCharsets
 import java.security.Key
+import java.util.Base64
 import javax.crypto.Cipher
-
-import org.apache.commons.codec.binary.Base64
 
 trait Decrypter {
 
@@ -28,24 +27,25 @@ trait Decrypter {
 
   validateKey()
 
-  protected def validateKey() {
+  protected def validateKey(): Unit =
     if (key == null) throw new IllegalStateException("There is no Key defined for this Decrypter")
-  }
 
-  def decrypt(data: String): String = decrypt(data, key.getAlgorithm)
+  def decrypt(data: String): String =
+    decrypt(data, key.getAlgorithm)
 
-  def decryptAsBytes(data: String): Array[Byte] = decryptAsBytes(data, key.getAlgorithm)
+  def decryptAsBytes(data: String): Array[Byte] =
+    decryptAsBytes(data, key.getAlgorithm)
 
-  def decrypt(data: String, algorithm: String): String = new String(decryptAsBytes(data, algorithm))
+  def decrypt(data: String, algorithm: String): String =
+    new String(decryptAsBytes(data, algorithm))
 
   def decryptAsBytes(data: String, algorithm: String): Array[Byte] = {
     try {
       val cipher: Cipher = Cipher.getInstance(algorithm)
       cipher.init(Cipher.DECRYPT_MODE, key, cipher.getParameters)
-      cipher.doFinal(Base64.decodeBase64(data.getBytes(StandardCharsets.UTF_8)))
+      cipher.doFinal(Base64.getDecoder.decode(data.getBytes(StandardCharsets.UTF_8)))
     } catch {
       case e: Exception => throw new SecurityException("Failed decrypting data", e)
     }
   }
-
 }

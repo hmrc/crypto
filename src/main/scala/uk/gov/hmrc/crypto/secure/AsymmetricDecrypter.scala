@@ -16,11 +16,10 @@
 
 package uk.gov.hmrc.crypto.secure
 
+import java.security.{KeyFactory, PrivateKey, PublicKey}
 import java.security.interfaces.RSAPrivateCrtKey
 import java.security.spec.{PKCS8EncodedKeySpec, RSAPublicKeySpec}
-import java.security.{KeyFactory, PrivateKey, PublicKey}
-
-import org.apache.commons.codec.binary.Base64
+import java.util.Base64
 
 class AsymmetricDecrypter(override protected val key: PrivateKey) extends Decrypter {
 
@@ -34,15 +33,13 @@ class AsymmetricDecrypter(override protected val key: PrivateKey) extends Decryp
     val keyFactory = KeyFactory.getInstance(algorithm)
     keyFactory.generatePublic(getPublicKeySpec)
   }
-
 }
 
 object AsymmetricDecrypter {
 
   def buildPrivateKey(base64Content: String, algorithm: String): PrivateKey = {
-    val keySpec = new PKCS8EncodedKeySpec(Base64.decodeBase64(base64Content))
+    val keySpec = new PKCS8EncodedKeySpec(Base64.getDecoder.decode(base64Content))
     val keyFactory = KeyFactory.getInstance(algorithm)
     keyFactory.generatePrivate(keySpec)
   }
-
 }

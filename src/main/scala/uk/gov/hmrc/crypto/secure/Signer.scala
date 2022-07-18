@@ -17,24 +17,25 @@
 package uk.gov.hmrc.crypto.secure
 
 import java.nio.charset.StandardCharsets
-import java.security._
+import java.security.{InvalidKeyException, NoSuchAlgorithmException, PrivateKey, Signature, SignatureException}
+import java.util.Base64
 
-import org.apache.commons.codec.binary.Base64
 import uk.gov.hmrc.crypto.secure.Algorithm._
 
 class Signer(val privateKey: PrivateKey) {
 
-  def sign(data: String, algorithm: Algorithm = SHA1withRSA): String = {
+  def sign(
+    data     : String,
+    algorithm: Algorithm = SHA1withRSA
+  ): String =
     try {
       val signature = Signature.getInstance(algorithm.value())
       signature.initSign(privateKey)
       signature.update(data.getBytes(StandardCharsets.UTF_8))
-      Base64.encodeBase64String(signature.sign)
+      Base64.getEncoder.encodeToString(signature.sign)
     } catch {
-      case nsae: NoSuchAlgorithmException => throw new SecurityException("Algorithm '" + algorithm.value() + "' is not supported", nsae)
-      case ike: InvalidKeyException => throw new SecurityException("The private key is invalid", ike)
-      case se: SignatureException => throw new SecurityException("Signature error", se)
+      case e: NoSuchAlgorithmException => throw new SecurityException(s"Algorithm '${algorithm.value()}' is not supported", e)
+      case e: InvalidKeyException      => throw new SecurityException("The private key is invalid", e)
+      case e: SignatureException       => throw new SecurityException("Signature error", e)
     }
-  }
-
 }

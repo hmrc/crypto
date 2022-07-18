@@ -16,8 +16,9 @@
 
 package uk.gov.hmrc.crypto
 
-import org.apache.commons.codec.binary.Base64
 import uk.gov.hmrc.crypto.secure.GCMEncrypterDecrypter
+
+import java.util.Base64
 
 trait AesGCMCrypto extends Encrypter with Decrypter {
   private val emptyAssociatedData = Array[Byte]()
@@ -25,18 +26,17 @@ trait AesGCMCrypto extends Encrypter with Decrypter {
   protected val encryptionKey: String
 
   private lazy val encryptionKeyBytes =
-    Base64.decodeBase64(encryptionKey.getBytes("UTF-8"))
+    Base64.getDecoder.decode(encryptionKey.getBytes("UTF-8"))
 
   private lazy val crypto =
     new GCMEncrypterDecrypter(encryptionKeyBytes)
 
-  override def encrypt(plain: PlainContent): Crypted = plain match {
-    case PlainBytes(bytes) => Crypted(crypto.encrypt(bytes, emptyAssociatedData))
-
-    case PlainText(text) => Crypted(crypto.encrypt(text.getBytes, emptyAssociatedData))
-
-    case _ => throw new RuntimeException(s"Unable to encrypt unknown message type: $plain")
-  }
+  override def encrypt(plain: PlainContent): Crypted =
+    plain match {
+      case PlainBytes(bytes) => Crypted(crypto.encrypt(bytes, emptyAssociatedData))
+      case PlainText(text)   => Crypted(crypto.encrypt(text.getBytes, emptyAssociatedData))
+      case _                 => throw new RuntimeException(s"Unable to encrypt unknown message type: $plain")
+    }
 
   override def decrypt(encrypted: Crypted): PlainText =
     PlainText(crypto.decrypt(encrypted.value.getBytes, emptyAssociatedData))

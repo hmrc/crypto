@@ -18,15 +18,14 @@ package uk.gov.hmrc.crypto.secure
 
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
+import java.util.Base64
 
-import org.apache.commons.codec.binary.Base64
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
 class SignatureSpec extends AnyWordSpecLike with Matchers with KeyProvider {
 
   "Signer" should {
-
     "sign with private key and verify with public key" in {
       val publicKey = getPublicKey("/keys/server.crt")
       val privateKey = getPrivateKey("/keys/key.pk8")
@@ -41,14 +40,12 @@ class SignatureSpec extends AnyWordSpecLike with Matchers with KeyProvider {
 
       verify shouldBe true
     }
-
   }
 
   private def hash(data: String): String = {
     val messageDigest = MessageDigest.getInstance("SHA-1")
     messageDigest.update(data.getBytes(StandardCharsets.UTF_8))
     val digest = messageDigest.digest
-    Base64.encodeBase64String(digest)
+    Base64.getEncoder.encodeToString(digest)
   }
-
 }
