@@ -39,8 +39,8 @@ trait AesGCMCrypto extends Encrypter with Decrypter {
     }
 
   override def decrypt(encrypted: Crypted): PlainText =
-    PlainText(crypto.decrypt(encrypted.value.getBytes, emptyAssociatedData))
+    PlainText(crypto.decrypt(encrypted.value, emptyAssociatedData))
 
   override def decryptAsBytes(encrypted: Crypted): PlainBytes =
-    PlainBytes(crypto.decrypt(encrypted.value.getBytes, emptyAssociatedData).getBytes)
+    PlainBytes(crypto.decrypt(encrypted.value, emptyAssociatedData).getBytes)
 }

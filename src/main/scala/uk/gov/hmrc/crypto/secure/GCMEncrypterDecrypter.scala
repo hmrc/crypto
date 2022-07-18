@@ -16,73 +16,118 @@
 
 package uk.gov.hmrc.crypto.secure
 
-import java.nio.charset.StandardCharsets
 import java.security.{NoSuchAlgorithmException, SecureRandom}
 import java.util.Base64
+import javax.crypto.{Cipher, SecretKey}
+import javax.crypto.spec.{GCMParameterSpec, SecretKeySpec}
+import scala.util.{Failure, Success, Try}
 
-import org.bouncycastle.crypto.params.{AEADParameters, KeyParameter}
+
+// Notes...
+// http://unafbapune.blogspot.co.uk/2012/06/aesgcm-with-associated-data.html
+// https://tools.ietf.org/html/rfc5288#page-2
+// https://tools.ietf.org/html/rfc5116
+// http://crypto.stackexchange.com/questions/6711/how-to-use-gcm-mode-and-associated-data-properly
 
 // Note: The result of the GSM encryption is {nonce:16bytes}{encrypted GCM result}. To decrypt the encrypted value, the
 // nonce is first extracted which is then used to decrypt the remaining GCM encrypted value.
-
 class GCMEncrypterDecrypter(
   private val key        : Array[Byte],
   private val nonceLength: Int         = 16
 ) {
-  import GCMEncrypterDecrypter._
+  private val TAG_BIT_LENGTH = 128
+  protected val ALGORITHM_TO_TRANSFORM_STRING = "AES/GCM/PKCS5Padding"
+  protected val ALGORITHM_KEY = "AES"
 
-  if (key == null)
-    throw new IllegalStateException("There is no Key defined!")
-
-  private lazy val secureRNG = initSecureRNG()
-  private lazy val keyParam: KeyParameter = new KeyParameter(key)
-
-  def encrypt(data: Array[Byte], associatedText: Array[Byte]): String = {
-    validateAssociatedText(associatedText)
-    val nonce = new Array[Byte](nonceLength)
-    secureRNG.nextBytes(nonce)
+  private lazy val secureRandom =
     try {
-      val params     = new AEADParameters(keyParam, MAC_SIZE, nonce, associatedText)
-      val cipherText = GCM.encrypt(data, params, nonceLength)
-      System.arraycopy(nonce, 0, cipherText, 0, nonce.length)
-      new String(Base64.getEncoder.encode(cipherText), StandardCharsets.UTF_8)
-    } catch {
-      case e: Exception => throw new SecurityException("Failed decrypting data", e)
-    }
-  }
-
-  def decrypt(data: Array[Byte], associatedText: Array[Byte]): String = {
-    validateAssociatedText(associatedText)
-    val rawPayload           = Base64.getDecoder.decode(data)
-    val encryptedPayloadSize = rawPayload.length - nonceLength
-    val nonce                = new Array[Byte](nonceLength)
-    val encrypted            = new Array[Byte](encryptedPayloadSize)
-    System.arraycopy(rawPayload, 0          , nonce    , 0, nonceLength         )
-    System.arraycopy(rawPayload, nonceLength, encrypted, 0, encryptedPayloadSize)
-    try {
-      val params = new AEADParameters(keyParam, MAC_SIZE, nonce, associatedText)
-      new String(GCM.decrypt(encrypted, params))
-    } catch {
-      case e: Exception => throw new SecurityException("Failed decrypting data", e)
-    }
-  }
-
-  private def validateAssociatedText(associatedText: Array[Byte]): Unit =
-    if (associatedText == null) throw new IllegalStateException("There is no Associated Text!")
-
-  private def initSecureRNG(): SecureRandom = {
-    var random: SecureRandom = null
-    try {
-      random = SecureRandom.getInstance("SHA1PRNG")
-    } catch {
+      val random = SecureRandom.getInstance("SHA1PRNG")
+      random.setSeed(random.generateSeed(nonceLength))
+      random
+     } catch {
       case e: NoSuchAlgorithmException =>
         throw new SecurityException("Failed to obtain instance of randomizer!", e)
-    }
-    random.setSeed(random.generateSeed(nonceLength))
-    random
-  }
-}
+     }
 
-object GCMEncrypterDecrypter {
-  final val MAC_SIZE = 128
+
+  private val secretKey = toSecretKey(key)
+  encrypt("asd".getBytes, "asd".getBytes) // encrypt something to check if key is valid
+
+  def encrypt(valueToEncrypt: Array[Byte], associatedData: Array[Byte]): String = {
+    validateAssociatedData(associatedData)
+    val initialisationVector = generateInitialisationVector()
+    val encrypted            = encryptBytes(
+                                 valueToEncrypt,
+                                 associatedData   = associatedData,
+                                 gcmParameterSpec = new GCMParameterSpec(TAG_BIT_LENGTH, initialisationVector)
+                               )
+
+    val combined = new Array[Byte](initialisationVector.length + encrypted.length)
+    System.arraycopy(initialisationVector, 0, combined, 0                          , initialisationVector.length)
+    System.arraycopy(encrypted           , 0, combined, initialisationVector.length, encrypted.length           )
+    new String(Base64.getEncoder.encode(combined))
+  }
+
+  def decrypt(encryptedString: String, associatedData: Array[Byte]): String = {
+    validateAssociatedData(associatedData)
+    val encryptedBytes: Array[Byte] = Base64.getDecoder.decode(encryptedString)
+    val initialisationVector = encryptedBytes.take(nonceLength)
+    val valueToDecrypt       = encryptedBytes.drop(nonceLength)
+    decryptBytes(
+      valueToDecrypt   = valueToDecrypt,
+      associatedData   = associatedData,
+      gcmParameterSpec = new GCMParameterSpec(TAG_BIT_LENGTH, initialisationVector)
+    )
+  }
+
+  private def generateInitialisationVector(): Array[Byte] = {
+    val iv = new Array[Byte](nonceLength)
+    secureRandom.nextBytes(iv)
+    iv
+  }
+
+  private def toSecretKey(aesKey: Array[Byte]): SecretKey =
+    Try {
+      new SecretKeySpec(aesKey, 0, aesKey.length, ALGORITHM_KEY)
+    } match {
+      case Success(secretKey) => secretKey
+      case Failure(ex)        => throw new SecurityException("The key provided is invalid", ex)
+    }
+
+  private[secure] def encryptBytes(
+    valueToEncrypt  : Array[Byte],
+    associatedData  : Array[Byte],
+    gcmParameterSpec: GCMParameterSpec
+  ): Array[Byte] =
+   Try {
+      val cipher = getCipherInstance()
+      cipher.init(Cipher.ENCRYPT_MODE, secretKey, gcmParameterSpec, new SecureRandom())
+      cipher.updateAAD(associatedData)
+      cipher.doFinal(valueToEncrypt)
+    } match {
+      case Success(result) => result
+      case Failure(ex)     => throw new SecurityException("Failed encrypting data", ex)
+    }
+
+  private[secure] def decryptBytes(
+    valueToDecrypt  : Array[Byte],
+    associatedData  : Array[Byte],
+    gcmParameterSpec: GCMParameterSpec
+  ): String =
+    Try {
+      val cipher = getCipherInstance()
+      cipher.init(Cipher.DECRYPT_MODE, secretKey, gcmParameterSpec, new SecureRandom())
+      cipher.updateAAD(associatedData)
+      cipher.doFinal(valueToDecrypt)
+    } match {
+      case Success(value) => new String(value)
+      case Failure(ex)    => throw new SecurityException("Failed decrypting data", ex)
+    }
+
+  protected def getCipherInstance(): Cipher =
+    Cipher.getInstance(ALGORITHM_TO_TRANSFORM_STRING)
+
+  private def validateAssociatedData(associatedData: Array[Byte]) =
+    if (associatedData == null)
+      throw new SecurityException("associated data must not be null", null)
 }

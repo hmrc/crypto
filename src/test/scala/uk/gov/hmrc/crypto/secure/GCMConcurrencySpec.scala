@@ -16,12 +16,10 @@
 
 package uk.gov.hmrc.crypto.secure
 
-import java.util
-import java.util.concurrent.CountDownLatch
-
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
+import java.util.concurrent.CountDownLatch
 import scala.collection.mutable.ListBuffer
 
 class GCMConcurrencySpec extends AnyWordSpecLike with Matchers {
@@ -32,12 +30,12 @@ class GCMConcurrencySpec extends AnyWordSpecLike with Matchers {
 
       val latch = new CountDownLatch(1)
 
-      val wrapper = new GCMEncrypterDecrypter("1234567890123456".getBytes)
+      val cipher = new GCMEncrypterDecrypter("1234567890123456".getBytes)
 
       val threads = new ListBuffer[Thread]()
 
       for (i <- 0 to 500) {
-        val thread = new Thread(new GCMEncrypterDecrypterThread(latch, i, wrapper, testResult))
+        val thread = new Thread(new GCMEncrypterDecrypterThread(latch, i, cipher, testResult))
         threads += thread
         thread.start()
       }
@@ -59,7 +57,7 @@ class GCMConcurrencySpec extends AnyWordSpecLike with Matchers {
   private class GCMEncrypterDecrypterThread(
     val latch  : CountDownLatch,
     val Id     : Int,
-    val wrapper: GCMEncrypterDecrypter,
+    val cipher : GCMEncrypterDecrypter,
     val result : TestResult
   ) extends Runnable {
     override def run(): Unit = {
@@ -71,9 +69,9 @@ class GCMConcurrencySpec extends AnyWordSpecLike with Matchers {
 
       val valueToEncrypt = "somedata"
       try {
-        val response = wrapper.encrypt(valueToEncrypt.getBytes, "additional".getBytes)
-        val decrypt  = wrapper.decrypt(response.getBytes, "additional".getBytes)
-        val equal    = util.Arrays.equals(valueToEncrypt.getBytes, decrypt.getBytes)
+        val response = cipher.encrypt(valueToEncrypt.getBytes, "additional".getBytes)
+        val decrypt  = cipher.decrypt(response, "additional".getBytes)
+        val equal    = java.util.Arrays.equals(valueToEncrypt.getBytes, decrypt.getBytes)
         println(s"Encrypted/Decrypted successfully: $equal")
         if (!equal) {
           result.failed = true

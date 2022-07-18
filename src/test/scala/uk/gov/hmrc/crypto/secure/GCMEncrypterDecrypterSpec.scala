@@ -16,10 +16,6 @@
 
 package uk.gov.hmrc.crypto.secure
 
-import java.util
-
-import org.bouncycastle.crypto.params.{AEADParameters, KeyParameter}
-import org.bouncycastle.util.encoders.Base64
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
@@ -28,61 +24,66 @@ class GCMEncrypterDecrypterSpec extends AnyWordSpecLike with Matchers {
   "GCMEncrypterDecrypter" should {
 
     "encrypt and decrypt without additional text" in {
-      val encryptMessage = "data to encrypted!"
+      val valueToEncrypt = "data to encrypt"
       val associatedText = ""
       val cipher         = new GCMEncrypterDecrypter("12345678901234561234567890987654".getBytes)
 
-      val encrypted = cipher.encrypt(encryptMessage.getBytes, associatedText.getBytes)
-      val decrypted = cipher.decrypt(encrypted.getBytes     , associatedText.getBytes)
+      val encrypted = cipher.encrypt(valueToEncrypt.getBytes, associatedText.getBytes)
+      val decrypted = cipher.decrypt(encrypted              , associatedText.getBytes)
 
-      decrypted.getBytes shouldBe encryptMessage.getBytes
+      valueToEncrypt.getBytes shouldBe decrypted.getBytes
     }
 
     "encrypt and decrypt with additional text" in {
-      val valueToEncrypt = "somedata"
-      val associatedText = "additional"
+      val valueToEncrypt = "data to encrypt"
+      val associatedText = "associatedText"
       val cipher   = new GCMEncrypterDecrypter("1234567890123456".getBytes)
 
-      val response = cipher.encrypt(valueToEncrypt.getBytes, associatedText.getBytes)
-      val decrypt  = cipher.decrypt(response.getBytes      , associatedText.getBytes)
+      val encrypted = cipher.encrypt(valueToEncrypt.getBytes, associatedText.getBytes)
+      val decrypted = cipher.decrypt(encrypted, associatedText.getBytes)
 
-      valueToEncrypt.getBytes shouldBe decrypt.getBytes
-    }
-
-    "successfully encrypt and decrypt payload by manually extracting the nonce" in {
-      val encryptMessage = "data to encrypt"
-      val key            = "1234567890123456"
-      val associatedText = "associate"
-      val nonceLength    = 16
-
-      val cipher = new GCMEncrypterDecrypter(key.getBytes, nonceLength = nonceLength)
-
-      // Encrypt
-      val encrypted = cipher.encrypt(encryptMessage.getBytes, associatedText.getBytes)
-
-      // Manually extract the nonce from the message and then decrypt using the low level API.
-      val decoded          = Base64.decode(encrypted)
-      val nonce            = util.Arrays.copyOfRange(decoded, 0, nonceLength)
-      val extractEncrypted = util.Arrays.copyOfRange(decoded, nonceLength, decoded.length)
-      val keyParam         = new KeyParameter(key.getBytes)
-      val params           = new AEADParameters(keyParam, GCMEncrypterDecrypter.MAC_SIZE, nonce, associatedText.getBytes)
-
-      val decrypted = GCM.decrypt(extractEncrypted, params)
-
-      decrypted shouldBe encryptMessage.getBytes
+      valueToEncrypt.getBytes shouldBe decrypted.getBytes
     }
 
     "fail to decrypt if the nonce is invalid" in {
-      val encryptMessage = "data to encrypt"
-      val associatedText = "associate"
+      val valueToEncrypt = "data to encrypt"
+      val associatedText = "associatedText"
 
       val cipher = new GCMEncrypterDecrypter("1234567890123456".getBytes)
 
-      val encrypted = cipher.encrypt(encryptMessage.getBytes, associatedText.getBytes)
+      val encrypted = cipher.encrypt(valueToEncrypt.getBytes, associatedText.getBytes)
       val invalidEncrypted = "aA" + encrypted.substring(2, encrypted.length)
 
       the [SecurityException] thrownBy {
-        cipher.decrypt(invalidEncrypted.getBytes, associatedText.getBytes)
+        cipher.decrypt(invalidEncrypted, associatedText.getBytes)
+      } should have message "Failed decrypting data"
+    }
+
+    "fail to decrypt if the key is different" in {
+      val valueToEncrypt = "data to encrypt"
+      val associatedText = "associatedText"
+
+      val cipher1 = new GCMEncrypterDecrypter("1234567890123456".getBytes)
+      val cipher2 = new GCMEncrypterDecrypter("6543210987654321".getBytes)
+
+      val encrypted = cipher1.encrypt(valueToEncrypt.getBytes, associatedText.getBytes)
+
+      the [SecurityException] thrownBy {
+        cipher2.decrypt(encrypted, associatedText.getBytes)
+      } should have message "Failed decrypting data"
+    }
+
+    "fail to decrypt if the associated text is different" in {
+      val valueToEncrypt = "data to encrypt"
+      val associatedText = "associatedText"
+
+      val cipher = new GCMEncrypterDecrypter("1234567890123456".getBytes)
+
+      val encrypted = cipher.encrypt(valueToEncrypt.getBytes, associatedText.getBytes)
+
+      the [SecurityException] thrownBy {
+        val associatedText2 = associatedText + "asd"
+        cipher.decrypt(encrypted, associatedText2.getBytes)
       } should have message "Failed decrypting data"
     }
   }
