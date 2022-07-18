@@ -8,13 +8,13 @@ In the example below 'cookie.encryption' is the baseConfigKey that is specified
 when the crypto utility is created.
 The 'previousKeys' element is optional.
 
-```
-    # Base 64 encoded MD5 hash of application.secret
+```conf
+# Base 64 encoded MD5 hash of application.secret
 
-    cookie.encryption {
-      key="gvBoGdgzqG1AarzF1LY0zQ=="
-      previousKeys=["AwMDAwMDAwMDAwMDAwMDAw==","BAQEBAQEBAQEBAQEBAQEBA=="]
-    }
+cookie.encryption {
+  key="gvBoGdgzqG1AarzF1LY0zQ=="
+  previousKeys=["AwMDAwMDAwMDAwMDAwMDAw==","BAQEBAQEBAQEBAQEBAQEBA=="]
+}
 ```
 
 ## Installing
@@ -27,12 +27,15 @@ resolvers += MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefac
 libraryDependencies += "uk.gov.hmrc" %% "crypto" % "[INSERT-VERSION]"
 ```
 
-## Code Owners
+## Changes
 
-Please note that although Platform Security does not own this code, it is required
-to get peer review from Platform Security on changes made.
+### Version 7.0.0
+
+- The `secure` library has been rolled into `crypto`. The package has changed from `hmrc.gov.uk.secure` to `hmrc.gov.uk.crypto.secure`.
+- `SecureGCMCipher` has been added. It is different from `GCMCrypto` in that it supports associated data to be provided on each encrypt/decrypt.
+
+
 
 ## License
 
-This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html").
-
+This code is open source software licensed under the [Apache 2.0 License]("http://www.apache.org/licenses/LICENSE-2.0.html")
