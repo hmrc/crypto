@@ -16,8 +16,8 @@
 
 package uk.gov.hmrc.crypto
 
-import uk.gov.hmrc.secure.AsymmetricDecrypter
-import uk.gov.hmrc.secure.AsymmetricEncrypter
+import uk.gov.hmrc.crypto.secure.AsymmetricDecrypter
+import uk.gov.hmrc.crypto.secure.AsymmetricEncrypter
 
 import java.security.KeyFactory
 import java.security.interfaces.RSAPrivateCrtKey

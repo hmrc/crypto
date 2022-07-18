@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.secure
+package uk.gov.hmrc.crypto.secure
 
 object Algorithm extends Enumeration {
   type Algorithm = Value

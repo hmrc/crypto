@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.secure
+package uk.gov.hmrc.crypto.secure
 
 import java.nio.charset.StandardCharsets
 import java.security._
 
 import org.apache.commons.codec.binary.Base64
-import uk.gov.hmrc.secure.Algorithm._
+import uk.gov.hmrc.crypto.secure.Algorithm._
 
 class Signer(val privateKey: PrivateKey) {
 

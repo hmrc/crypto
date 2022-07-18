@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.secure
+package uk.gov.hmrc.crypto.secure
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import java.nio.charset.StandardCharsets

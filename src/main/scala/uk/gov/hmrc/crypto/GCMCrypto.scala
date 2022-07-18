@@ -17,7 +17,7 @@
 package uk.gov.hmrc.crypto
 
 import org.apache.commons.codec.binary.Base64
-import uk.gov.hmrc.secure.GCMEncrypterDecrypter
+import uk.gov.hmrc.crypto.secure.GCMEncrypterDecrypter
 
 trait AesGCMCrypto extends Encrypter with Decrypter {
   private val EMPTY_ASSOCIATE_TEXT = ""

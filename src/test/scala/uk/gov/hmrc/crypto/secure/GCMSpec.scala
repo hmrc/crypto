@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.secure
+package uk.gov.hmrc.crypto.secure
 
 import java.nio.charset.StandardCharsets
 import java.security.SecureRandom

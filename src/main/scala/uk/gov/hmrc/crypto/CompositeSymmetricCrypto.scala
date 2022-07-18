@@ -19,7 +19,7 @@ package uk.gov.hmrc.crypto
 import javax.crypto.spec.SecretKeySpec
 
 import org.apache.commons.codec.binary.Base64
-import uk.gov.hmrc.secure.{SymmetricDecrypter, SymmetricEncrypter}
+import uk.gov.hmrc.crypto.secure.{SymmetricDecrypter, SymmetricEncrypter}
 
 import scala.util.{Success, Try}
 
