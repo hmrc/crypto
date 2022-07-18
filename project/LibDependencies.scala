@@ -3,9 +3,10 @@ import sbt._
 object LibDependencies {
 
   val compile = Seq(
-    "uk.gov.hmrc"  %% "secure"       % "8.1.0",
-    "com.typesafe" %  "config"       % "1.4.1",
-    "javax.inject" %  "javax.inject" % "1"
+    "commons-codec"    %  "commons-codec"  % "1.15",
+    "org.bouncycastle" %  "bcprov-jdk15on" % "1.68",
+    "com.typesafe"     %  "config"         % "1.4.1",
+    "javax.inject"     %  "javax.inject"   % "1"
   )
 
   val test = Seq(

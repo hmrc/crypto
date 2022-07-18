@@ -14,22 +14,18 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.crypto
+package uk.gov.hmrc.secure
 
-import javax.crypto.spec.SecretKeySpec
-import org.apache.commons.codec.binary.Base64
+object Algorithm extends Enumeration {
+  type Algorithm = Value
 
-class Sha512Crypto(encryptionKey: String) extends Hasher with Verifier {
+  val RSA_ECB_OAEPWithSHA1AndMGF1Padding = Value("RSA/ECB/OAEPWithSHA1AndMGF1Padding")
+  val SHA1withRSA = Value("SHA1withRSA")
 
-  private lazy val encrypter = {
-    val encryptionKeyBytes = Base64.decodeBase64(encryptionKey.getBytes("UTF-8"))
-    val secretKey          = new SecretKeySpec(encryptionKeyBytes, "HmacSHA512")
-    new SymmetricHasher(secretKey)
+  class AlgorithmValue(algorithm: Value) {
+    def value() = algorithm.toString
   }
 
-  override def hash(plainText: PlainText): Scrambled = encrypter.hash(plainText)
-
-  override def verify(plainText: PlainText, ncrypted: Scrambled): Boolean =
-    encrypter.hash(plainText) == ncrypted
+  implicit def value2AlgorithmValue(algorithm: Value) = new AlgorithmValue(algorithm)
 
 }

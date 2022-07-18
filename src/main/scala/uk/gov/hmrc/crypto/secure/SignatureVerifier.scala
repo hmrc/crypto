@@ -14,29 +14,27 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.crypto
+package uk.gov.hmrc.secure
 
 import java.nio.charset.StandardCharsets
 import java.security._
-import javax.crypto.Mac
 
 import org.apache.commons.codec.binary.Base64
+import uk.gov.hmrc.secure.Algorithm._
 
-class SymmetricHasher(secretKey: Key) {
-  def hash(data: PlainText): Scrambled =
+class SignatureVerifier(val publicKey: PublicKey) {
+
+  def verify(data: String, signature: String, algorithm: Algorithm = SHA1withRSA): Boolean = {
     try {
-      val sha512_HMAC = Mac.getInstance(secretKey.getAlgorithm)
-      sha512_HMAC.init(secretKey)
-      Scrambled(Base64.encodeBase64String(sha512_HMAC.doFinal(data.value.getBytes(StandardCharsets.UTF_8))))
+      val sig = Signature.getInstance(algorithm.value())
+      sig.initVerify(publicKey)
+      sig.update(data.getBytes(StandardCharsets.UTF_8))
+      sig.verify(Base64.decodeBase64(signature))
     } catch {
-      case nsae: NoSuchAlgorithmException => {
-        throw new SecurityException("Algorithm '" + secretKey.getAlgorithm + "' is not supported", nsae)
-      }
-      case ike: InvalidKeyException => {
-        throw new SecurityException("The private key is invalid", ike)
-      }
-      case se: SignatureException => {
-        throw new SecurityException("Signature error", se)
-      }
+      case nsae: NoSuchAlgorithmException => throw new SecurityException("Algorithm '" + algorithm.value() + "' is not supported", nsae)
+      case ike: InvalidKeyException => throw new SecurityException("The private key is invalid", ike)
+      case se: SignatureException => throw new SecurityException("Signature error", se)
     }
+  }
+
 }

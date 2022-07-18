@@ -14,25 +14,8 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.crypto
+package uk.gov.hmrc.secure
 
-import com.typesafe.config.Config
-import collection.JavaConverters._
+import javax.crypto.SecretKey
 
-import scala.util.Try
-
-private[crypto] trait ValueFinder[T] {
-  def apply(config: Config, key: String): Try[T]
-}
-
-private[crypto] object ValueFinder {
-  implicit object StringValueFinder extends ValueFinder[String] {
-    def apply(config: Config, key: String): Try[String] =
-      Try(config.getString(key))
-  }
-
-  implicit object StringListValueFinder extends ValueFinder[List[String]] {
-    def apply(config: Config, key: String): Try[List[String]] =
-      Try(config.getStringList(key).asScala.toList)
-  }
-}
+class SymmetricDecrypter(override protected val key: SecretKey) extends Decrypter
