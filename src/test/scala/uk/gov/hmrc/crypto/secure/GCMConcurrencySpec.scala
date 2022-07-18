@@ -27,18 +27,16 @@ import scala.collection.mutable.ListBuffer
 class GCMConcurrencySpec extends AnyWordSpecLike with Matchers {
 
   "GCM" should {
-
     "be thread safe" in {
-
       val testResult = new TestResult
 
       val latch = new CountDownLatch(1)
 
-      val wrapper = new GCMEncrypterDecrypter("1234567890123456".getBytes, "additional".getBytes)
+      val wrapper = new GCMEncrypterDecrypter("1234567890123456".getBytes)
 
       val threads = new ListBuffer[Thread]()
 
-      for(i <- 0 to 500) {
+      for (i <- 0 to 500) {
         val thread = new Thread(new GCMEncrypterDecrypterThread(latch, i, wrapper, testResult))
         threads += thread
         thread.start()
@@ -52,17 +50,19 @@ class GCMConcurrencySpec extends AnyWordSpecLike with Matchers {
 
       testResult.failed shouldBe false
     }
-
   }
 
   private class TestResult {
     var failed: Boolean = false
   }
 
-  private class GCMEncrypterDecrypterThread(val latch: CountDownLatch, val Id: Int, val wrapper: GCMEncrypterDecrypter, val result: TestResult ) extends Runnable {
-
-    override def run() {
-
+  private class GCMEncrypterDecrypterThread(
+    val latch  : CountDownLatch,
+    val Id     : Int,
+    val wrapper: GCMEncrypterDecrypter,
+    val result : TestResult
+  ) extends Runnable {
+    override def run(): Unit = {
       try {
         latch.await()
       } catch {
@@ -71,18 +71,16 @@ class GCMConcurrencySpec extends AnyWordSpecLike with Matchers {
 
       val valueToEncrypt = "somedata"
       try {
-        val response = wrapper.encrypt(valueToEncrypt.getBytes)
-        val decrypt = wrapper.decrypt(response.getBytes)
-        val equal = util.Arrays.equals(valueToEncrypt.getBytes, decrypt.getBytes)
+        val response = wrapper.encrypt(valueToEncrypt.getBytes, "additional".getBytes)
+        val decrypt  = wrapper.decrypt(response.getBytes, "additional".getBytes)
+        val equal    = util.Arrays.equals(valueToEncrypt.getBytes, decrypt.getBytes)
         println(s"Encrypted/Decrypted successfully: $equal")
-        if(!equal) {
+        if (!equal) {
           result.failed = true
         }
       } catch {
         case e: Exception => e.printStackTrace()
       }
     }
-
   }
-
 }

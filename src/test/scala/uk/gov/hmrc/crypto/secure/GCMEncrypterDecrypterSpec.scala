@@ -29,39 +29,43 @@ class GCMEncrypterDecrypterSpec extends AnyWordSpecLike with Matchers {
 
     "encrypt and decrypt without additional text" in {
       val encryptMessage = "data to encrypted!"
-      val cipher = new GCMEncrypterDecrypter("12345678901234561234567890987654".getBytes, "".getBytes)
+      val associatedText = ""
+      val cipher         = new GCMEncrypterDecrypter("12345678901234561234567890987654".getBytes)
 
-      val encrypted = cipher.encrypt(encryptMessage.getBytes)
-      val decrypted = cipher.decrypt(encrypted.getBytes)
+      val encrypted = cipher.encrypt(encryptMessage.getBytes, associatedText.getBytes)
+      val decrypted = cipher.decrypt(encrypted.getBytes     , associatedText.getBytes)
 
       decrypted.getBytes shouldBe encryptMessage.getBytes
     }
 
     "encrypt and decrypt with additional text" in {
       val valueToEncrypt = "somedata"
-      val wrapper = new GCMEncrypterDecrypter("1234567890123456".getBytes, "additional".getBytes)
+      val associatedText = "additional"
+      val cipher   = new GCMEncrypterDecrypter("1234567890123456".getBytes)
 
-      val response = wrapper.encrypt(valueToEncrypt.getBytes)
-      val decrypt = wrapper.decrypt(response.getBytes)
+      val response = cipher.encrypt(valueToEncrypt.getBytes, associatedText.getBytes)
+      val decrypt  = cipher.decrypt(response.getBytes      , associatedText.getBytes)
 
       valueToEncrypt.getBytes shouldBe decrypt.getBytes
     }
 
     "successfully encrypt and decrypt payload by manually extracting the nonce" in {
       val encryptMessage = "data to encrypt"
-      val key = "1234567890123456"
+      val key            = "1234567890123456"
       val associatedText = "associate"
-      val cipher = new GCMEncrypterDecrypter(key.getBytes, associatedText.getBytes)
+      val nonceLength    = 16
+
+      val cipher = new GCMEncrypterDecrypter(key.getBytes, nonceLength = nonceLength)
 
       // Encrypt
-      val encrypted = cipher.encrypt(encryptMessage.getBytes)
+      val encrypted = cipher.encrypt(encryptMessage.getBytes, associatedText.getBytes)
 
       // Manually extract the nonce from the message and then decrypt using the low level API.
-      val decoded = Base64.decode(encrypted)
-      val nonce = util.Arrays.copyOfRange(decoded, 0, GCMEncrypterDecrypter.NONCE_SIZE)
-      val extractEncrypted = util.Arrays.copyOfRange(decoded, GCMEncrypterDecrypter.NONCE_SIZE, decoded.length)
-      val keyParam = new KeyParameter(key.getBytes)
-      val params = new AEADParameters(keyParam, GCMEncrypterDecrypter.MAC_SIZE, nonce, associatedText.getBytes)
+      val decoded          = Base64.decode(encrypted)
+      val nonce            = util.Arrays.copyOfRange(decoded, 0, nonceLength)
+      val extractEncrypted = util.Arrays.copyOfRange(decoded, nonceLength, decoded.length)
+      val keyParam         = new KeyParameter(key.getBytes)
+      val params           = new AEADParameters(keyParam, GCMEncrypterDecrypter.MAC_SIZE, nonce, associatedText.getBytes)
 
       val decrypted = GCM.decrypt(extractEncrypted, params)
 
@@ -70,16 +74,16 @@ class GCMEncrypterDecrypterSpec extends AnyWordSpecLike with Matchers {
 
     "fail to decrypt if the nonce is invalid" in {
       val encryptMessage = "data to encrypt"
-      val cipher = new GCMEncrypterDecrypter("1234567890123456".getBytes, "associate".getBytes)
+      val associatedText = "associate"
 
-      val encrypted = cipher.encrypt(encryptMessage.getBytes)
+      val cipher = new GCMEncrypterDecrypter("1234567890123456".getBytes)
+
+      val encrypted = cipher.encrypt(encryptMessage.getBytes, associatedText.getBytes)
       val invalidEncrypted = "aA" + encrypted
 
       the [SecurityException] thrownBy {
-        cipher.decrypt(invalidEncrypted.getBytes)
+        cipher.decrypt(invalidEncrypted.getBytes, associatedText.getBytes)
       } should have message "Failed decrypting data"
-
     }
-
   }
 }

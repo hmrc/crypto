@@ -29,7 +29,8 @@ class GCMSpec extends AnyWordSpecLike with Matchers {
 
   private val rand = new SecureRandom
   private val keybytes = new Array[Byte](16 * 2)
-  private val nouncebytes = new Array[Byte](GCMEncrypterDecrypter.NONCE_SIZE)
+  private val nonceLength = 16
+  private val nouncebytes = new Array[Byte](nonceLength)
   private val testKey = new KeyParameter(keybytes)
   private val associatedText = "Some Associated Text".getBytes(StandardCharsets.UTF_8)
   private val plaintext = "Some plaintext".getBytes(StandardCharsets.UTF_8)
@@ -38,7 +39,6 @@ class GCMSpec extends AnyWordSpecLike with Matchers {
   rand.nextBytes(nouncebytes); // a random nounce
 
   "GCM" should {
-
     "throw exception if key used to decrypt is different" in {
       val params = new AEADParameters(testKey, GCMEncrypterDecrypter.MAC_SIZE, nouncebytes, associatedText)
       val ciphertext = GCM.encrypt(plaintext, params, 0)
@@ -49,7 +49,6 @@ class GCMSpec extends AnyWordSpecLike with Matchers {
       the [InvalidCipherTextException] thrownBy {
         GCM.decrypt(ciphertext, paramsWithBadKey)
       } should have message "mac check in GCM failed"
-
     }
 
     "successfully encrypt and decrypt payload" in {
@@ -77,10 +76,10 @@ class GCMSpec extends AnyWordSpecLike with Matchers {
     "fail when nonce used to decrypt is wrong" in {
       val params = new AEADParameters(testKey, GCMEncrypterDecrypter.MAC_SIZE, nouncebytes, associatedText)
       val ciphertext = GCM.encrypt(plaintext, params, 0)
-      val paramsWithBadNounce = new AEADParameters(testKey, GCMEncrypterDecrypter.MAC_SIZE, new Array[Byte](GCMEncrypterDecrypter.NONCE_SIZE), associatedText)
+      val paramsWithBadNonce = new AEADParameters(testKey, GCMEncrypterDecrypter.MAC_SIZE, new Array[Byte](nonceLength), associatedText)
 
       the [InvalidCipherTextException] thrownBy {
-        GCM.decrypt(ciphertext, paramsWithBadNounce)
+        GCM.decrypt(ciphertext, paramsWithBadNonce)
       } should have message "mac check in GCM failed"
     }
 

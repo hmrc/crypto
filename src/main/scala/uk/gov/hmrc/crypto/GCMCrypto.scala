@@ -20,26 +20,27 @@ import org.apache.commons.codec.binary.Base64
 import uk.gov.hmrc.crypto.secure.GCMEncrypterDecrypter
 
 trait AesGCMCrypto extends Encrypter with Decrypter {
-  private val EMPTY_ASSOCIATE_TEXT = ""
+  private val emptyAssociatedData = Array[Byte]()
 
   protected val encryptionKey: String
 
-  private lazy val encryptionKeyBytes = Base64.decodeBase64(encryptionKey.getBytes("UTF-8"))
+  private lazy val encryptionKeyBytes =
+    Base64.decodeBase64(encryptionKey.getBytes("UTF-8"))
 
-  private lazy val crypto = new GCMEncrypterDecrypter(encryptionKeyBytes, EMPTY_ASSOCIATE_TEXT.getBytes)
+  private lazy val crypto =
+    new GCMEncrypterDecrypter(encryptionKeyBytes)
 
   override def encrypt(plain: PlainContent): Crypted = plain match {
-    case PlainBytes(bytes) => Crypted(crypto.encrypt(bytes))
+    case PlainBytes(bytes) => Crypted(crypto.encrypt(bytes, emptyAssociatedData))
 
-    case PlainText(text) => Crypted(crypto.encrypt(text.getBytes))
+    case PlainText(text) => Crypted(crypto.encrypt(text.getBytes, emptyAssociatedData))
 
     case _ => throw new RuntimeException(s"Unable to encrypt unknown message type: $plain")
   }
 
   override def decrypt(encrypted: Crypted): PlainText =
-    PlainText(crypto.decrypt(encrypted.value.getBytes))
+    PlainText(crypto.decrypt(encrypted.value.getBytes, emptyAssociatedData))
 
   override def decryptAsBytes(encrypted: Crypted): PlainBytes =
-    PlainBytes(crypto.decrypt(encrypted.value.getBytes).getBytes)
-
+    PlainBytes(crypto.decrypt(encrypted.value.getBytes, emptyAssociatedData).getBytes)
 }
