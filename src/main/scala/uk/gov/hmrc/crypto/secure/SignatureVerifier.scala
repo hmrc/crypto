@@ -16,11 +16,11 @@
 
 package uk.gov.hmrc.crypto.secure
 
+import uk.gov.hmrc.crypto.secure.Algorithm._
+
 import java.nio.charset.StandardCharsets
 import java.security._
 import java.util.Base64
-
-import uk.gov.hmrc.crypto.secure.Algorithm._
 
 class SignatureVerifier(val publicKey: PublicKey) {
 

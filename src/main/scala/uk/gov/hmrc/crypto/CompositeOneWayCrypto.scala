@@ -22,7 +22,8 @@ import scala.util.control.NonFatal
 
 class CompositeOneWayCrypto(baseConfigKey: String, config: Config) extends Hasher with Verifier {
 
-  override def hash(value: PlainText): Scrambled = currentCrypto.hash(value)
+  override def hash(value: PlainText): Scrambled =
+    currentCrypto.hash(value)
 
   override def verify(value: PlainText, ncrypted: Scrambled): Boolean = {
     val encrypters = currentCrypto +: previousCryptos
@@ -56,5 +57,4 @@ class CompositeOneWayCrypto(baseConfigKey: String, config: Config) extends Hashe
       case NonFatal(ex) =>
         throw new SecurityException("Invalid encryption key", ex)
     }
-
 }

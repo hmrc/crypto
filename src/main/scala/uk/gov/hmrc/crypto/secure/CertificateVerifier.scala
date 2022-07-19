@@ -16,23 +16,22 @@
 
 package uk.gov.hmrc.crypto.secure
 
-import java.security._
+import java.security.{InvalidKeyException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException}
 import java.security.cert.{Certificate, CertificateException}
 
 trait CertificateVerifier {
 
-  def verify(certificate: Certificate): Boolean = {
+  def verify(certificate: Certificate): Boolean =
     try {
       if (isSelfSigned(certificate)) {
         throw new SecurityException("Certificate is self signed")
       }
       true
     } catch {
-      case ce: CertificateException => throw new SecurityException("Certificate is invalid", ce)
-      case nsae: NoSuchAlgorithmException => throw new SecurityException("Unsupported algorithm", nsae)
-      case nspe: NoSuchProviderException => throw new SecurityException("Unsupported provider", nspe)
+      case e: CertificateException     => throw new SecurityException("Certificate is invalid", e)
+      case e: NoSuchAlgorithmException => throw new SecurityException("Unsupported algorithm", e)
+      case e: NoSuchProviderException  => throw new SecurityException("Unsupported provider", e)
     }
-  }
 
   private def isSelfSigned(certificate: Certificate): Boolean = {
     val publicKey = certificate.getPublicKey
@@ -41,8 +40,7 @@ trait CertificateVerifier {
       true
     } catch {
       case e: InvalidKeyException => false
-      case e: SignatureException => false
+      case e: SignatureException  => false
     }
   }
-
 }

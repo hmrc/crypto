@@ -39,7 +39,7 @@ trait Decrypter {
   def decrypt(data: String, algorithm: String): String =
     new String(decryptAsBytes(data, algorithm))
 
-  def decryptAsBytes(data: String, algorithm: String): Array[Byte] = {
+  def decryptAsBytes(data: String, algorithm: String): Array[Byte] =
     try {
       val cipher: Cipher = Cipher.getInstance(algorithm)
       cipher.init(Cipher.DECRYPT_MODE, key, cipher.getParameters)
@@ -47,5 +47,4 @@ trait Decrypter {
     } catch {
       case e: Exception => throw new SecurityException("Failed decrypting data", e)
     }
-  }
 }

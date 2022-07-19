@@ -16,11 +16,10 @@
 
 package uk.gov.hmrc.crypto
 
-import java.util.Base64
-import javax.crypto.spec.SecretKeySpec
-
 import uk.gov.hmrc.crypto.secure.{SymmetricDecrypter, SymmetricEncrypter}
 
+import java.util.Base64
+import javax.crypto.spec.SecretKeySpec
 import scala.util.{Success, Try}
 
 trait AesCrypto extends Encrypter with Decrypter {

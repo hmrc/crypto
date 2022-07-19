@@ -17,14 +17,15 @@
 package uk.gov.hmrc.crypto
 
 import com.typesafe.config.Config
+
 import javax.inject.Inject
 
 class ApplicationCrypto @Inject()(config: Config) {
 
   lazy val SessionCookieCrypto  = new CryptoGCMWithKeysFromConfig(baseConfigKey = "cookie.encryption", config)
-  lazy val SsoPayloadCrypto     = new CryptoWithKeysFromConfig(baseConfigKey    = "sso.encryption", config)
-  lazy val QueryParameterCrypto = new CryptoWithKeysFromConfig(baseConfigKey    = "queryParameter.encryption", config)
-  lazy val JsonCrypto           = new CryptoWithKeysFromConfig(baseConfigKey    = "json.encryption", config)
+  lazy val SsoPayloadCrypto     = new CryptoWithKeysFromConfig(baseConfigKey = "sso.encryption"           , config)
+  lazy val QueryParameterCrypto = new CryptoWithKeysFromConfig(baseConfigKey = "queryParameter.encryption", config)
+  lazy val JsonCrypto           = new CryptoWithKeysFromConfig(baseConfigKey = "json.encryption"          , config)
 
   def verifyConfiguration(): Unit = {
     SessionCookieCrypto
@@ -34,5 +35,4 @@ class ApplicationCrypto @Inject()(config: Config) {
 
   def verifyJsonConfiguration(): Unit =
     JsonCrypto
-
 }

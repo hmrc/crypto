@@ -16,8 +16,7 @@
 
 package uk.gov.hmrc.crypto
 
-import uk.gov.hmrc.crypto.secure.AsymmetricDecrypter
-import uk.gov.hmrc.crypto.secure.AsymmetricEncrypter
+import uk.gov.hmrc.crypto.secure.{AsymmetricDecrypter, AsymmetricEncrypter}
 
 import java.security.KeyFactory
 import java.security.interfaces.RSAPrivateCrtKey
@@ -46,5 +45,4 @@ class RSAEncryptDecrypt(contents: String) {
     val rsaCrtKey = privateKey.asInstanceOf[RSAPrivateCrtKey]
     new RSAPublicKeySpec(rsaCrtKey.getModulus(), rsaCrtKey.getPublicExponent())
   }
-
 }

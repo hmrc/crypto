@@ -21,13 +21,10 @@ import com.typesafe.config.Config
 package object crypto {
 
   implicit private[crypto] class TypesafeConfigOps(config: Config) {
-
     def get[T](key: String, ifMissing: => T)(implicit valueFinder: ValueFinder[T]): T =
       valueFinder(config, key).getOrElse(ifMissing)
 
     def get[T](key: String)(implicit valueFinder: ValueFinder[T]): T =
       valueFinder(config, key).get
-
   }
-
 }

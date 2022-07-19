@@ -28,19 +28,19 @@ case class EncryptedValue(
   nonce: String
 )
 
-class SecureGCMCipherFromConfig(baseConfigKey: String, config: Config)
-  extends SecureGCMCipher(
+class CryptoGcmAdFromConfig(baseConfigKey: String, config: Config)
+  extends CryptoGcmAd(
     aesKey          = config.get[String](s"$baseConfigKey.key"),
     previousAesKeys = config.get[List[String]](s"$baseConfigKey.previousKeys", ifMissing = List.empty)
   )
 
-class SecureGCMCipher @Inject()(aesKey: String, previousAesKeys: List[String] = List.empty) {
+class CryptoGcmAd @Inject()(aesKey: String, previousAesKeys: List[String] = List.empty) {
   private val NONCE_LENGTH = 96
 
-  val cipher =
+  private val cipher =
     new GCMEncrypterDecrypter(Base64.getDecoder.decode(aesKey), nonceLength = NONCE_LENGTH)
 
-  val previousCiphers =
+  private val previousCiphers =
     previousAesKeys.map(key =>
       new GCMEncrypterDecrypter(Base64.getDecoder.decode(key), nonceLength = NONCE_LENGTH)
     )

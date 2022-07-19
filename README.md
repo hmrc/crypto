@@ -1,6 +1,6 @@
 # Crypto
 
-[![Build Status](https://travis-ci.org/hmrc/crypto.svg)](https://travis-ci.org/hmrc/crypto) [ ![Download](https://api.bintray.com/packages/hmrc/releases/crypto/images/download.svg) ](https://bintray.com/hmrc/releases/crypto/_latestVersion)
+![](https://img.shields.io/github/v/release/hmrc/crypto)
 
 A micro-library for all Crypto related infrastructure.
 
@@ -27,12 +27,46 @@ resolvers += MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefac
 libraryDependencies += "uk.gov.hmrc" %% "crypto" % "[INSERT-VERSION]"
 ```
 
+## Use
+
+### Symmetric encrypter/decrypters
+
+There are 3 flavours:
+
+- `AesCrypto`
+
+  An implementation of "AES" Cipher.
+
+  It represents the encypted data as `Crypted`, which contains a single base64 encoded String.
+
+  To create, either call `CompositeSymmetricCrypto.aes` with the secret keys, or instantiate `CryptoWithKeysFromConfig` to look up the keys from config. These both take previous keys for decryption to support key rotation.
+
+- `AesGCMCrypto`
+
+  Similar to AesCrypto, but uses the GCM algorithm. This includes the use of a nonce. Note, the associated data is always set to an empty array. Use `CryptoGcmAd` if setting the associated data is required.
+
+  It represents the encypted data as `Crypted`, which contains a single base64 encoded String.
+
+  To create, either call `CompositeSymmetricCrypto.aesGCM` with the secret keys, or instantiate `CryptoGCMWithKeysFromConfig` to look up the keys from config.
+  These both take previous keys for decryption to support key rotation.
+
+- `CryptoGcmAd`
+
+  It is similar to `AesGCMCrypto`, but it additionally takes some associated data when encrypting and decrypting.
+
+  It is a replacement to `SecreGCMCipher` that was previously included in many clients; and to simplify migration, it represents the encrypted data with `EncryptedValue` rather than `Crypted`.
+
+  Create by either instantiating `CryptoGcmAd` with the secret keys, or `CryptoGcmAdFromConfig` to look up the keys from config. These both take previous keys for decryption to support key rotation.
+
+See [java docs](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html) for more details.
+
+
 ## Changes
 
 ### Version 7.0.0
 
 - The `secure` library has been rolled into `crypto`. The package has changed from `hmrc.gov.uk.secure` to `hmrc.gov.uk.crypto.secure`.
-- `SecureGCMCipher` has been added. It is different from `GCMCrypto` in that it supports associated data to be provided on each encrypt/decrypt.
+- `CryptoGcmAd` has been added. It is different from `AesGCMCrypto` in that it supports associated data to be provided on each encrypt/decrypt.
 
 
 

@@ -39,7 +39,7 @@ trait Encrypter {
   def encrypt(data: String, algorithm: String): String =
     encrypt(data.getBytes(StandardCharsets.UTF_8), algorithm)
 
-  def encrypt(data: Array[Byte], algorithm: String): String = {
+  def encrypt(data: Array[Byte], algorithm: String): String =
     try {
       val cipher: Cipher = Cipher.getInstance(algorithm)
       cipher.init(Cipher.ENCRYPT_MODE, key, cipher.getParameters)
@@ -47,5 +47,4 @@ trait Encrypter {
     } catch {
       case e: Exception => throw new SecurityException("Failed encrypting data", e)
     }
-  }
 }

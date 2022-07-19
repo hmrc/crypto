@@ -54,7 +54,7 @@ class GCMEncrypterDecrypter(
 
 
   private val secretKey = toSecretKey(key)
-  encrypt("asd".getBytes, "asd".getBytes) // encrypt something to check if key is valid
+  encrypt("assert-valid-key".getBytes, "assert-valid-key".getBytes) // encrypt something to check if key is valid
 
   def encrypt(valueToEncrypt: Array[Byte], associatedData: Array[Byte]): EncryptedBytes = {
     validateAssociatedData(associatedData)
@@ -88,7 +88,7 @@ class GCMEncrypterDecrypter(
 
   private def toSecretKey(aesKey: Array[Byte]): SecretKey =
     Try {
-      new SecretKeySpec(aesKey, 0, aesKey.length, ALGORITHM_KEY)
+      new SecretKeySpec(aesKey, ALGORITHM_KEY)
     } match {
       case Success(secretKey) => secretKey
       case Failure(ex)        => throw new SecurityException("The key provided is invalid", ex)

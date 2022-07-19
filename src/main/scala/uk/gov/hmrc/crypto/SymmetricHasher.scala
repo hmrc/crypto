@@ -28,14 +28,8 @@ class SymmetricHasher(secretKey: Key) {
       sha512_HMAC.init(secretKey)
       Scrambled(Base64.getEncoder.encodeToString(sha512_HMAC.doFinal(data.value.getBytes(StandardCharsets.UTF_8))))
     } catch {
-      case nsae: NoSuchAlgorithmException => {
-        throw new SecurityException("Algorithm '" + secretKey.getAlgorithm + "' is not supported", nsae)
-      }
-      case ike: InvalidKeyException => {
-        throw new SecurityException("The private key is invalid", ike)
-      }
-      case se: SignatureException => {
-        throw new SecurityException("Signature error", se)
-      }
+      case e: NoSuchAlgorithmException => throw new SecurityException(s"Algorithm '${secretKey.getAlgorithm}' is not supported", e)
+      case e: InvalidKeyException      => throw new SecurityException("The private key is invalid", e)
+      case e: SignatureException       => throw new SecurityException("Signature error", e)
     }
 }
