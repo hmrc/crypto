@@ -56,6 +56,8 @@ There are 3 flavours:
 
   It is a replacement to `SecreGCMCipher` that was previously included in many clients; and to simplify migration, it represents the encrypted data with `EncryptedValue` rather than `Crypted`.
 
+  Note, if you are migrating from `SecureGCMCipher`, you will provide the key (and any previous keys) to the construction of `CryptoGcmAd` and not to each call to `encrypt`/`decrypt`. You will also need to provide your own `Format[EncryptedValue]` to store in mongo.
+
   Create by either instantiating `CryptoGcmAd` with the secret keys, or `CryptoGcmAdFromConfig` to look up the keys from config. These both take previous keys for decryption to support key rotation.
 
 See [java docs](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html) for more details.
@@ -67,6 +69,7 @@ See [java docs](https://docs.oracle.com/javase/8/docs/technotes/guides/security/
 
 - The `secure` library has been rolled into `crypto`. The package has changed from `hmrc.gov.uk.secure` to `hmrc.gov.uk.crypto.secure`.
 - `CryptoGcmAd` has been added. It is different from `AesGCMCrypto` in that it supports associated data to be provided on each encrypt/decrypt.
+- `Protected` has been moved from [json-encryption](https://github.com/hmrc/json-encryption) to this library.
 
 
 

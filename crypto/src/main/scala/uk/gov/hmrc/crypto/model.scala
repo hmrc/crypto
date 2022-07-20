@@ -17,6 +17,7 @@
 package uk.gov.hmrc.crypto
 
 import java.util.Base64
+import java.time.Instant
 
 trait Encrypter {
   def encrypt(plain: PlainContent): Crypted
@@ -55,4 +56,8 @@ object Crypted extends (String => Crypted) {
 case class Scrambled(value: String) {
   def toBase64 =
     Base64.getEncoder.encode(value.getBytes("UTF-8"))
+}
+
+case class Protected[T](decryptedValue: T) {
+  override def toString: String = "Protected(...)"
 }
