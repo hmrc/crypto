@@ -61,3 +61,21 @@ case class Scrambled(value: String) {
 case class Protected[T](decryptedValue: T) {
   override def toString: String = "Protected(...)"
 }
+
+/** `Sensitive` is an alternative to `Protected`, which avoids type erasure.
+  * This helps with for example, the native mongo driver, where codecs are looked up
+  * by runtime class.
+  * More instances can be created by clients as required.
+  */
+trait Sensitive[A] {
+  def decryptedValue: A
+  override def toString = "Sensitive(...)"
+}
+
+object Sensitive {
+  case class SensitiveString  (override val decryptedValue: String ) extends Sensitive[String]
+  case class SensitiveBoolean (override val decryptedValue: Boolean) extends Sensitive[Boolean]
+  case class SensitiveLong    (override val decryptedValue: Long   ) extends Sensitive[Long]
+  case class SensitiveDouble  (override val decryptedValue: Double ) extends Sensitive[Double]
+  case class SensitiveInstant (override val decryptedValue: Instant) extends Sensitive[Instant]
+}
