@@ -27,19 +27,12 @@ trait Encrypter {
 
   validateKey()
 
+  protected lazy val algorithm = key.getAlgorithm
+
   protected def validateKey(): Unit =
     if (key == null) throw new IllegalStateException("There is no Key defined for this Encrypter")
 
   def encrypt(data: Array[Byte]): String =
-    encrypt(data, key.getAlgorithm)
-
-  def encrypt(data: String): String =
-    encrypt(data.getBytes(StandardCharsets.UTF_8), key.getAlgorithm)
-
-  def encrypt(data: String, algorithm: String): String =
-    encrypt(data.getBytes(StandardCharsets.UTF_8), algorithm)
-
-  def encrypt(data: Array[Byte], algorithm: String): String =
     try {
       val cipher: Cipher = Cipher.getInstance(algorithm)
       cipher.init(Cipher.ENCRYPT_MODE, key, cipher.getParameters)
@@ -47,4 +40,7 @@ trait Encrypter {
     } catch {
       case e: Exception => throw new SecurityException("Failed encrypting data", e)
     }
+
+  def encrypt(data: String): String =
+    encrypt(data.getBytes(StandardCharsets.UTF_8))
 }

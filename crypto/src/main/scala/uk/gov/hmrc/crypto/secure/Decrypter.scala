@@ -27,19 +27,15 @@ trait Decrypter {
 
   validateKey()
 
+  protected lazy val algorithm = key.getAlgorithm
+
   protected def validateKey(): Unit =
     if (key == null) throw new IllegalStateException("There is no Key defined for this Decrypter")
 
   def decrypt(data: String): String =
-    decrypt(data, key.getAlgorithm)
+    new String(decryptAsBytes(data))
 
   def decryptAsBytes(data: String): Array[Byte] =
-    decryptAsBytes(data, key.getAlgorithm)
-
-  def decrypt(data: String, algorithm: String): String =
-    new String(decryptAsBytes(data, algorithm))
-
-  def decryptAsBytes(data: String, algorithm: String): Array[Byte] =
     try {
       val cipher: Cipher = Cipher.getInstance(algorithm)
       cipher.init(Cipher.DECRYPT_MODE, key, cipher.getParameters)
