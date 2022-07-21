@@ -22,10 +22,10 @@ import javax.inject.Inject
 
 class ApplicationCrypto @Inject()(config: Config) {
 
-  lazy val SessionCookieCrypto  = new CryptoGCMWithKeysFromConfig(baseConfigKey = "cookie.encryption", config)
-  lazy val SsoPayloadCrypto     = new CryptoWithKeysFromConfig(baseConfigKey = "sso.encryption"           , config)
-  lazy val QueryParameterCrypto = new CryptoWithKeysFromConfig(baseConfigKey = "queryParameter.encryption", config)
-  lazy val JsonCrypto           = new CryptoWithKeysFromConfig(baseConfigKey = "json.encryption"          , config)
+  lazy val SessionCookieCrypto  = CryptoFactory.aesGcmCryptoFromConfig(baseConfigKey = "cookie.encryption", config)
+  lazy val SsoPayloadCrypto     = CryptoFactory.aesCryptoFromConfig(baseConfigKey = "sso.encryption"           , config)
+  lazy val QueryParameterCrypto = CryptoFactory.aesCryptoFromConfig(baseConfigKey = "queryParameter.encryption", config)
+  lazy val JsonCrypto           = CryptoFactory.aesCryptoFromConfig(baseConfigKey = "json.encryption"          , config)
 
   def verifyConfiguration(): Unit = {
     SessionCookieCrypto

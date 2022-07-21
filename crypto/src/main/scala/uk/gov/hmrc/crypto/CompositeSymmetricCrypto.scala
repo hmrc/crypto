@@ -16,39 +16,9 @@
 
 package uk.gov.hmrc.crypto
 
-import uk.gov.hmrc.crypto.secure.{SymmetricDecrypter, SymmetricEncrypter}
-
-import java.util.Base64
-import javax.crypto.spec.SecretKeySpec
 import scala.util.{Success, Try}
 
-trait AesCrypto extends Encrypter with Decrypter {
-
-  protected val encryptionKey: String
-
-  private lazy val encryptionKeyBytes =
-    Base64.getDecoder.decode(encryptionKey.getBytes("UTF-8"))
-
-  private lazy val secretKey = new SecretKeySpec(encryptionKeyBytes, "AES")
-
-  private lazy val encrypter = new SymmetricEncrypter(secretKey)
-
-  private lazy val decrypter = new SymmetricDecrypter(secretKey)
-
-  override def encrypt(plain: PlainContent): Crypted =
-    plain match {
-      case PlainBytes(bytes) => Crypted(encrypter.encrypt(bytes))
-      case PlainText(text)   => Crypted(encrypter.encrypt(text))
-      case _                 => throw new Exception(s"Unable to encrypt unkown message type: $plain")
-    }
-
-  override def decrypt(encrypted: Crypted): PlainText =
-    PlainText(decrypter.decrypt(encrypted.value))
-
-  override def decryptAsBytes(encrypted: Crypted): PlainBytes =
-    PlainBytes(decrypter.decryptAsBytes(encrypted.value))
-}
-
+@deprecated("Use CryptoFactory.composeCrypto to construct instances", "7.0.0")
 trait CompositeSymmetricCrypto extends Encrypter with Decrypter {
 
   protected val currentCrypto: Encrypter with Decrypter
@@ -81,6 +51,7 @@ trait CompositeSymmetricCrypto extends Encrypter with Decrypter {
 
 object CompositeSymmetricCrypto {
 
+  @deprecated("Use CryptoFactory.aesCrypto", "7.0.0")
   def aes(currentKey: String, previousKeys: Seq[String]): CompositeSymmetricCrypto =
     new CompositeSymmetricCrypto {
       override protected val currentCrypto: Encrypter with Decrypter =
@@ -95,6 +66,7 @@ object CompositeSymmetricCrypto {
         })
     }
 
+  @deprecated("Use CryptoFactory.aesCrypto", "7.0.0")
   def aesGCM(currentKey: String, previousKeys: Seq[String]): CompositeSymmetricCrypto =
     new CompositeSymmetricCrypto {
       override protected val currentCrypto: Encrypter with Decrypter = new AesGCMCrypto {

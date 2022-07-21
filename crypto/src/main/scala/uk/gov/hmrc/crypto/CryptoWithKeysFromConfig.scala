@@ -19,6 +19,7 @@ package uk.gov.hmrc.crypto
 import com.typesafe.config.Config
 import scala.util.control.NonFatal
 
+@deprecated("Use CryptoFactory.aesCryptoFromConfig", "7.0.0")
 class CryptoWithKeysFromConfig(baseConfigKey: String, config: Config) extends CompositeSymmetricCrypto {
 
   override protected val currentCrypto = {

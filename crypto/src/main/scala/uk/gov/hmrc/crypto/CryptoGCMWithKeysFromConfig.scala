@@ -20,6 +20,7 @@ import com.typesafe.config.Config
 
 import scala.util.control.NonFatal
 
+@deprecated("Use CryptoFactory.aesGcmCryptoFromConfig", "7.0.0")
 class CryptoGCMWithKeysFromConfig(baseConfigKey: String, config: Config) extends CompositeSymmetricCrypto {
 
   override protected val currentCrypto = {
