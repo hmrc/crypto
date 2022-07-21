@@ -20,21 +20,19 @@ import java.nio.charset.StandardCharsets
 import java.security.{InvalidKeyException, NoSuchAlgorithmException, PrivateKey, Signature, SignatureException}
 import java.util.Base64
 
-import uk.gov.hmrc.crypto.secure.Algorithm._
-
 class Signer(val privateKey: PrivateKey) {
 
   def sign(
     data     : String,
-    algorithm: Algorithm = SHA1withRSA
+    algorithm: Algorithm = Algorithm.SHA1withRSA
   ): String =
     try {
-      val signature = Signature.getInstance(algorithm.value())
+      val signature = Signature.getInstance(algorithm.value)
       signature.initSign(privateKey)
       signature.update(data.getBytes(StandardCharsets.UTF_8))
       Base64.getEncoder.encodeToString(signature.sign)
     } catch {
-      case e: NoSuchAlgorithmException => throw new SecurityException(s"Algorithm '${algorithm.value()}' is not supported", e)
+      case e: NoSuchAlgorithmException => throw new SecurityException(s"Algorithm '${algorithm.value}' is not supported", e)
       case e: InvalidKeyException      => throw new SecurityException("The private key is invalid", e)
       case e: SignatureException       => throw new SecurityException("Signature error", e)
     }

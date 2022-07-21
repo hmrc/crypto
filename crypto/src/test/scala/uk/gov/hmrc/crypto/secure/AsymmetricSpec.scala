@@ -30,10 +30,10 @@ class AsymmetricSpec extends AnyWordSpecLike with Matchers with KeyProvider {
       val privateKey = getPrivateKey("/keys/key.pk8")
 
       val encrypter = new AsymmetricEncrypter(publicKey) {
-                        override lazy val algorithm = Algorithm.RSA_ECB_OAEPWithSHA1AndMGF1Padding.value()
+                        override lazy val algorithm = Algorithm.RSA_ECB_OAEPWithSHA1AndMGF1Padding.value
                       }
       val decrypter = new AsymmetricDecrypter(privateKey) {
-                        override lazy val algorithm = Algorithm.RSA_ECB_OAEPWithSHA1AndMGF1Padding.value()
+                        override lazy val algorithm = Algorithm.RSA_ECB_OAEPWithSHA1AndMGF1Padding.value
                       }
 
       val encrypted = encrypter.encrypt(original)

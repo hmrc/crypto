@@ -16,16 +16,10 @@
 
 package uk.gov.hmrc.crypto.secure
 
-object Algorithm extends Enumeration {
-  type Algorithm = Value
+trait Algorithm { def value: String }
 
-  val RSA_ECB_OAEPWithSHA1AndMGF1Padding = Value("RSA/ECB/OAEPWithSHA1AndMGF1Padding")
-  val SHA1withRSA = Value("SHA1withRSA")
 
-  class AlgorithmValue(algorithm: Value) {
-    def value() = algorithm.toString
-  }
-
-  implicit def value2AlgorithmValue(algorithm: Value) = new AlgorithmValue(algorithm)
-
+object Algorithm {
+  val RSA_ECB_OAEPWithSHA1AndMGF1Padding = new Algorithm { override def value = "RSA/ECB/OAEPWithSHA1AndMGF1Padding" }
+  val SHA1withRSA                        = new Algorithm { override def value = "SHA1withRSA" }
 }
