@@ -21,12 +21,12 @@ import org.scalatest.wordspec.AnyWordSpecLike
 
 import java.util.Base64
 
-class CryptoGcmAdSpec
+class AesGcmAdCryptoSpec
   extends AnyWordSpecLike
      with Matchers {
 
   private val secretKey      = "VqmXp7yigDFxbCUdDdNZVIvbW6RgPNJsliv6swQNCL8="
-  private val encrypter      = new CryptoGcmAd(secretKey)
+  private val encrypter      = new AesGcmAdCrypto(secretKey)
   private val textToEncrypt  = "textNotEncrypted"
   private val associatedText = "associatedText"
   private val encryptedText  = EncryptedValue(
@@ -86,7 +86,7 @@ class CryptoGcmAdSpec
     }
 
     "return an SecurityException if the secret key is different" in {
-      val encrypter = new CryptoGcmAd("cXo7u0HuJK8B/52xLwW7eQ==")
+      val encrypter = new AesGcmAdCrypto("cXo7u0HuJK8B/52xLwW7eQ==")
 
       val decryptAttempt = intercept[SecurityException](
         encrypter.decrypt(encryptedText, associatedText)
@@ -97,7 +97,7 @@ class CryptoGcmAdSpec
 
     "return an SecurityException if the key is empty" in {
       val decryptAttempt = intercept[SecurityException](
-        new CryptoGcmAd("")
+        new AesGcmAdCrypto("")
       )
 
       decryptAttempt.getMessage should include("The key provided is invalid")

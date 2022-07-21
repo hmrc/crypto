@@ -43,22 +43,22 @@ There are 3 flavours:
 
 - `AesGCMCrypto`
 
-  Similar to AesCrypto, but uses the GCM algorithm. This includes the use of a nonce. Note, the associated data is always set to an empty array. Use `CryptoGcmAd` if setting the associated data is required.
+  Similar to AesCrypto, but uses the GCM algorithm. This includes the use of a nonce. Note, the associated data is always set to an empty array. Use `AesGcmAdCrypto` if setting the associated data is required.
 
   It represents the encypted data as `Crypted`, which contains a single base64 encoded String.
 
   To create, either call `CompositeSymmetricCrypto.aesGCM` with the secret keys, or instantiate `CryptoGCMWithKeysFromConfig` to look up the keys from config.
   These both take previous keys for decryption to support key rotation.
 
-- `CryptoGcmAd`
+- `AesGcmAdCrypto`
 
   It is similar to `AesGCMCrypto`, but it additionally takes some associated data when encrypting and decrypting.
 
   It is a replacement to `SecreGCMCipher` that was previously included in many clients; and to simplify migration, it represents the encrypted data with `EncryptedValue` rather than `Crypted`.
 
-  Note, if you are migrating from `SecureGCMCipher`, you will provide the key (and any previous keys) to the construction of `CryptoGcmAd` and not to each call to `encrypt`/`decrypt`. You will also need to import `CryptoFormats.encryptedValueFormat` from `json-encryption`.
+  Note, if you are migrating from `SecureGCMCipher`, you will provide the key (and any previous keys) to the construction of `AesGcmAdCrypto` and not to each call to `encrypt`/`decrypt`. You will also need to import `CryptoFormats.encryptedValueFormat` from `json-encryption`.
 
-  Create by either instantiating `CryptoGcmAd` with the secret keys, or `CryptoGcmAdFromConfig` to look up the keys from config. These both take previous keys for decryption to support key rotation.
+  Create by either instantiating `AesGcmAdCrypto` with the secret keys, or `AesGcmAdCryptoFromConfig` to look up the keys from config. These both take previous keys for decryption to support key rotation.
 
 See [java docs](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html) for more details.
 
@@ -70,7 +70,7 @@ See [java docs](https://docs.oracle.com/javase/8/docs/technotes/guides/security/
 - The `secure` library has been rolled into `crypto`. The package has changed from `hmrc.gov.uk.secure` to `hmrc.gov.uk.crypto.secure`.
 - The `json-encryption` library has been rolled in as a multi-module build.
 - Default `toString` of `Protected` is suppressed.
-- `CryptoGcmAd` has been added. It is different from `AesGCMCrypto` in that it supports associated data to be provided on each encrypt/decrypt.
+- `AesGcmAdCrypto` has been added. It is different from `AesGCMCrypto` in that it supports associated data to be provided on each encrypt/decrypt.
 
 
 

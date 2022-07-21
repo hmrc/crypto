@@ -28,13 +28,13 @@ case class EncryptedValue(
   nonce: String
 )
 
-class CryptoGcmAdFromConfig(baseConfigKey: String, config: Config)
-  extends CryptoGcmAd(
+class AesGcmAdCryptoFromConfig(baseConfigKey: String, config: Config)
+  extends AesGcmAdCrypto(
     aesKey          = config.get[String](s"$baseConfigKey.key"),
     previousAesKeys = config.get[List[String]](s"$baseConfigKey.previousKeys", ifMissing = List.empty)
   )
 
-class CryptoGcmAd @Inject()(aesKey: String, previousAesKeys: List[String] = List.empty) {
+class AesGcmAdCrypto @Inject()(aesKey: String, previousAesKeys: List[String] = List.empty) {
   private val NONCE_LENGTH = 96
 
   private val cipher =
