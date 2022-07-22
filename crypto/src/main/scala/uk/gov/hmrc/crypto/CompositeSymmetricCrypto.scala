@@ -18,7 +18,7 @@ package uk.gov.hmrc.crypto
 
 import scala.util.{Success, Try}
 
-@deprecated("Use CryptoFactory.composeCrypto to construct instances", "7.0.0")
+@deprecated("Use SymmetricCryptoFactory.composeCrypto to compose cryptos. Use `Encrypter with Decrypter` as the interface fo cryptos", "7.0.0")
 trait CompositeSymmetricCrypto extends Encrypter with Decrypter {
 
   protected val currentCrypto: Encrypter with Decrypter
@@ -51,7 +51,7 @@ trait CompositeSymmetricCrypto extends Encrypter with Decrypter {
 
 object CompositeSymmetricCrypto {
 
-  @deprecated("Use CryptoFactory.aesCrypto", "7.0.0")
+  @deprecated("Use SymmetricCryptoFactory.aesCrypto", "7.0.0")
   def aes(currentKey: String, previousKeys: Seq[String]): CompositeSymmetricCrypto =
     new CompositeSymmetricCrypto {
       override protected val currentCrypto: Encrypter with Decrypter =
@@ -66,7 +66,7 @@ object CompositeSymmetricCrypto {
         })
     }
 
-  @deprecated("Use CryptoFactory.aesCrypto", "7.0.0")
+  @deprecated("Use SymmetricCryptoFactory.aesCrypto", "7.0.0")
   def aesGCM(currentKey: String, previousKeys: Seq[String]): CompositeSymmetricCrypto =
     new CompositeSymmetricCrypto {
       override protected val currentCrypto: Encrypter with Decrypter = new AesGCMCrypto {

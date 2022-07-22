@@ -39,7 +39,7 @@ There are 3 flavours:
 
   It represents the encypted data as `Crypted`, which contains a single base64 encoded String.
 
-  To create, either call `CompositeSymmetricCrypto.aes` with the secret keys, or instantiate `CryptoWithKeysFromConfig` to look up the keys from config. These both take previous keys for decryption to support key rotation.
+  To create, either call `SymmetricCryptoFactory.aesCrypto` with the secret key, or `SymmetricCryptoFactory.aesCryptoFromConfig` to look up the keys from config. `SymmetricCryptoFactory.aesCryptoFromConfig` additionally supports decrypting with any available previous keys, to support key rotation.
 
 - `AesGCMCrypto`
 
@@ -47,8 +47,7 @@ There are 3 flavours:
 
   It represents the encypted data as `Crypted`, which contains a single base64 encoded String.
 
-  To create, either call `CompositeSymmetricCrypto.aesGCM` with the secret keys, or instantiate `CryptoGCMWithKeysFromConfig` to look up the keys from config.
-  These both take previous keys for decryption to support key rotation.
+  To create, either call `SymmetricCryptoFactory.aesGcmCrypto` with the secret key, or `SymmetricCryptoFactory.aesGcmCryptoFromConfig` to look up the keys from config.  `SymmetricCryptoFactory.aesGcmCryptoFromConfig` additionally supports decrypting with any available previous keys, to support key rotation.
 
 - `AesGcmAdCrypto`
 
@@ -58,9 +57,28 @@ There are 3 flavours:
 
   Note, if you are migrating from `SecureGCMCipher`, you will provide the key (and any previous keys) to the construction of `AesGcmAdCrypto` and not to each call to `encrypt`/`decrypt`. You will also need to import `CryptoFormats.encryptedValueFormat` from `json-encryption`.
 
-  Create by either instantiating `AesGcmAdCrypto` with the secret keys, or `AesGcmAdCryptoFromConfig` to look up the keys from config. These both take previous keys for decryption to support key rotation.
+  To create, either call `SymmetricCryptoFactory.aesGcmAdCrypto` with the secret key, or `SymmetricCryptoFactory.aesGcmAdCryptoFromConfig` to look up the keys from config. `SymmetricCryptoFactory.aesGcmAdCryptoFromConfig` additionally supports decrypting with any available previous keys, to support key rotation.
 
 See [java docs](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html) for more details.
+
+### Protected and Sensitive
+
+This model identifies data which should be encrypted. They can be used in conjunction with [Json encrypters](#json-encryption) to encrypt in JSON for storing in database or sending over the wire. They also override `toString` to suppress logging.
+
+Where as `Protected` is a case class with parameterised type, `Sensitive` is a trait with concrete implementations, which can be useful when erasure is problematic (e.g. looking up a mongo codec in runtime).
+
+### Json encryption
+
+Provides Play json formats which encrypt the `Protected` and `Sensitive` types. See [more on the model](#protected-and-sensitive).
+
+```scala
+resolvers += MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefacts.tax.service.gov.uk/maven2")
+
+libraryDependencies += "uk.gov.hmrc" %% "json-encryption-play-xx" % "[INSERT-VERSION]"
+```
+
+Where `play-xx` is your version of Play (e.g. `play-28`).
+
 
 
 ## Changes
@@ -71,6 +89,8 @@ See [java docs](https://docs.oracle.com/javase/8/docs/technotes/guides/security/
 - The `json-encryption` library has been rolled in as a multi-module build.
 - Default `toString` of `Protected` is suppressed.
 - `AesGcmAdCrypto` has been added. It is different from `AesGCMCrypto` in that it supports associated data to be provided on each encrypt/decrypt.
+- `SymmetricCryptoFactory` has been added to make finding/using symetric cryptos easier.
+- `CompositeSymmetricCrypto` has been deprecated. To compose cryptos, clients should use `SymmetricCryptoFactory.composeCrypto`. Clients should not use the `CompositeSymmetricCrypto` abstraction, which is implementation details of the composition of previous decrypters. Instead, they should use `Encrypter with Decrypter`.
 
 
 

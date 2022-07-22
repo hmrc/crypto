@@ -29,6 +29,15 @@ trait Decrypter {
   def decryptAsBytes(reversiblyEncrypted: Crypted): PlainBytes
 }
 
+trait AdEncrypter {
+  def encrypt(valueToEncrypt: String, associatedText: String): EncryptedValue
+}
+
+trait AdDecrypter {
+  def decrypt(valueToDecrypt: EncryptedValue, associatedText: String): String
+}
+
+
 trait Hasher {
   def hash(plain: PlainText): Scrambled
 }

@@ -55,7 +55,7 @@ class AesGcmAdCryptoSpec
         encrypter.decrypt(invalidEncryptedValue, associatedText)
       )
 
-      decryptAttempt.getMessage should include("Unable to decrypt value with any key")
+      decryptAttempt.getMessage should include("Failed decrypting data")
     }
 
     "return an SecurityException if the nonce is different" in {
@@ -66,7 +66,7 @@ class AesGcmAdCryptoSpec
         encrypter.decrypt(invalidEncryptedValue, associatedText)
       )
 
-      decryptAttempt.getMessage should include("Unable to decrypt value with any key")
+      decryptAttempt.getMessage should include("Failed decrypting data")
     }
 
     "return an SecurityException if the associated text is different" in {
@@ -74,7 +74,7 @@ class AesGcmAdCryptoSpec
         encrypter.decrypt(encryptedText, "invalid associated text")
       )
 
-      decryptAttempt.getMessage should include("Unable to decrypt value with any key")
+      decryptAttempt.getMessage should include("Failed decrypting data")
     }
 
     "return an SecurityException if the associated text is empty" in {
@@ -92,7 +92,7 @@ class AesGcmAdCryptoSpec
         encrypter.decrypt(encryptedText, associatedText)
       )
 
-      decryptAttempt.getMessage should include("Unable to decrypt value with any key")
+      decryptAttempt.getMessage should include("Failed decrypting data")
     }
 
     "return an SecurityException if the key is empty" in {

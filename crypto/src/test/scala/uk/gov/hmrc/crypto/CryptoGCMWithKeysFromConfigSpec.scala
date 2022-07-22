@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.crypto
 
+import com.github.ghik.silencer.silent
 import com.typesafe.config.ConfigFactory
 import org.mockito.MockitoSugar
 import org.scalatest.matchers.should.Matchers
@@ -25,6 +26,7 @@ import java.security.SecureRandom
 import java.util.Base64
 import collection.JavaConverters._
 
+@silent("deprecated")
 class CryptoGCMWithKeysFromConfigSpec extends AnyWordSpecLike with Matchers with MockitoSugar {
 
   private val keybytes          = new Array[Byte](16 * 2)

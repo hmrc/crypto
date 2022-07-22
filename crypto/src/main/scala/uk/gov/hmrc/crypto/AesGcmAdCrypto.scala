@@ -16,36 +16,22 @@
 
 package uk.gov.hmrc.crypto
 
-import com.typesafe.config.Config
 import uk.gov.hmrc.crypto.secure.{EncryptedBytes, GCMEncrypterDecrypter}
 
 import java.util.Base64
-import javax.inject.Inject
-import scala.util.{Success, Try}
 
 case class EncryptedValue(
   value: String,
   nonce: String
 )
 
-class AesGcmAdCryptoFromConfig(baseConfigKey: String, config: Config)
-  extends AesGcmAdCrypto(
-    aesKey          = config.get[String](s"$baseConfigKey.key"),
-    previousAesKeys = config.get[List[String]](s"$baseConfigKey.previousKeys", ifMissing = List.empty)
-  )
-
-class AesGcmAdCrypto @Inject()(aesKey: String, previousAesKeys: List[String] = List.empty) {
+class AesGcmAdCrypto(aesKey: String) extends AdEncrypter with AdDecrypter {
   private val NONCE_LENGTH = 96
 
   private val cipher =
     new GCMEncrypterDecrypter(Base64.getDecoder.decode(aesKey), nonceLength = NONCE_LENGTH)
 
-  private val previousCiphers =
-    previousAesKeys.map(key =>
-      new GCMEncrypterDecrypter(Base64.getDecoder.decode(key), nonceLength = NONCE_LENGTH)
-    )
-
-  def encrypt(valueToEncrypt: String, associatedText: String): EncryptedValue = {
+  override def encrypt(valueToEncrypt: String, associatedText: String): EncryptedValue = {
     validateAssociatedText(associatedText)
     val encryptedValue = cipher.encrypt(valueToEncrypt.getBytes, associatedText.getBytes)
     EncryptedValue(
@@ -54,17 +40,14 @@ class AesGcmAdCrypto @Inject()(aesKey: String, previousAesKeys: List[String] = L
     )
   }
 
-  def decrypt(valueToDecrypt: EncryptedValue, associatedText: String): String = {
+  override def decrypt(valueToDecrypt: EncryptedValue, associatedText: String): String = {
     validateAssociatedText(associatedText)
     val encryptedBytes =
       EncryptedBytes(
         value = Base64.getDecoder.decode(valueToDecrypt.value.getBytes),
         nonce = Base64.getDecoder.decode(valueToDecrypt.nonce.getBytes)
       )
-    (cipher +: previousCiphers).toStream
-      .map(cipher => Try(cipher.decrypt(encryptedBytes, associatedText.getBytes)))
-      .collectFirst { case Success(res) => res }
-      .getOrElse(throw new SecurityException("Unable to decrypt value with any key"))
+    cipher.decrypt(encryptedBytes, associatedText.getBytes)
   }
 
   private def validateAssociatedText(associatedText: String): Unit =

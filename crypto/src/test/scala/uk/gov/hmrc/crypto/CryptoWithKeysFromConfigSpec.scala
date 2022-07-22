@@ -16,6 +16,7 @@
 
 package uk.gov.hmrc.crypto
 
+import com.github.ghik.silencer.silent
 import com.typesafe.config.ConfigFactory
 import org.mockito.MockitoSugar
 import org.scalatest.matchers.should.Matchers
@@ -24,6 +25,7 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import java.util.Base64
 import collection.JavaConverters._
 
+@silent("deprecated")
 class CryptoWithKeysFromConfigSpec extends AnyWordSpecLike with Matchers with MockitoSugar {
 
   private val baseConfigKey = "crypto.spec"
