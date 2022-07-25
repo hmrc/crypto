@@ -55,7 +55,7 @@ There are 3 flavours:
 
   It is a replacement to `SecreGCMCipher` that was previously included in many clients; and to simplify migration, it represents the encrypted data with `EncryptedValue` rather than `Crypted`.
 
-  Note, if you are migrating from `SecureGCMCipher`, you will provide the key (and any previous keys) to the construction of `AesGcmAdCrypto` and not to each call to `encrypt`/`decrypt`. You will also need to import `CryptoFormats.encryptedValueFormat` from `json-encryption`.
+  Note, if you are migrating from `SecureGCMCipher`, you will provide the key (and any previous keys) to the construction of `AesGcmAdCrypto` and not to each call to `encrypt`/`decrypt`. You will also need to import `CryptoFormats.encryptedValueFormat` from `crypto-json`.
 
   To create, either call `SymmetricCryptoFactory.aesGcmAdCrypto` with the secret key, or `SymmetricCryptoFactory.aesGcmAdCryptoFromConfig` to look up the keys from config. `SymmetricCryptoFactory.aesGcmAdCryptoFromConfig` additionally supports decrypting with any available previous keys, to support key rotation.
 
@@ -63,18 +63,20 @@ See [java docs](https://docs.oracle.com/javase/8/docs/technotes/guides/security/
 
 ### Protected and Sensitive
 
-This model identifies data which should be encrypted. They can be used in conjunction with [Json encrypters](#json-encryption) to encrypt in JSON for storing in database or sending over the wire. They also override `toString` to suppress logging.
+This model identifies data which should be encrypted. They can be used in conjunction with [Crypto Json](#crypto-json) to encrypt in JSON for storing in database or sending over the wire. They also override `toString` to suppress logging.
 
 Where as `Protected` is a case class with parameterised type, `Sensitive` is a trait with concrete implementations, which can be useful when erasure is problematic (e.g. looking up a mongo codec in runtime).
 
-### Json encryption
+### Crypto Json
 
 Provides Play json formats which encrypt the `Protected` and `Sensitive` types. See [more on the model](#protected-and-sensitive).
+
+This replaces the `json-encryption` library.
 
 ```scala
 resolvers += MavenRepository("HMRC-open-artefacts-maven2", "https://open.artefacts.tax.service.gov.uk/maven2")
 
-libraryDependencies += "uk.gov.hmrc" %% "json-encryption-play-xx" % "[INSERT-VERSION]"
+libraryDependencies += "uk.gov.hmrc" %% "crypto-json-play-xx" % "[INSERT-VERSION]"
 ```
 
 Where `play-xx` is your version of Play (e.g. `play-28`).
@@ -86,7 +88,7 @@ Where `play-xx` is your version of Play (e.g. `play-28`).
 ### Version 7.0.0
 
 - The `secure` library has been rolled into `crypto`. The package has changed from `hmrc.gov.uk.secure` to `hmrc.gov.uk.crypto.secure`.
-- The `json-encryption` library has been rolled in as a multi-module build.
+- The artefact `crypto-json-play-xx` has been added to replace the `json-encryption` library.
 - Default `toString` of `Protected` is suppressed.
 - `AesGcmAdCrypto` has been added. It is different from `AesGCMCrypto` in that it supports associated data to be provided on each encrypt/decrypt.
 - `SymmetricCryptoFactory` has been added to make finding/using symetric cryptos easier.

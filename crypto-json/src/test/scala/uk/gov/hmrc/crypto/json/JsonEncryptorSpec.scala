@@ -22,7 +22,10 @@ import org.scalatest.matchers.should.Matchers
 import play.api.libs.json.{JsString, Json}
 import uk.gov.hmrc.crypto._
 
+@silent("deprecated")
 class JsonEncryptionSpec extends AnyWordSpecLike with Matchers {
+  import JsonEncryptionSpec._
+
   "formatting an entity" should {
     "encrypt the elements" in {
       val e = TestEntity(
@@ -76,45 +79,52 @@ class JsonEncryptionSpec extends AnyWordSpecLike with Matchers {
   }
 }
 
-case class TestEntity(
-  normalString    : String,
-  encryptedString : Protected[String],
-  encryptedBoolean: Protected[Boolean],
-  encryptedNumber : Protected[BigDecimal]
-)
-
 @silent("deprecated")
-object TestEntity {
+object JsonEncryptionSpec {
+  case class TestEntity(
+    normalString    : String,
+    encryptedString : Protected[String],
+    encryptedBoolean: Protected[Boolean],
+    encryptedNumber : Protected[BigDecimal]
+  )
+
+  object TestEntity {
     implicit val crypto = new CompositeSymmetricCrypto {
-    override protected val currentCrypto: Encrypter with Decrypter = new AesCrypto {
-      override protected val encryptionKey: String = "P5xsJ9Nt+quxGZzB4DeLfw=="
+      override protected val currentCrypto: Encrypter with Decrypter = new AesCrypto {
+        override protected val encryptionKey: String = "P5xsJ9Nt+quxGZzB4DeLfw=="
+      }
+      override protected val previousCryptos: Seq[Decrypter] = Seq.empty
     }
-    override protected val previousCryptos: Seq[Decrypter] = Seq.empty
+
+    object JsonStringEncryption extends JsonEncryptor[String]
+    object JsonBooleanEncryption extends JsonEncryptor[Boolean]
+    object JsonBigDecimalEncryption extends JsonEncryptor[BigDecimal]
+
+    object JsonStringDecryption extends JsonDecryptor[String]
+    object JsonBooleanDecryption extends JsonDecryptor[Boolean]
+    object JsonBigDecimalDecryption extends JsonDecryptor[BigDecimal]
+
+    implicit val formats = {
+      implicit val encryptedStringFormats     = JsonStringEncryption
+      implicit val encryptedBooleanFormats    = JsonBooleanEncryption
+      implicit val encryptedBigDecimalFormats = JsonBigDecimalEncryption
+
+      implicit val decryptedStringFormats     = JsonStringDecryption
+      implicit val decryptedBooleanFormats    = JsonBooleanDecryption
+      implicit val decryptedBigDecimalFormats = JsonBigDecimalDecryption
+
+      Json.format[TestEntity]
+    }
   }
 
-  object JsonStringEncryption extends JsonEncryptor[String]
-  object JsonBooleanEncryption extends JsonEncryptor[Boolean]
-  object JsonBigDecimalEncryption extends JsonEncryptor[BigDecimal]
+  case class TestForm(
+    name   : String,
+    sname  : String,
+    amount : Int,
+    isValid: Boolean
+  )
 
-  object JsonStringDecryption extends JsonDecryptor[String]
-  object JsonBooleanDecryption extends JsonDecryptor[Boolean]
-  object JsonBigDecimalDecryption extends JsonDecryptor[BigDecimal]
-
-  implicit val formats = {
-    implicit val encryptedStringFormats     = JsonStringEncryption
-    implicit val encryptedBooleanFormats    = JsonBooleanEncryption
-    implicit val encryptedBigDecimalFormats = JsonBigDecimalEncryption
-
-    implicit val decryptedStringFormats     = JsonStringDecryption
-    implicit val decryptedBooleanFormats    = JsonBooleanDecryption
-    implicit val decryptedBigDecimalFormats = JsonBigDecimalDecryption
-
-    Json.format[TestEntity]
+  object TestForm {
+    implicit val formats = Json.format[TestForm]
   }
-}
-
-case class TestForm(name: String, sname: String, amount: Int, isValid: Boolean)
-
-object TestForm {
-  implicit val formats = Json.format[TestForm]
 }

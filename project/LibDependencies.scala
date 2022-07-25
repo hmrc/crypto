@@ -14,7 +14,7 @@ object LibDependencies {
     "org.mockito"          %% "mockito-scala" % "1.16.15" % Test
   )
 
-  val jsonEncryptionPlay28Compile = Seq(
+  val cryptoJsonPlay28Compile = Seq(
     "com.typesafe.play" %% "play-json" % "2.8.1"
   )
 }

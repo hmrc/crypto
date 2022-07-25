@@ -21,7 +21,7 @@ import uk.gov.hmrc.crypto.{CompositeSymmetricCrypto, Crypted, PlainText, Protect
 
 import scala.util.{Failure, Success, Try}
 
-@deprecated("Use CryptoFormats.protectedEncrypter", "7.0.0")
+@deprecated("Use JsonEncryption.protectedEncrypter", "7.0.0")
 class JsonEncryptor[T]()(implicit crypto: CompositeSymmetricCrypto, wrts: Writes[T]) extends Writes[Protected[T]] {
   override def writes(o: Protected[T]): JsValue = {
     val jsonString = wrts.writes(o.decryptedValue).toString
@@ -29,7 +29,7 @@ class JsonEncryptor[T]()(implicit crypto: CompositeSymmetricCrypto, wrts: Writes
   }
 }
 
-@deprecated("Use CryptoFormats.protectedDecrypter", "7.0.0")
+@deprecated("Use JsonEncryption.protectedDecrypter", "7.0.0")
 class JsonDecryptor[T](implicit crypto: CompositeSymmetricCrypto, rds: Reads[T]) extends Reads[Protected[T]] {
   override def reads(json: JsValue): JsResult[Protected[T]] = {
     json.validate[String]

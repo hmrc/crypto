@@ -23,7 +23,7 @@ lazy val library = Project("library", file("."))
   )
   .aggregate(
     crypto,
-    jsonEncryptionPlay28,
+    cryptoJsonPlay28,
     jsonEncryption
   )
 
@@ -33,11 +33,10 @@ lazy val crypto = Project("crypto", file("crypto"))
     libraryDependencies ++= LibDependencies.cryptoCompile ++ LibDependencies.cryptoTest
   )
 
-// TODO rename as crypto-json?
-lazy val jsonEncryptionPlay28 = Project("json-encryption-play-28", file("json-encryption"))
+lazy val cryptoJsonPlay28 = Project("crypto-json-play-28", file("crypto-json"))
   .settings(
     commonSettings,
-    libraryDependencies ++= LibDependencies.jsonEncryptionPlay28Compile ++ LibDependencies.cryptoTest
+    libraryDependencies ++= LibDependencies.cryptoJsonPlay28Compile ++ LibDependencies.cryptoTest
   ).dependsOn(crypto, jsonEncryption)
 
 

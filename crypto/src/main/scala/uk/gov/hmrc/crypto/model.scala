@@ -82,9 +82,10 @@ trait Sensitive[A] {
 }
 
 object Sensitive {
-  case class SensitiveString  (override val decryptedValue: String ) extends Sensitive[String]
-  case class SensitiveBoolean (override val decryptedValue: Boolean) extends Sensitive[Boolean]
-  case class SensitiveLong    (override val decryptedValue: Long   ) extends Sensitive[Long]
-  case class SensitiveDouble  (override val decryptedValue: Double ) extends Sensitive[Double]
-  case class SensitiveInstant (override val decryptedValue: Instant) extends Sensitive[Instant]
+  case class SensitiveString    (override val decryptedValue: String    ) extends Sensitive[String]
+  case class SensitiveBoolean   (override val decryptedValue: Boolean   ) extends Sensitive[Boolean]
+  case class SensitiveLong      (override val decryptedValue: Long      ) extends Sensitive[Long]
+  case class SensitiveDouble    (override val decryptedValue: Double    ) extends Sensitive[Double]
+  case class SensitiveBigDecimal(override val decryptedValue: BigDecimal) extends Sensitive[BigDecimal]
+  case class SensitiveInstant   (override val decryptedValue: Instant   ) extends Sensitive[Instant]
 }

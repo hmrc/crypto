@@ -17,10 +17,9 @@
 package uk.gov.hmrc.crypto.json
 
 import play.api.libs.json._
-import play.api.libs.functional.syntax._
-import uk.gov.hmrc.crypto.{Crypted, Decrypter, Encrypter, EncryptedValue, PlainText, Protected, Sensitive}
+import uk.gov.hmrc.crypto.{Crypted, Crypto, Decrypter, Encrypter, PlainText, Protected, Sensitive}
 
-object CryptoFormats {
+object JsonEncryption {
   def stringEncrypter(implicit crypto: Encrypter): Writes[String] =
     implicitly[Writes[String]]
       .contramap[String](s => crypto.encrypt(PlainText(s)).value)
@@ -29,8 +28,7 @@ object CryptoFormats {
     implicitly[Reads[String]]
       .map[String](s => crypto.decrypt(Crypted(s)).value)
 
-  // TODO Or call stringCrypter?
-  def stringEncrypterDecrypter(implicit crypto: Encrypter with Decrypter): Format[String] =
+  def stringEncrypterDecrypter(implicit crypto: Crypto): Format[String] =
     Format(stringDecrypter, stringEncrypter)
 
   def protectedEncrypter[T](implicit crypto: Encrypter, wrts: Writes[T]): Writes[Protected[T]] =
@@ -39,7 +37,7 @@ object CryptoFormats {
   def protectedDecrypter[T](implicit crypto: Decrypter, rds: Reads[T]): Reads[Protected[T]] =
     stringDecrypter.map(s => Protected(Json.parse(s).as[T]))
 
-  def protectedEncrypterDecrypter[T](implicit crypto: Encrypter with Decrypter, fmt: Format[T]): Format[Protected[T]] =
+  def protectedEncrypterDecrypter[T](implicit crypto: Crypto, fmt: Format[T]): Format[Protected[T]] =
     Format(protectedDecrypter, protectedEncrypter)
 
   def sensitiveEncrypter[A : Writes, B <: Sensitive[A]](implicit crypto: Encrypter): Writes[B] =
@@ -50,11 +48,4 @@ object CryptoFormats {
 
   def sensitiveEncrypterDecrypter[A : Format, B <: Sensitive[A]](toSensitive: A => B)(implicit crypto: Encrypter with Decrypter): Format[B] =
     Format(sensitiveDecrypter(toSensitive), sensitiveEncrypter)
-
-  /** Standard formats - assumes that encryption has already taken place */
-
-  val encryptedValueFormat: Format[EncryptedValue] =
-    ( (__ \ "value").format[String]
-    ~ (__ \ "nonce").format[String]
-    )(EncryptedValue.apply, unlift(EncryptedValue.unapply))
 }
