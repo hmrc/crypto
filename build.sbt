@@ -23,8 +23,7 @@ lazy val library = Project("library", file("."))
   )
   .aggregate(
     crypto,
-    cryptoJsonPlay28,
-    jsonEncryption
+    cryptoJsonPlay28
   )
 
 lazy val crypto = Project("crypto", file("crypto"))
@@ -37,11 +36,4 @@ lazy val cryptoJsonPlay28 = Project("crypto-json-play-28", file("crypto-json"))
   .settings(
     commonSettings,
     libraryDependencies ++= LibDependencies.cryptoJsonPlay28Compile ++ LibDependencies.cryptoTest
-  ).dependsOn(crypto, jsonEncryption)
-
-
-// empty artefact, exists to ensure eviction of previous json-encryption jar which has now moved into json-encryption-play-xx
-lazy val jsonEncryption = Project("json-encryption", file("json-encryption-empty"))
-  .settings(
-    commonSettings
-  )
+  ).dependsOn(crypto)

@@ -61,15 +61,15 @@ There are 3 flavours:
 
 See [java docs](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html) for more details.
 
-### Protected and Sensitive
+### Sensitive
 
-This model identifies data which should be encrypted. They can be used in conjunction with [Crypto Json](#crypto-json) to encrypt in JSON for storing in database or sending over the wire. They also override `toString` to suppress logging.
+This model identifies data which should be encrypted. It can be used in conjunction with [Crypto Json](#crypto-json) to encrypt in JSON for storing in database or sending over the wire. It also overrides `toString` to suppress logging.
 
-Where as `Protected` is a case class with parameterised type, `Sensitive` is a trait with concrete implementations, which can be useful when erasure is problematic (e.g. looking up a mongo codec in runtime).
+It is recommended to use `Sensitive` rather than `Protected` as provided by `json-encyption` since the parameterised type is not erased, which can be useful with looking up a mongo codec in runtime for example.
 
 ### Crypto Json
 
-Provides Play json formats which encrypt the `Protected` and `Sensitive` types. See [more on the model](#protected-and-sensitive).
+Provides Play json formats which encrypt the `Sensitive` type. See [Sensitive](#sensitive).
 
 This replaces the `json-encryption` library.
 
@@ -88,9 +88,8 @@ Where `play-xx` is your version of Play (e.g. `play-28`).
 ### Version 7.0.0
 
 - The `secure` library has been rolled into `crypto`. The package has changed from `hmrc.gov.uk.secure` to `hmrc.gov.uk.crypto.secure`.
-- The artefact `crypto-json-play-xx` has been added to replace the `json-encryption` library.
-- Default `toString` of `Protected` is suppressed.
-- `AesGcmAdCrypto` has been added. It is different from `AesGCMCrypto` in that it supports associated data to be provided on each encrypt/decrypt.
+- The artefact `crypto-json-play-xx` has been added to replace the `json-encryption` library. It provides `Sensitive` rather than `Provided` to avoid erasure and doesn't leak the value in `toString`.
+- `AesGcmAdCrypto` has been added. It is different from `AesGCMCrypto` in that it supports associated data to be provided on each encrypt/decrypt. This should replace custom `SecureGCMCipher`.
 - `SymmetricCryptoFactory` has been added to make finding/using symetric cryptos easier.
 - `CompositeSymmetricCrypto` has been deprecated. To compose cryptos, clients should use `SymmetricCryptoFactory.composeCrypto`. Clients should not use the `CompositeSymmetricCrypto` abstraction, which is implementation details of the composition of previous decrypters. Instead, they should use `Encrypter with Decrypter`.
 

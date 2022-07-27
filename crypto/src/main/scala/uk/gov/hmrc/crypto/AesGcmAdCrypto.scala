@@ -20,11 +20,6 @@ import uk.gov.hmrc.crypto.secure.{EncryptedBytes, GCMEncrypterDecrypter}
 
 import java.util.Base64
 
-case class EncryptedValue(
-  value: String,
-  nonce: String
-)
-
 class AesGcmAdCrypto(aesKey: String) extends AdEncrypter with AdDecrypter {
   private val NONCE_LENGTH = 96
 

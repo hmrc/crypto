@@ -29,59 +29,6 @@ class CryptoFormatsSpec
      with OptionValues {
   import CryptoFormatsSpec._
 
-  "protectedEncrypterDecrypter" should {
-    "encrypt/decrypt primitives" in {
-      val e = ProtectedTestEntity(
-        "unencrypted",
-        Protected[String]("encrypted"),
-        Protected[Boolean](true),
-        Protected[BigDecimal](BigDecimal("234"))
-      )
-
-      val json = Json.toJson(e)(ProtectedTestEntity.formats)
-
-      (json \ "normalString"    ).get shouldBe JsString("unencrypted")
-      (json \ "encryptedString" ).get shouldBe JsString("3TW3L1raxsKBYuKvtKqPEQ==")
-      (json \ "encryptedBoolean").get shouldBe JsString("YhWm43Ad3rW5Votdy855Kg==")
-      (json \ "encryptedNumber" ).get shouldBe JsString("Z/ipDOvm7C3ck/TBkiteAg==")
-    }
-
-    "decrypt the elements" in {
-      val jsonString = """{
-        "normalString"    :"unencrypted",
-        "encryptedString" : "3TW3L1raxsKBYuKvtKqPEQ==",
-        "encryptedBoolean": "YhWm43Ad3rW5Votdy855Kg==",
-        "encryptedNumber" : "Z/ipDOvm7C3ck/TBkiteAg=="
-      }"""
-
-      val entity = Json.fromJson(Json.parse(jsonString))(ProtectedTestEntity.formats).asOpt.value
-
-      entity shouldBe ProtectedTestEntity(
-        "unencrypted",
-        Protected[String]("encrypted"),
-        Protected[Boolean](true),
-        Protected[BigDecimal](BigDecimal("234"))
-      )
-    }
-
-    "encrypt/decrypt custom entity" in {
-      val protectedTestFormCrypto = {
-        implicit val s = TestForm.formats
-        JsonEncryption.protectedEncrypterDecrypter[TestForm]
-      }
-
-      val form           = TestForm("abdu", "sahin", 100, false)
-      val protectd       = Protected[TestForm](form)
-      val encryptedValue = protectedTestFormCrypto.writes(protectd)
-
-      encryptedValue shouldBe
-        JsString("TeYgL3TgD8e0XnvjhQlZDl0E9imdEjgyHHHSizAcKuUBZwh2ITwo34Ud8XNE88QKzfGOgAOpbMMKwcx+gwaGaA==")
-
-      val decrypted = protectedTestFormCrypto.reads(encryptedValue)
-      decrypted.asOpt.value shouldBe protectd
-    }
-  }
-
   "sensitiveEncrypterDecrypter" should {
     "encrypt/decrypt primitives" in {
       val e = SensitiveTestEntity(
@@ -138,22 +85,6 @@ class CryptoFormatsSpec
 
 object CryptoFormatsSpec {
   implicit val crypto = SymmetricCryptoFactory.aesCrypto("P5xsJ9Nt+quxGZzB4DeLfw==")
-
-  case class ProtectedTestEntity(
-    normalString    : String,
-    encryptedString : Protected[String],
-    encryptedBoolean: Protected[Boolean],
-    encryptedNumber : Protected[BigDecimal]
-  )
-
-  object ProtectedTestEntity {
-    implicit val formats = {
-      implicit val protectedStringCrypto     = JsonEncryption.protectedEncrypterDecrypter[String]
-      implicit val protectedBooleanCrypto    = JsonEncryption.protectedEncrypterDecrypter[Boolean]
-      implicit val protectedBigDecimalCrypto = JsonEncryption.protectedEncrypterDecrypter[BigDecimal]
-      Json.format[ProtectedTestEntity]
-    }
-  }
 
   case class SensitiveTestEntity(
     normalString    : String,

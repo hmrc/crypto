@@ -67,13 +67,15 @@ case class Scrambled(value: String) {
     Base64.getEncoder.encode(value.getBytes("UTF-8"))
 }
 
-case class Protected[T](decryptedValue: T) {
-  override def toString: String = "Protected(...)"
-}
+case class EncryptedValue(
+  value: String,
+  nonce: String
+)
 
-/** `Sensitive` is an alternative to `Protected`, which avoids type erasure.
-  * This helps with for example, the native mongo driver, where codecs are looked up
-  * by runtime class.
+/** `Sensitive` identifies types which require encryption (See crypto-json).
+  * It is modelled as a trait with concrete implementations rather than a parameterised case class
+  * since this avoids type erasure. This helps with for example, the native mongo driver,
+  * where codecs are looked up by runtime class.
   * More instances can be created by clients as required.
   */
 trait Sensitive[A] {

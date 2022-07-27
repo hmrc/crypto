@@ -17,7 +17,7 @@
 package uk.gov.hmrc.crypto.json
 
 import play.api.libs.json._
-import uk.gov.hmrc.crypto.{Crypted, Crypto, Decrypter, Encrypter, PlainText, Protected, Sensitive}
+import uk.gov.hmrc.crypto.{Crypted, Crypto, Decrypter, Encrypter, PlainText, Sensitive}
 
 object JsonEncryption {
   def stringEncrypter(implicit crypto: Encrypter): Writes[String] =
@@ -30,15 +30,6 @@ object JsonEncryption {
 
   def stringEncrypterDecrypter(implicit crypto: Crypto): Format[String] =
     Format(stringDecrypter, stringEncrypter)
-
-  def protectedEncrypter[T](implicit crypto: Encrypter, wrts: Writes[T]): Writes[Protected[T]] =
-    stringEncrypter.contramap(o => wrts.writes(o.decryptedValue).toString)
-
-  def protectedDecrypter[T](implicit crypto: Decrypter, rds: Reads[T]): Reads[Protected[T]] =
-    stringDecrypter.map(s => Protected(Json.parse(s).as[T]))
-
-  def protectedEncrypterDecrypter[T](implicit crypto: Crypto, fmt: Format[T]): Format[Protected[T]] =
-    Format(protectedDecrypter, protectedEncrypter)
 
   def sensitiveEncrypter[A : Writes, B <: Sensitive[A]](implicit crypto: Encrypter): Writes[B] =
     stringEncrypter.contramap(o => implicitly[Writes[A]].writes(o.decryptedValue).toString)
