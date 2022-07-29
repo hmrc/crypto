@@ -16,10 +16,10 @@
 
 package uk.gov.hmrc.crypto.secure
 
-trait Algorithm { def value: String }
+trait SignatureAlgorithm { def value: String }
 
 
-object Algorithm {
-  val RSA_ECB_OAEPWithSHA1AndMGF1Padding = new Algorithm { override def value = "RSA/ECB/OAEPWithSHA1AndMGF1Padding" }
-  val SHA1withRSA                        = new Algorithm { override def value = "SHA1withRSA" }
+object SignatureAlgorithm {
+  val SHA1withRSA   = new SignatureAlgorithm { override def value = "SHA1withRSA" }
+  val SHA256withRSA = new SignatureAlgorithm { override def value = "SHA256withRSA" }
 }

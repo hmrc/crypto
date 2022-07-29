@@ -25,7 +25,7 @@ class SignatureVerifier(val publicKey: PublicKey) {
   def verify(
     data     : String,
     signature: String,
-    algorithm: Algorithm = Algorithm.SHA1withRSA
+    algorithm: SignatureAlgorithm = SignatureAlgorithm.SHA256withRSA
   ): Boolean =
     try {
       val sig = Signature.getInstance(algorithm.value)

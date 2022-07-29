@@ -24,7 +24,7 @@ class Signer(val privateKey: PrivateKey) {
 
   def sign(
     data     : String,
-    algorithm: Algorithm = Algorithm.SHA1withRSA
+    algorithm: SignatureAlgorithm = SignatureAlgorithm.SHA256withRSA
   ): String =
     try {
       val signature = Signature.getInstance(algorithm.value)
