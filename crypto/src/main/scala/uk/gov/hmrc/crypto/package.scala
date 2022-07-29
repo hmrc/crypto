@@ -19,11 +19,6 @@ package uk.gov.hmrc
 import com.typesafe.config.Config
 
 package object crypto {
-
-  type Crypto = Encrypter with Decrypter
-
-  type AdCrypto = AdEncrypter with AdDecrypter
-
   implicit private[crypto] class TypesafeConfigOps(config: Config) {
     def get[T](key: String, ifMissing: => T)(implicit valueFinder: ValueFinder[T]): T =
       valueFinder(config, key).getOrElse(ifMissing)

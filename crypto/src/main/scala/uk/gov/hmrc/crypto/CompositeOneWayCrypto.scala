@@ -20,6 +20,7 @@ import com.typesafe.config.Config
 
 import scala.util.control.NonFatal
 
+@deprecated("Use OneWayCryptoFactory.composeCrypto to compose cryptos. Use `Hasher with Verifier` as the interface fo cryptos", "7.0.0")
 class CompositeOneWayCrypto(baseConfigKey: String, config: Config) extends Hasher with Verifier {
 
   override def hash(value: PlainText): Scrambled =

@@ -31,7 +31,11 @@ libraryDependencies += "uk.gov.hmrc" %% "crypto" % "[INSERT-VERSION]"
 
 ### Symmetric encrypter/decrypters
 
-There are 3 flavours:
+Represented by the model `Encrypter` and `Decrypter`. Or `AdEncrypter` `AdDecrypter` for the associated data variant.
+
+The different variants are provided by `SymmetricCryptoFactory`.
+
+The supported types are:
 
 - `AesCrypto`
 
@@ -39,11 +43,13 @@ There are 3 flavours:
 
   It represents the encypted data as `Crypted`, which contains a single base64 encoded String.
 
+  Note, it is recommended to use `AesGCMCrypto` instead which uses a nonce to prevent repeatable encryptions.
+
   To create, either call `SymmetricCryptoFactory.aesCrypto` with the secret key, or `SymmetricCryptoFactory.aesCryptoFromConfig` to look up the keys from config. `SymmetricCryptoFactory.aesCryptoFromConfig` additionally supports decrypting with any available previous keys, to support key rotation.
 
 - `AesGCMCrypto`
 
-  Similar to AesCrypto, but uses the GCM algorithm. This includes the use of a nonce. Note, the associated data is always set to an empty array. Use `AesGcmAdCrypto` if setting the associated data is required.
+  Similar to AesCrypto, but uses the GCM algorithm. This includes the use of a nonce, to prevent repeatable encryptions. Note, the associated data is always set to an empty array. Use `AesGcmAdCrypto` if setting the associated data is required.
 
   It represents the encypted data as `Crypted`, which contains a single base64 encoded String.
 
@@ -51,7 +57,7 @@ There are 3 flavours:
 
 - `AesGcmAdCrypto`
 
-  It is similar to `AesGCMCrypto`, but it additionally takes some associated data when encrypting and decrypting.
+  It is similar to `AesGCMCrypto`, but it additionally takes some associated data when encrypting and decrypting. This can be used to prevent copying encrypted data to another context.
 
   It is a replacement to `SecreGCMCipher` that was previously included in many clients; and to simplify migration, it represents the encrypted data with `EncryptedValue` rather than `Crypted`.
 
@@ -60,6 +66,12 @@ There are 3 flavours:
   To create, either call `SymmetricCryptoFactory.aesGcmAdCrypto` with the secret key, or `SymmetricCryptoFactory.aesGcmAdCryptoFromConfig` to look up the keys from config. `SymmetricCryptoFactory.aesGcmAdCryptoFromConfig` additionally supports decrypting with any available previous keys, to support key rotation.
 
 See [java docs](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html) for more details.
+
+### Oneway hashers/verifiers
+
+Represented by the model `Hasher` and `Verifier`.
+
+The supported variants are provided by `OnewayCryptoFactory`.
 
 ### Sensitive
 

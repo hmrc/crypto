@@ -24,6 +24,7 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import java.util.Base64
 import scala.collection.JavaConverters._
 
+@annotation.nowarn("msg=deprecated")
 class CompositeOneWayCryptoSpec extends AnyWordSpecLike with Matchers with MockitoSugar {
 
   private val baseConfigKey = "crypto.spec"

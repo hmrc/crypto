@@ -25,7 +25,7 @@ object SymmetricCryptoFactory {
     * This enables changing the crypto alorithm/secret key while still being able to decrypt any
     * previously encrypted data.
     */
-  def composeCrypto(currentCrypto: Crypto, previousDecrypters: Seq[Decrypter]): Crypto =
+  def composeCrypto(currentCrypto: Encrypter with Decrypter, previousDecrypters: Seq[Decrypter]): Encrypter with Decrypter =
     new Encrypter with Decrypter {
       override def encrypt(value: PlainContent): Crypted =
         currentCrypto.encrypt(value)
@@ -48,7 +48,7 @@ object SymmetricCryptoFactory {
   /** An implementation of "AES" Cipher.
    *  Prefer `aesGcmCrypto` for any new usage, which will not produce repeatable encryptions.
    */
-  def aesCrypto(secretKey: String): Crypto =
+  def aesCrypto(secretKey: String): Encrypter with Decrypter =
     new AesCrypto {
       override protected val encryptionKey: String = secretKey
     }
@@ -56,7 +56,7 @@ object SymmetricCryptoFactory {
   /** An implementation of "AES" Cipher.
    *  Prefer `aesGcmCryptoFromConfig` for any new usage, which will not produce repeatable encryptions.
    */
-  def aesCryptoFromConfig(baseConfigKey: String, config: Config): Crypto = {
+  def aesCryptoFromConfig(baseConfigKey: String, config: Config): Encrypter with Decrypter = {
     val currentEncryptionKey   = config.getString(baseConfigKey + ".key")
     val previousEncryptionKeys = config.get[List[String]](baseConfigKey + ".previousKeys", ifMissing = List.empty)
     composeCrypto(
@@ -69,12 +69,12 @@ object SymmetricCryptoFactory {
   /** An implementation of "AES" Cipher, with "GCM" algorithm.
     * Note, the associated data is always set to an empty array. Use `aesGcmAdCrypto` if you want to provide your own associated data.
     */
-  def aesGcmCrypto(secretKey: String): Crypto =
+  def aesGcmCrypto(secretKey: String): Encrypter with Decrypter =
     new AesGCMCrypto {
       override val encryptionKey: String = secretKey
     }
 
-  def aesGcmCryptoFromConfig(baseConfigKey: String, config: Config): Crypto = {
+  def aesGcmCryptoFromConfig(baseConfigKey: String, config: Config): Encrypter with Decrypter = {
     val currentEncryptionKey   = config.getString(baseConfigKey + ".key")
     val previousEncryptionKeys = config.get[List[String]](baseConfigKey + ".previousKeys", ifMissing = List.empty)
     composeCrypto(
@@ -89,7 +89,7 @@ object SymmetricCryptoFactory {
     * This enables changing the crypto alorithm/secret key while still being able to decrypt any
     * previously encrypted data.
     */
-  def composeAdCrypto(currentCrypto: AdCrypto, previousDecrypters: Seq[AdDecrypter]): AdCrypto =
+  def composeAdCrypto(currentCrypto: AdEncrypter with AdDecrypter, previousDecrypters: Seq[AdDecrypter]): AdEncrypter with AdDecrypter =
     new AdEncrypter with AdDecrypter {
       override def encrypt(valueToEncrypt: String, associatedText: String): EncryptedValue =
         currentCrypto.encrypt(valueToEncrypt, associatedText)
@@ -106,10 +106,10 @@ object SymmetricCryptoFactory {
 /** An implementation of "AES" Cipher, with "GCM" algorithm.
   * You can provide your own associated data when encrypting/decrypting.
   */
-  def aesGcmAdCrypto(aesKey: String): AdCrypto =
+  def aesGcmAdCrypto(aesKey: String): AdEncrypter with AdDecrypter =
     new AesGcmAdCrypto(aesKey: String)
 
-  def aesGcmAdCryptoFromConfig(baseConfigKey: String, config: Config): AdCrypto = {
+  def aesGcmAdCryptoFromConfig(baseConfigKey: String, config: Config): AdEncrypter with AdDecrypter = {
     val currentEncryptionKey   = config.get[String](s"$baseConfigKey.key")
     val previousEncryptionKeys = config.get[List[String]](s"$baseConfigKey.previousKeys", ifMissing = List.empty)
     composeAdCrypto(
