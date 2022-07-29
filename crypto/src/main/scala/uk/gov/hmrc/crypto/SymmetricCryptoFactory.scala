@@ -45,12 +45,17 @@ object SymmetricCryptoFactory {
       }
     }
 
-  /** An implementation of "AES" Cipher. */
+  /** An implementation of "AES" Cipher.
+   *  Prefer `aesGcmCrypto` for any new usage, which will not produce repeatable encryptions.
+   */
   def aesCrypto(secretKey: String): Crypto =
     new AesCrypto {
       override protected val encryptionKey: String = secretKey
     }
 
+  /** An implementation of "AES" Cipher.
+   *  Prefer `aesGcmCryptoFromConfig` for any new usage, which will not produce repeatable encryptions.
+   */
   def aesCryptoFromConfig(baseConfigKey: String, config: Config): Crypto = {
     val currentEncryptionKey   = config.getString(baseConfigKey + ".key")
     val previousEncryptionKeys = config.get[List[String]](baseConfigKey + ".previousKeys", ifMissing = List.empty)
