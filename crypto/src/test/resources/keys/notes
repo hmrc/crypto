@@ -1,0 +1,8 @@
+# Steps to create the RSA private key.
+openssl genrsa -out privatekey.pem 4096
+openssl pkcs8 -topk8 -outform DER -in privatekey.pem -inform PEM -out key.pk8 -nocrypt
+cat key.pk8 | base64
+
+# Steps to generate self-signed CRT
+openssl req -new -key privatekey.pem -out server.csr
+openssl x509 -req -days 365 -in server.csr -signkey privatekey.pem -out server.crt

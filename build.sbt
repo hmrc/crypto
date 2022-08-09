@@ -1,14 +1,33 @@
+val scala2_12 = "2.12.16"
+val scala2_13 = "2.13.8"
 
-val scala2_12 = "2.12.15"
-val scala2_13 = "2.13.7"
+lazy val commonSettings = Seq(
+  organization := "uk.gov.hmrc",
+  majorVersion := 7,
+  scalaVersion := scala2_12,
+  crossScalaVersions := Seq(scala2_12, scala2_13),
+  isPublicArtefact := true,
+  scalacOptions ++= Seq("-feature"),
+)
 
-lazy val library = Project("crypto", file("."))
-  .disablePlugins(JUnitXmlReportPlugin)
+lazy val library = Project("library", file("."))
   .settings(
-    scalaVersion := scala2_12,
-    crossScalaVersions := Seq(scala2_12, scala2_13),
-    majorVersion := 6,
-    isPublicArtefact := true,
-    libraryDependencies ++= LibDependencies.compile ++ LibDependencies.test,
-    resolvers += Resolver.typesafeRepo("releases")
+    commonSettings,
+    publish / skip := true,
   )
+  .aggregate(
+    crypto,
+    cryptoJsonPlay28
+  )
+
+lazy val crypto = Project("crypto", file("crypto"))
+  .settings(
+    commonSettings,
+    libraryDependencies ++= LibDependencies.cryptoCompile ++ LibDependencies.cryptoTest
+  )
+
+lazy val cryptoJsonPlay28 = Project("crypto-json-play-28", file("crypto-json"))
+  .settings(
+    commonSettings,
+    libraryDependencies ++= LibDependencies.cryptoJsonPlay28Compile ++ LibDependencies.cryptoTest
+  ).dependsOn(crypto)
