@@ -54,7 +54,7 @@ case class PlainBytes(value: Array[Byte]) extends PlainContent
 
 case class Crypted(value: String) {
   def toBase64 =
-    Base64.getDecoder.decode(value.getBytes("UTF-8"))
+    Base64.getEncoder.encode(value.getBytes("UTF-8"))
 }
 
 object Crypted extends (String => Crypted) {
