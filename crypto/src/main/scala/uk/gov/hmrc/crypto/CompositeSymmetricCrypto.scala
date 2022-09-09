@@ -66,7 +66,7 @@ object CompositeSymmetricCrypto {
         })
     }
 
-  @deprecated("Use SymmetricCryptoFactory.aesCrypto", "7.0.0")
+  @deprecated("Use SymmetricCryptoFactory.aesGcmCrypto", "7.0.0")
   def aesGCM(currentKey: String, previousKeys: Seq[String]): CompositeSymmetricCrypto =
     new CompositeSymmetricCrypto {
       override protected val currentCrypto: Encrypter with Decrypter = new AesGCMCrypto {
