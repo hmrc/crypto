@@ -39,7 +39,7 @@ class GCMEncrypterDecrypter(
   private val nonceLength: Int         = 16
 ) {
   private val TAG_BIT_LENGTH = 128
-  private val ALGORITHM_TO_TRANSFORM_STRING = "AES/GCM/PKCS5Padding"
+  private val ALGORITHM_TO_TRANSFORM_STRING = "AES/GCM/NoPadding"
   private val ALGORITHM_KEY = "AES"
 
   private lazy val secureRandom =
