@@ -97,6 +97,10 @@ Where `play-xx` is your version of Play (e.g. `play-28`).
 
 ## Changes
 
+### Version 7.4.0
+
+Adds support for Play 2.9
+
 ### Version 7.0.0
 
 - The `secure` library has been rolled into `crypto`. The package has changed from `hmrc.gov.uk.secure` to `hmrc.gov.uk.crypto.secure`.
