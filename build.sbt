@@ -11,7 +11,8 @@ lazy val library = Project("library", file("."))
   .aggregate(
     crypto,
     cryptoJsonPlay28,
-    cryptoJsonPlay29
+    cryptoJsonPlay29,
+    cryptoJsonPlay30
   )
 
 lazy val crypto = Project("crypto", file("crypto"))
@@ -39,4 +40,11 @@ lazy val cryptoJsonPlay29 = Project("crypto-json-play-29", file("crypto-json-pla
     crossScalaVersions := Seq(scala2_13),
     shareSources("crypto-json"),
     libraryDependencies ++= LibDependencies.cryptoJsonPlay29Compile ++ LibDependencies.cryptoTest
+  ).dependsOn(crypto)
+
+lazy val cryptoJsonPlay30 = Project("crypto-json-play-30", file("crypto-json-play-30"))
+  .settings(
+    crossScalaVersions := Seq(scala2_13),
+    shareSources("crypto-json"),
+    libraryDependencies ++= LibDependencies.cryptoJsonPlay30Compile ++ LibDependencies.cryptoTest
   ).dependsOn(crypto)
