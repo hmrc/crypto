@@ -93,13 +93,83 @@ libraryDependencies += "uk.gov.hmrc" %% "crypto-json-play-xx" % "[INSERT-VERSION
 
 Where `play-xx` is your version of Play (e.g. `play-28`).
 
+#### Migrating from json-encryption library
 
+You can use a provided `Sensitive` implementation and encrypter/decrypter if available. E.g. for `String`
+
+```scala
+val value: String = ...
+val encryptor = new JsonEncryptor[String]()
+val encryptedValue: JsValue = encryptor.writes(Protected[String](value))
+```
+
+becomes
+
+```scala
+val value: String = ...
+val encrypter = JsonEncryption.stringEncrypter
+val encryptedValue: JsValue = encrypter.writes(SensitiveString(value))
+```
+
+and
+
+```scala
+val encryptedValue: JsValue = ...
+val decryptor = new JsonDecryptor[String]()
+val optValue: Option[String] = decryptor.reads(encryptedValue).asOpt.map(_.decryptedValue)
+```
+
+becomes
+
+```scala
+val encryptedValue: JsValue = ...
+val decrypter = JsonEncryption.stringDecrypter
+val optValue: Option[String] = decrypter.reads(encryptedValue).asOpt.map(_.decryptedValue)
+```
+
+If there isn't a `Sensitive` implementation provided for your required type, you can create one.
+
+For a generic type, the type variable can be added on your `Sensitive` implementation (but in this example, `T` will be erased - but this is the same as the deprecated `Protected`). E.g. using
+
+```scala
+case class SensitiveT[T](override val decryptedValue: T) extends Sensitive[T]
+```
+
+```scala
+val value: T = ...
+val encryptor = new JsonEncryptor[T]()
+val encryptedValue: JsValue = encryptor.writes(Protected[T](value))
+```
+
+becomes
+
+```scala
+val value: T = ...
+val encrypter = JsonEncryption.sensitiveEncrypter[T, SensitiveT[T]]
+val encryptedValue: JsValue = encrypter.writes(SensitiveT(value))
+```
+
+and
+
+```scala
+val encryptedValue: JsValue = ...
+val decryptor = new JsonDecryptor[T]()
+val optValue: Option[T] = decryptor.reads(encryptedValue).asOpt.map(_.decryptedValue)
+```
+
+becomes
+
+```scala
+val encryptedValue: JsValue = ...
+val decrypter = JsonEncryption.sensitiveDecrypter[T, SensitiveT[T]](SensitiveT.apply)
+val optValue: Option[T] = decrypter.reads(encryptedValue).asOpt.map(_.decryptedValue)
+```
 
 ## Changes
 
-### Version 7.4.0
+### Version 7.6.0
 
-Adds support for Play 2.9
+Adds support for Play 2.9 and Play 3.0
 
 ### Version 7.0.0
 
