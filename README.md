@@ -107,7 +107,7 @@ becomes
 
 ```scala
 val value: String = ...
-val encrypter = JsonEncryption.stringEncrypter
+val encrypter = JsonEncryption.sensitiveEncrypter[String, SensitiveString]
 val encryptedValue: JsValue = encrypter.writes(SensitiveString(value))
 ```
 
@@ -123,7 +123,7 @@ becomes
 
 ```scala
 val encryptedValue: JsValue = ...
-val decrypter = JsonEncryption.stringDecrypter
+val decrypter = JsonEncryption.sensitiveDecrypter(SensitiveString.apply)
 val optValue: Option[String] = decrypter.reads(encryptedValue).asOpt.map(_.decryptedValue)
 ```
 
