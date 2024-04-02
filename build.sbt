@@ -1,10 +1,15 @@
 val scala2_12 = "2.12.18"
 val scala2_13 = "2.13.12"
+val scala3    = "3.3.3"
 
 ThisBuild / majorVersion     := 7
 ThisBuild / scalaVersion     := scala2_13
 ThisBuild / isPublicArtefact := true
-ThisBuild / scalacOptions    ++= Seq("-feature")
+ThisBuild / scalacOptions    ++= Seq("-feature") ++
+                                 (CrossVersion.partialVersion(scalaVersion.value) match {
+                                   case Some((3, _ )) => Seq("-explain")
+                                   case _             => Seq.empty
+                                 })
 
 lazy val library = Project("library", file("."))
   .settings(publish / skip := true)
@@ -17,7 +22,7 @@ lazy val library = Project("library", file("."))
 
 lazy val crypto = Project("crypto", file("crypto"))
   .settings(
-    crossScalaVersions := Seq(scala2_12, scala2_13),
+    crossScalaVersions := Seq(scala2_12, scala2_13, scala3),
     libraryDependencies ++= LibDependencies.cryptoCompile ++ LibDependencies.cryptoTest
   )
 
@@ -44,7 +49,7 @@ lazy val cryptoJsonPlay29 = Project("crypto-json-play-29", file("crypto-json-pla
 
 lazy val cryptoJsonPlay30 = Project("crypto-json-play-30", file("crypto-json-play-30"))
   .settings(
-    crossScalaVersions := Seq(scala2_13),
+    crossScalaVersions := Seq(scala2_13, scala3),
     shareSources("crypto-json"),
     libraryDependencies ++= LibDependencies.cryptoJsonPlay30Compile ++ LibDependencies.cryptoTest
   ).dependsOn(crypto)

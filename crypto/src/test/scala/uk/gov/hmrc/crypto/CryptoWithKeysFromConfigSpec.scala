@@ -17,9 +17,9 @@
 package uk.gov.hmrc.crypto
 
 import com.typesafe.config.ConfigFactory
-import org.mockito.MockitoSugar
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatestplus.mockito.MockitoSugar
 
 import java.util.Base64
 import collection.JavaConverters._
