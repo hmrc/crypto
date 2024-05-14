@@ -40,7 +40,6 @@ trait AesGCMCrypto extends Encrypter with Decrypter {
     plain match {
       case PlainBytes(bytes) => Crypted(fromEncryptedValue(crypto.encrypt(bytes        , emptyAssociatedData)))
       case PlainText(text)   => Crypted(fromEncryptedValue(crypto.encrypt(text.getBytes, emptyAssociatedData)))
-      case _                 => throw new RuntimeException(s"Unable to encrypt unknown message type: $plain")
     }
 
   private def fromEncryptedValue(ev: EncryptedBytes): String = {

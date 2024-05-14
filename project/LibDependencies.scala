@@ -15,14 +15,14 @@ object LibDependencies {
   )
 
   val cryptoJsonPlay28Compile = Seq(
-    "com.typesafe.play" %% "play-json" % "2.8.1" // version provided by Play 2.8
+    "com.typesafe.play" %% "play-json" % "2.8.2" // version provided by Play 2.8
   )
 
   val cryptoJsonPlay29Compile = Seq(
-    "com.typesafe.play" %% "play-json" % "2.10.2" // version provided by Play 2.9
+    "com.typesafe.play" %% "play-json" % "2.10.5" // version provided by Play 2.9
   )
 
   val cryptoJsonPlay30Compile = Seq(
-    "org.playframework" %% "play-json" % "3.0.2" // version provided by Play 3.0
+    "org.playframework" %% "play-json" % "3.0.3" // version provided by Play 3.0
   )
 }

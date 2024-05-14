@@ -37,7 +37,7 @@ object SymmetricCryptoFactory {
         decrypt(d => Try(d.decryptAsBytes(scrambled)))
 
       private def decrypt[T <: PlainContent](tryDecryption: Decrypter => Try[T]): T = {
-        val decrypterStream = (currentCrypto +: previousDecrypters).toStream
+        val decrypterStream = (currentCrypto +: previousDecrypters).to(LazyList)
         decrypterStream
           .map(tryDecryption)
           .collectFirst { case Success(msg) => msg }
@@ -95,7 +95,7 @@ object SymmetricCryptoFactory {
         currentCrypto.encrypt(valueToEncrypt, associatedText)
 
       override def decrypt(valueToDecrypt: EncryptedValue, associatedText: String): String = {
-        val decrypterStream = (currentCrypto +: previousDecrypters).toStream
+        val decrypterStream = (currentCrypto +: previousDecrypters).to(LazyList)
         decrypterStream
           .map(crypter => Try(crypter.decrypt(valueToDecrypt, associatedText)))
           .collectFirst { case Success(msg) => msg }

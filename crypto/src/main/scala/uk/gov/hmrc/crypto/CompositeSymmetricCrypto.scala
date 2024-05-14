@@ -35,7 +35,7 @@ trait CompositeSymmetricCrypto extends Encrypter with Decrypter {
     decrypt(d => Try(d.decryptAsBytes(scrambled)))
 
   private def decrypt[T <: PlainContent](tryDecryption: Decrypter => Try[T]): T = {
-    val decrypterStream = (currentCrypto +: previousCryptos).toStream
+    val decrypterStream = (currentCrypto +: previousCryptos).to(LazyList)
 
     val message =
       decrypterStream

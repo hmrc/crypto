@@ -23,7 +23,7 @@ import org.scalatestplus.mockito.MockitoSugar
 
 import java.security.SecureRandom
 import java.util.Base64
-import collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 @annotation.nowarn("msg=deprecated")
 class CryptoGCMWithKeysFromConfigSpec extends AnyWordSpecLike with Matchers with MockitoSugar {

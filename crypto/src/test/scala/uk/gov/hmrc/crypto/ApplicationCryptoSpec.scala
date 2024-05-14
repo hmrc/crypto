@@ -20,7 +20,7 @@ import com.typesafe.config.ConfigFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 
-import collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 class ApplicationCryptoSpec extends AnyWordSpecLike with Matchers {
 
