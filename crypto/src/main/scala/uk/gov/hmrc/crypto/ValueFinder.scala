@@ -17,7 +17,7 @@
 package uk.gov.hmrc.crypto
 
 import com.typesafe.config.Config
-import collection.JavaConverters._
+import scala.jdk.CollectionConverters._
 
 import scala.util.Try
 

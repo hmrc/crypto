@@ -167,6 +167,10 @@ val optValue: Option[T] = decrypter.reads(encryptedValue).asOpt.map(_.decryptedV
 
 ## Changes
 
+### Version 8.0.0
+
+Built for Scala 3 and Scala 2.13 - drops Scala 2.12.
+
 ### Version 7.6.0
 
 Adds support for Play 2.9 and Play 3.0

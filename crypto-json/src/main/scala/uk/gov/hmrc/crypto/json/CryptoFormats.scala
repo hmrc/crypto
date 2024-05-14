@@ -25,5 +25,5 @@ object CryptoFormats {
   val encryptedValueFormat: Format[EncryptedValue] =
     ( (__ \ "value").format[String]
     ~ (__ \ "nonce").format[String]
-    )(EncryptedValue.apply, unlift(EncryptedValue.unapply))
+    )(EncryptedValue.apply, ev => (ev.value, ev.nonce))
 }

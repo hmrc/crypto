@@ -38,7 +38,6 @@ trait AesCrypto extends Encrypter with Decrypter {
     plain match {
       case PlainBytes(bytes) => Crypted(encrypter.encrypt(bytes))
       case PlainText(text)   => Crypted(encrypter.encrypt(text))
-      case _                 => throw new Exception(s"Unable to encrypt unkown message type: $plain")
     }
 
   override def decrypt(encrypted: Crypted): PlainText =

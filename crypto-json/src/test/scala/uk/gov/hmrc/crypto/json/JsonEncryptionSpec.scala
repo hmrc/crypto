@@ -84,7 +84,8 @@ class CryptoFormatsSpec
 }
 
 object CryptoFormatsSpec {
-  implicit val crypto = SymmetricCryptoFactory.aesCrypto("P5xsJ9Nt+quxGZzB4DeLfw==")
+  implicit val crypto: Encrypter with Decrypter =
+    SymmetricCryptoFactory.aesCrypto("P5xsJ9Nt+quxGZzB4DeLfw==")
 
   case class SensitiveTestEntity(
     normalString    : String,
@@ -94,7 +95,7 @@ object CryptoFormatsSpec {
   )
 
   object SensitiveTestEntity {
-    implicit val formats = {
+    implicit val formats: Format[SensitiveTestEntity] = {
       implicit val sensitiveStringCrypto    : Format[SensitiveString]     = JsonEncryption.sensitiveEncrypterDecrypter(SensitiveString.apply)
       implicit val sensitiveBooleanCrypto   : Format[SensitiveBoolean]    = JsonEncryption.sensitiveEncrypterDecrypter(SensitiveBoolean.apply)
       implicit val sensitiveBigDecimalCrypto: Format[SensitiveBigDecimal] = JsonEncryption.sensitiveEncrypterDecrypter(SensitiveBigDecimal.apply)
@@ -110,7 +111,8 @@ object CryptoFormatsSpec {
   )
 
   object TestForm {
-    implicit val formats = Json.format[TestForm]
+    implicit val formats: Format[TestForm] =
+      Json.format[TestForm]
   }
 
   case class SensitiveTestForm(override val decryptedValue: TestForm) extends Sensitive[TestForm]
