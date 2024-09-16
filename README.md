@@ -165,6 +165,14 @@ val decrypter = JsonEncryption.sensitiveDecrypter[T, SensitiveT[T]](SensitiveT.a
 val optValue: Option[T] = decrypter.reads(encryptedValue).asOpt.map(_.decryptedValue)
 ```
 
+#### AdCryptoUtils
+
+Contains utilities for working with associated data.
+
+`AdCryptoUtils.encryptWith` will wrap a given json `Format` with AD encryption. It requires a pointer (`JSPath`) to the associated data field and takes a list of pointers to the fields to encrypt.
+
+See [spec](crypto-json/src/test/scala/uk/gov/hmrc/crypto/json/AdCryptoUtilsSpec.scala) for an example.
+
 ## Changes
 
 ### Version 8.0.0
