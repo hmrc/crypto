@@ -37,35 +37,40 @@ class AdCryptoUtilsSpec
           ( (__ \ "aField").format[String]
           ~ (__ \ "bField").format[String]
           )(TestSubEntity.apply, o => (o.aField, o.bField))
-        ( (__ \ "name"    ).format[String]
-        ~ (__ \ "aString" ).format[String]
-        ~ (__ \ "aBoolean").format[Boolean]
-        ~ (__ \ "aNumber" ).format[BigDecimal]
-        ~ (__ \ "aObject" ).format[TestSubEntity]
-        )(TestEntity.apply, o => (o.name, o.aString, o.aBoolean, o.aNumber, o.aObject))
+        ( (__ \ "asd" \ "name"    ).format[String]
+        ~ (__ \ "asd" \ "aString" ).format[String]
+        ~ (__ \ "asd" \ "aBoolean").format[Boolean]
+        ~ (__ \ "asd" \ "aNumber" ).format[BigDecimal]
+        ~ (__ \ "asd" \ "aObject" ).format[TestSubEntity]
+        ~ (__ \ "asd" \ "anArray" ).format[List[String]]
+        )(TestEntity.apply, o => (o.name, o.aString, o.aBoolean, o.aNumber, o.aObject, o.anArray))
       }
 
       val cryptoFormat: Format[TestEntity] =
         AdCryptoUtils.encryptWith[TestEntity](
-          associatedDataPath  = __ \ "name",
+          associatedDataPath  = __ \ "asd" \ "name",
           encryptedFieldPaths = Seq(
-                                  __ \ "aString",
-                                  __ \ "aBoolean",
-                                  __ \ "aNumber",
-                                  __ \ "aObject"
+                                  __ \ "asd" \ "aString",
+                                  __ \ "asd" \ "aBoolean",
+                                  __ \ "asd" \ "aNumber",
+                                  __ \ "asd" \ "aObject",
+                                  __ \ "asd" \ "anArray",
+                                  __ \ "nonExisting"
                                 )
         )(testEntityFormat)
 
-      val testEntity = TestEntity(
-                name     = "name",
-                aString  = "string",
-                aBoolean = true,
-                aNumber  = BigDecimal(1.0),
-                aObject  = TestSubEntity(
-                            aField = "aField",
-                            bField = "bField"
-                          )
-              )
+      val testEntity =
+        TestEntity(
+          name     = "name",
+          aString  = "string",
+          aBoolean = true,
+          aNumber  = BigDecimal(1.0),
+          aObject  = TestSubEntity(
+                       aField = "aField",
+                       bField = "bField"
+                     ),
+          anArray  = List("array0", "array1")
+        )
 
       val cryptoJson = cryptoFormat.writes(testEntity)
 
@@ -73,18 +78,21 @@ class AdCryptoUtilsSpec
       Json.fromJson[TestEntity](cryptoJson)(cryptoFormat).asOpt.value shouldBe testEntity
 
       // not contain raw values
-      (cryptoJson \ "name").as[String] shouldBe "name"
+      (cryptoJson \ "asd" \ "name").as[String] shouldBe "name"
       cryptoJson.toString should not include "string"
       cryptoJson.toString should not include "true"
       cryptoJson.toString should not include "aField"
-      cryptoJson.toString should not include "bField"
+      cryptoJson.toString should not include "bField0"
+      cryptoJson.toString should not include "array0"
+      cryptoJson.toString should not include "array1"
 
       // be encrypted
       implicit val evr: Reads[EncryptedValue] = CryptoFormats.encryptedValueFormat
-      (cryptoJson \ "aString" ).validate[EncryptedValue] shouldBe a[JsSuccess[_]]
-      (cryptoJson \ "aBoolean").validate[EncryptedValue] shouldBe a[JsSuccess[_]]
-      (cryptoJson \ "aNumber" ).validate[EncryptedValue] shouldBe a[JsSuccess[_]]
-      (cryptoJson \ "aObject" ).validate[EncryptedValue] shouldBe a[JsSuccess[_]]
+      (cryptoJson \ "asd" \ "aString" ).validate[EncryptedValue] shouldBe a[JsSuccess[_]]
+      (cryptoJson \ "asd" \ "aBoolean").validate[EncryptedValue] shouldBe a[JsSuccess[_]]
+      (cryptoJson \ "asd" \ "aNumber" ).validate[EncryptedValue] shouldBe a[JsSuccess[_]]
+      (cryptoJson \ "asd" \ "aObject" ).validate[EncryptedValue] shouldBe a[JsSuccess[_]]
+      (cryptoJson \ "asd" \ "anArray" ).validate[EncryptedValue] shouldBe a[JsSuccess[_]]
     }
   }
 }
@@ -100,11 +108,12 @@ object AdCryptoUtilsSpec {
   }
 
   case class TestEntity(
-    name    : String,
-    aString : String,
-    aBoolean: Boolean,
-    aNumber : BigDecimal,
-    aObject : TestSubEntity
+    name     : String,
+    aString  : String,
+    aBoolean : Boolean,
+    aNumber  : BigDecimal,
+    aObject  : TestSubEntity,
+    anArray  : List[String]
   )
 
   case class TestSubEntity(

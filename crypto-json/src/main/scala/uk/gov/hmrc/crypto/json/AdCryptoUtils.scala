@@ -26,7 +26,9 @@ object AdCryptoUtils {
     *
     * @param associatedDataPath field to be used as the associated data. It must resolve to a single `String` field, otherwise use of the Format will result in an error.
     *
-    * @param encryptedFieldPaths fields to be encrypted. The fields can be optional - if the field does not exist, it simply won't be encrypted. This does mean that client's tests must ensure that encryption occurs as expected to detect misspellings etc.
+    * @param encryptedFieldPaths fields to be encrypted.
+    * The fields can be optional - if the field does not exist, it simply won't be encrypted. This does mean that client's tests must ensure that encryption occurs as expected to detect misspellings etc.
+    * The field path cannot point to multiple values.
     */
   def encryptWith[A](
     associatedDataPath : JsPath,
@@ -49,13 +51,10 @@ object AdCryptoUtils {
         case JsError(errors)  => sys.error(s"Failed to decrypt value: $errors")
       }
     encryptedFieldPaths.foldLeft(jsValue){ (js, encryptedFieldPath) =>
-      if (encryptedFieldPath(jsValue).nonEmpty)
-        transformWithoutMerge(js, encryptedFieldPath, transform) match {
-          case JsSuccess(r, _) => r
-          case JsError(errors) => sys.error(s"Could not decrypt at $encryptedFieldPath: $errors")
-        }
-      else
-        js
+      js.transform(updateWithoutMerge(encryptedFieldPath, transform)) match {
+        case JsSuccess(r, _) => r
+        case JsError(errors) => sys.error(s"Could not decrypt at $encryptedFieldPath: $errors")
+      }
     }
   }
 
@@ -64,28 +63,34 @@ object AdCryptoUtils {
     def transform(js: JsValue): JsValue =
       CryptoFormats.encryptedValueFormat.writes(crypto.encrypt(js.toString, ad))
     encryptedFieldPaths.foldLeft(jsValue){ (js, encryptedFieldPath) =>
-      if (encryptedFieldPath(jsValue).nonEmpty)
-        transformWithoutMerge(js, encryptedFieldPath, transform) match {
-          case JsSuccess(r, _) => r
-          case JsError(errors) => sys.error(s"Could not encrypt at $encryptedFieldPath: $errors")
-        }
-      else
-        js
+      js.transform(updateWithoutMerge(encryptedFieldPath, transform)) match {
+        case JsSuccess(r, _) => r
+        case JsError(errors) => sys.error(s"Could not encrypt at $encryptedFieldPath: $errors")
+      }
     }
   }
 
   private def associatedData(associatedDataPath: JsPath, jsValue: JsValue) =
-    associatedDataPath(jsValue) match {
-      case List(associatedData) => associatedData.as[String] // Note only supports associatedDataPath which points to a String
-      case Nil                  => sys.error(s"No associatedData was found with $associatedDataPath")
-      case _                    => sys.error(s"Multiple associatedData was found with $associatedDataPath")
-    }
+    associatedDataPath.asSingleJsResult(jsValue)
+      // Note only supports associatedDataPath which points to a String
+      .flatMap(_.validate[String])
+      .fold(es => sys.error(s"Failed to look up associated data: $es"), identity)
 
-  private def transformWithoutMerge(js: JsValue, path: JsPath, transformFn: JsValue => JsValue): JsResult[JsValue] =
-    js.transform(
-      path.json.update(implicitly[Reads[JsValue]].map(_ => transformFn(path(js).head)))
-        // Calling js.transform(path.json.update ...) actually merges the result of transform
-        // So we have to ensure the original (unencrypted) JsObject is removed
-        .composeWith(path.json.update(implicitly[Reads[JsValue]].map(_ => JsNull)))
-    )
+  private def updateWithoutMerge(path: JsPath, transformFn: JsValue => JsValue): Reads[JsObject] =
+    // not using `path.json.update(o => JsSuccess(transformFn(o)))` since this does a deep merge - keeping the unencrypted values around for JsObject
+    Reads[JsObject] {
+      case o: JsObject =>
+        path(o) match {
+          case Nil                 => JsSuccess(o)
+          case List(one: JsObject) => JsSuccess(
+                                        o
+                                          .deepMerge(JsPath.createObj(path -> JsNull)) // ensure we don't merge with existing clear-text data
+                                          .deepMerge(JsPath.createObj(path -> transformFn(one)))
+                                      )
+          case List(one)           => JsSuccess(o.deepMerge(JsPath.createObj(path -> transformFn(one))))
+          case multiple            => JsError(Seq(path -> Seq(JsonValidationError("error.path.result.multiple"))))
+        }
+      case _ =>
+        JsError(JsPath, JsonValidationError("error.expected.jsobject"))
+    }
 }
