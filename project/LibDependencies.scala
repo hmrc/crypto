@@ -14,10 +14,6 @@ object LibDependencies {
     "org.scalatestplus"    %% "mockito-4-11"    % "3.2.17.0" % Test
   )
 
-  val cryptoJsonPlay28Compile = Seq(
-    "com.typesafe.play" %% "play-json" % "2.8.2" // version provided by Play 2.8
-  )
-
   val cryptoJsonPlay29Compile = Seq(
     "com.typesafe.play" %% "play-json" % "2.10.6" // version provided by Play 2.9
   )
