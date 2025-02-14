@@ -29,16 +29,16 @@ class CryptoGCMWithKeysFromConfig(baseConfigKey: String, config: Config) extends
       key       = configKey,
       ifMissing = throw new SecurityException(s"Missing required configuration entry: $configKey")
     )
-    aesGCMCrypto(currentEncryptionKey, "")
+    aesGCMCrypto(currentEncryptionKey)
   }
 
   override protected val previousCryptos = {
     val configKey              = baseConfigKey + ".previousKeys"
     val previousEncryptionKeys = config.get[List[String]](configKey, ifMissing = List.empty)
-    previousEncryptionKeys.map(k => aesGCMCrypto(k, ""))
+    previousEncryptionKeys.map(aesGCMCrypto)
   }
 
-  private def aesGCMCrypto(key: String, additional: String) =
+  private def aesGCMCrypto(key: String) =
     // Constructor initialisation - verify crypto before returning handle.
     try {
       val crypto = new AesGCMCrypto {
