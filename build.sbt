@@ -1,5 +1,5 @@
-val scala2_13 = "2.13.12"
-val scala3    = "3.3.3"
+val scala2_13 = "2.13.16"
+val scala3    = "3.3.5"
 
 ThisBuild / majorVersion     := 8
 ThisBuild / scalaVersion     := scala2_13
@@ -10,7 +10,6 @@ lazy val library = Project("library", file("."))
   .settings(publish / skip := true)
   .aggregate(
     crypto,
-    cryptoJsonPlay28,
     cryptoJsonPlay29,
     cryptoJsonPlay30
   )
@@ -27,13 +26,6 @@ def shareSources(location: String) = Seq(
   Test    / unmanagedSourceDirectories   += baseDirectory.value / s"../$location/src/test/scala",
   Test    / unmanagedResourceDirectories += baseDirectory.value / s"../$location/src/test/resources"
 )
-
-lazy val cryptoJsonPlay28 = Project("crypto-json-play-28", file("crypto-json-play-28"))
-  .settings(
-    crossScalaVersions := Seq(scala2_13),
-    shareSources("crypto-json"),
-    libraryDependencies ++= LibDependencies.cryptoJsonPlay28Compile ++ LibDependencies.cryptoTest
-  ).dependsOn(crypto)
 
 lazy val cryptoJsonPlay29 = Project("crypto-json-play-29", file("crypto-json-play-29"))
   .settings(
