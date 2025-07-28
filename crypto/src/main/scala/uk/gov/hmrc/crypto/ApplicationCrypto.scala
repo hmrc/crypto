@@ -20,32 +20,40 @@ import com.typesafe.config.Config
 
 import javax.inject.Inject
 
+@deprecated("Use uk.gov.hmrc.play.bootstrap.frontend.crypto.ApplicationCrypto provided by bootstrap-frontend-play instead.", "8.3.0")
 class ApplicationCrypto @Inject()(config: Config) {
 
-  /** Used to encrypt the cookie.
+  /** Should only be used to encrypt/decrypt the cookie.
+    *
     * It is shared by all services.
+    *
     * This is a platform key, and should not be used for any other use-case since it may be rotated at any time.
     */
   lazy val SessionCookieCrypto =
     SymmetricCryptoFactory.aesGcmCryptoFromConfig(baseConfigKey = "cookie.encryption", config)
 
-  /** Used for SSO with with the Portal.
+  /** Should only be used for SSO with the Portal.
+    *
     * It is shared by all services.
+    *
     * This is a platform key, and should not be used for any other use-case since it may be rotated at any time.
     */
   lazy val SsoPayloadCrypto =
     SymmetricCryptoFactory.aesCryptoFromConfig(baseConfigKey = "sso.encryption", config)
 
-  /** Used to encrypt query parameters. It can be used for path parameters and json payloads too.
-    * It is shared by all services.
-    * This is a platform key, and should not be used for any other use-case since it may be rotated at any time.
+  /** Can be used to encrypt query parameters - e.g. for callbacks and redirects.
+    *
+    * By default it is shared by all services, but it can be overridden if required to be private to the service.
+    *
+    * Given by default it is provided by the platform, it should be assumed it may be rotated at any time, and not
+    * used for storing data.
     */
   lazy val QueryParameterCrypto =
     SymmetricCryptoFactory.aesCryptoFromConfig(baseConfigKey = "queryParameter.encryption", config)
 
   @deprecated(
-    "For http payloads, use `QueryParameterCrypto`.\n" +
-    "For encrypting mongo data, create your own crypto with the key `mongodb.encryption` and choose appropriate algorithm (e.g. GCM with or without AD)."
+    "This will be removed since it's intention was ambiguous. Create and manage your own crypto instead.\n" +
+    "For encrypting mongo data, create your own crypto with the key `mongodb.encryption`."
   , "8.3.0"
   )
   lazy val JsonCrypto =
