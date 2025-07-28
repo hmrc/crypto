@@ -17,14 +17,14 @@
 package uk.gov.hmrc.crypto.json
 
 import org.scalatest.OptionValues
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatest.matchers.should.Matchers
 import play.api.libs.json.{Format, JsString, Json}
 import uk.gov.hmrc.crypto._
 import Sensitive._
 
 class CryptoFormatsSpec
-  extends AnyWordSpecLike
+  extends AnyWordSpec
      with Matchers
      with OptionValues {
   import CryptoFormatsSpec._

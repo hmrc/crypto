@@ -17,14 +17,13 @@
 package uk.gov.hmrc.crypto.secure
 
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.wordspec.AnyWordSpec
 
-class AsymmetricSpec extends AnyWordSpecLike with Matchers with KeyProvider {
+class AsymmetricSpec extends AnyWordSpec with Matchers with KeyProvider {
 
   private val original = "osidg9n  rg jt wtjwitu4549gv  p9 u243t  93t2ut34ijt g"
 
   "Asymetric encrypter/decrypter" should {
-
     "encrypt using public key and decrypt using private key" in {
       val publicKey = getPublicKey("/keys/server.crt")
       val privateKey = getPrivateKey("/keys/key.pk8")

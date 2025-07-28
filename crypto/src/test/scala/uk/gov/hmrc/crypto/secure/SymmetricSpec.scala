@@ -20,12 +20,11 @@ import java.nio.charset.StandardCharsets
 
 import javax.crypto.spec.SecretKeySpec
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.wordspec.AnyWordSpec
 
-class SymmetricSpec extends AnyWordSpecLike with Matchers {
+class SymmetricSpec extends AnyWordSpec with Matchers {
 
   "Symetric encrypter/decrypter" should {
-
     "be symmetric using fixed secret key using AES" in {
       val secretKey = new SecretKeySpec("kr*r4k?3%p-bEgR1".getBytes(StandardCharsets.UTF_8), "AES")
 
@@ -68,8 +67,5 @@ class SymmetricSpec extends AnyWordSpecLike with Matchers {
         new SymmetricDecrypter(null)
       }
     }
-
   }
-
-
 }

@@ -19,13 +19,12 @@ package uk.gov.hmrc.crypto
 import java.math.BigInteger
 
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.wordspec.AnyWordSpec
 
-class RSAEncryptDecryptSpec extends AnyWordSpecLike with Matchers {
+class RSAEncryptDecryptSpec extends AnyWordSpec with Matchers {
 
   "The RSA encrypter/decrypter " should {
     "successfully encrypt and decrypt using the RSA Encrypt Decrypt wrapper" in {
-
       val original: String = "osidg9n  rg jt wtjwitu4549gv  p9 u243t  93t2ut34ijt g"
 
       // Please note: base64 private key

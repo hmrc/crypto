@@ -22,10 +22,34 @@ import javax.inject.Inject
 
 class ApplicationCrypto @Inject()(config: Config) {
 
-  lazy val SessionCookieCrypto  = SymmetricCryptoFactory.aesGcmCryptoFromConfig(baseConfigKey = "cookie.encryption", config)
-  lazy val SsoPayloadCrypto     = SymmetricCryptoFactory.aesCryptoFromConfig(baseConfigKey = "sso.encryption"           , config)
-  lazy val QueryParameterCrypto = SymmetricCryptoFactory.aesCryptoFromConfig(baseConfigKey = "queryParameter.encryption", config)
-  lazy val JsonCrypto           = SymmetricCryptoFactory.aesCryptoFromConfig(baseConfigKey = "json.encryption"          , config)
+  /** Used to encrypt the cookie.
+    * It is shared by all services.
+    * This is a platform key, and should not be used for any other use-case since it may be rotated at any time.
+    */
+  lazy val SessionCookieCrypto =
+    SymmetricCryptoFactory.aesGcmCryptoFromConfig(baseConfigKey = "cookie.encryption", config)
+
+  /** Used for SSO with with the Portal.
+    * It is shared by all services.
+    * This is a platform key, and should not be used for any other use-case since it may be rotated at any time.
+    */
+  lazy val SsoPayloadCrypto =
+    SymmetricCryptoFactory.aesCryptoFromConfig(baseConfigKey = "sso.encryption", config)
+
+  /** Used to encrypt query parameters. It can be used for path parameters and json payloads too.
+    * It is shared by all services.
+    * This is a platform key, and should not be used for any other use-case since it may be rotated at any time.
+    */
+  lazy val QueryParameterCrypto =
+    SymmetricCryptoFactory.aesCryptoFromConfig(baseConfigKey = "queryParameter.encryption", config)
+
+  @deprecated(
+    "For http payloads, use `QueryParameterCrypto`.\n" +
+    "For encrypting mongo data, create your own crypto with the key `mongodb.encryption` and choose appropriate algorithm (e.g. GCM with or without AD)."
+  , "8.3.0"
+  )
+  lazy val JsonCrypto =
+    SymmetricCryptoFactory.aesCryptoFromConfig(baseConfigKey = "json.encryption", config)
 
   def verifyConfiguration(): Unit = {
     SessionCookieCrypto
@@ -33,6 +57,7 @@ class ApplicationCrypto @Inject()(config: Config) {
     SsoPayloadCrypto
   }
 
+  @deprecated("For encrypting mongo data, use `MongoCrypto`. For encrypting http payloads, use `QueryParameterCrypto`", "8.3.0")
   def verifyJsonConfiguration(): Unit =
     JsonCrypto
 }

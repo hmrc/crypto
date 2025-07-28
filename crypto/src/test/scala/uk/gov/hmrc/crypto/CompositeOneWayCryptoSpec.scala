@@ -18,14 +18,14 @@ package uk.gov.hmrc.crypto
 
 import com.typesafe.config.ConfigFactory
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.mockito.MockitoSugar
 
 import java.util.Base64
 import scala.jdk.CollectionConverters._
 
 @annotation.nowarn("msg=deprecated")
-class CompositeOneWayCryptoSpec extends AnyWordSpecLike with Matchers with MockitoSugar {
+class CompositeOneWayCryptoSpec extends AnyWordSpec with Matchers with MockitoSugar {
 
   private val baseConfigKey = "crypto.spec"
 

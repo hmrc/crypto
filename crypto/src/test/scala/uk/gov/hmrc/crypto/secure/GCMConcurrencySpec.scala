@@ -17,12 +17,12 @@
 package uk.gov.hmrc.crypto.secure
 
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.wordspec.AnyWordSpec
 
 import java.util.concurrent.CountDownLatch
 import scala.collection.mutable.ListBuffer
 
-class GCMConcurrencySpec extends AnyWordSpecLike with Matchers {
+class GCMConcurrencySpec extends AnyWordSpec with Matchers {
 
   "GCM" should {
     "be thread safe" in {

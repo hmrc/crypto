@@ -18,12 +18,11 @@ package uk.gov.hmrc.crypto
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.wordspec.AnyWordSpec
 
-class TypesafeConfigOpsSpec extends AnyWordSpecLike with Matchers {
+class TypesafeConfigOpsSpec extends AnyWordSpec with Matchers {
 
   "Getting a string" should {
-
     "return a string from config if exists" in {
       val expectedValue = "bar"
       val config        = ConfigFactory.parseString(s"foo = $expectedValue")
@@ -46,7 +45,6 @@ class TypesafeConfigOpsSpec extends AnyWordSpecLike with Matchers {
   }
 
   "Getting a list of strings" should {
-
     "return a list of strings if exists" in {
       val expectedList = List("a", "b")
       val config       = ConfigFactory.parseString(""" foo = [ "a", "b" ] """)

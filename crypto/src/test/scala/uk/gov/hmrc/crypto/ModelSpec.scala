@@ -17,9 +17,10 @@
 package uk.gov.hmrc.crypto
 
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.wordspec.AnyWordSpec
 
-class ModelSpec extends AnyWordSpecLike with Matchers {
+class ModelSpec extends AnyWordSpec with Matchers {
+
   "Crypted" should {
     "encode and decode Base64" in {
       val encrypted = Crypted("")

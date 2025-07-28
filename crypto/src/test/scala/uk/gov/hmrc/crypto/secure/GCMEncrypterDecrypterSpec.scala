@@ -17,12 +17,11 @@
 package uk.gov.hmrc.crypto.secure
 
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.wordspec.AnyWordSpec
 
-class GCMEncrypterDecrypterSpec extends AnyWordSpecLike with Matchers {
+class GCMEncrypterDecrypterSpec extends AnyWordSpec with Matchers {
 
   "GCMEncrypterDecrypter" should {
-
     "encrypt and decrypt without additional text" in {
       val valueToEncrypt = "data to encrypt"
       val associatedText = ""

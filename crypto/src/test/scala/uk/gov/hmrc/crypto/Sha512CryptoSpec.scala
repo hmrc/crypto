@@ -17,10 +17,10 @@
 package uk.gov.hmrc.crypto
 
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.wordspec.AnyWordSpec
 import java.util.Base64
 
-class Sha512CryptoSpec extends AnyWordSpecLike with Matchers {
+class Sha512CryptoSpec extends AnyWordSpec with Matchers {
 
   private val sha512Crypto = new Sha512Crypto(
     Base64.getEncoder.encodeToString(Array[Byte](0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15))
