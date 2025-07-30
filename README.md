@@ -175,6 +175,11 @@ See [spec](crypto-json/src/test/scala/uk/gov/hmrc/crypto/json/AdCryptoUtilsSpec.
 
 ## Changes
 
+### Version 8.3.0
+
+- `ApplicationCrypto` is deprecated - frontends can use the one provided by `bootstrap-frontend-play` instead.
+- `JsonCrypto` is deprecated. The intention of the key `json.encryption.key` was ambiguous. Clients should manage their own keys and cryptos. Use `mongodb.encryption.key` for a service's own mongo encryption.
+
 ### Version 8.0.0
 
 Built for Scala 3 and Scala 2.13 - drops Scala 2.12.

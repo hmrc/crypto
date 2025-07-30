@@ -19,6 +19,6 @@ object LibDependencies {
   )
 
   val cryptoJsonPlay30Compile = Seq(
-    "org.playframework" %% "play-json" % "3.0.4" // version provided by Play 3.0
+    "org.playframework" %% "play-json" % "3.0.5" // version provided by Play 3.0
   )
 }

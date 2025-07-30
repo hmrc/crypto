@@ -18,11 +18,12 @@ package uk.gov.hmrc.crypto
 
 import com.typesafe.config.ConfigFactory
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.wordspec.AnyWordSpec
 
 import scala.jdk.CollectionConverters._
 
-class ApplicationCryptoSpec extends AnyWordSpecLike with Matchers {
+@annotation.nowarn("msg=deprecated")
+class ApplicationCryptoSpec extends AnyWordSpec with Matchers {
 
   "ApplicationCrypto" should {
     "be correctly instantiated without application running" in {

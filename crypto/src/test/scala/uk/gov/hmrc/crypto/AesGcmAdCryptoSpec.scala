@@ -17,12 +17,12 @@
 package uk.gov.hmrc.crypto
 
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.wordspec.AnyWordSpec
 
 import java.util.Base64
 
 class AesGcmAdCryptoSpec
-  extends AnyWordSpecLike
+  extends AnyWordSpec
      with Matchers {
 
   private val secretKey      = "VqmXp7yigDFxbCUdDdNZVIvbW6RgPNJsliv6swQNCL8="

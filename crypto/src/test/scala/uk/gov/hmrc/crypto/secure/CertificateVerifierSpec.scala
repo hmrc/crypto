@@ -22,12 +22,11 @@ import java.security.cert.{Certificate, CertificateFactory}
 import java.text.MessageFormat
 
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.wordspec.AnyWordSpec
 
-class CertificateVerifierSpec extends AnyWordSpecLike with Matchers {
+class CertificateVerifierSpec extends AnyWordSpec with Matchers {
 
   "the verifier" should {
-
     "throw exception if certificate is self signed" in {
       val certificate = getCertificate("/keys/server.crt")
       val verifier = new CertificateVerifier {}
@@ -35,9 +34,7 @@ class CertificateVerifierSpec extends AnyWordSpecLike with Matchers {
       the[SecurityException] thrownBy {
         verifier.verify(certificate)
       } should have message "Certificate is self signed"
-
     }
-
   }
 
   private def getCertificate(path: String): Certificate = {

@@ -21,9 +21,9 @@ import java.security.MessageDigest
 import java.util.Base64
 
 import org.scalatest.matchers.should.Matchers
-import org.scalatest.wordspec.AnyWordSpecLike
+import org.scalatest.wordspec.AnyWordSpec
 
-class SignatureSpec extends AnyWordSpecLike with Matchers with KeyProvider {
+class SignatureSpec extends AnyWordSpec with Matchers with KeyProvider {
 
   "Signer" should {
     "sign with private key and verify with public key" in {
