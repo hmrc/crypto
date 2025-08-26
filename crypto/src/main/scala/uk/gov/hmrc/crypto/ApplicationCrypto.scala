@@ -20,7 +20,7 @@ import com.typesafe.config.Config
 
 import javax.inject.Inject
 
-@deprecated("Use uk.gov.hmrc.play.bootstrap.frontend.crypto.ApplicationCrypto provided by bootstrap-frontend-play instead.", "8.3.0")
+@deprecated("Use uk.gov.hmrc.play.bootstrap.frontend.filters.crypto.ApplicationCrypto provided by bootstrap-frontend-play instead.", "8.3.0")
 class ApplicationCrypto @Inject()(config: Config) {
 
   /** Should only be used to encrypt/decrypt the cookie.
