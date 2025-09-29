@@ -175,6 +175,10 @@ See [spec](crypto-json/src/test/scala/uk/gov/hmrc/crypto/json/AdCryptoUtilsSpec.
 
 ## Changes
 
+### Version 8.4.0
+
+Removes support for Play 2.9
+
 ### Version 8.3.0
 
 - `ApplicationCrypto` is deprecated - frontends can use the one provided by `bootstrap-frontend-play` instead.
