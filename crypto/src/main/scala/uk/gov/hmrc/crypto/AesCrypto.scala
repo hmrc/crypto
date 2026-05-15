@@ -21,6 +21,7 @@ import uk.gov.hmrc.crypto.secure.{SymmetricDecrypter, SymmetricEncrypter}
 import java.util.Base64
 import javax.crypto.spec.SecretKeySpec
 
+@deprecated("Insecure: uses provider defaults. Use AesGcmCrypto instead.")
 trait AesCrypto extends Encrypter with Decrypter {
 
   protected val encryptionKey: String
