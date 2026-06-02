@@ -19,11 +19,11 @@ package uk.gov.hmrc.crypto
 import java.util.Base64
 import java.time.Instant
 
-trait Encrypter {
+trait Encrypter extends AdEncrypter {
   def encrypt(plain: PlainContent): Crypted
 }
 
-trait Decrypter {
+trait Decrypter extends AdDecrypter {
   def decrypt(reversiblyEncrypted: Crypted): PlainText
 
   def decryptAsBytes(reversiblyEncrypted: Crypted): PlainBytes

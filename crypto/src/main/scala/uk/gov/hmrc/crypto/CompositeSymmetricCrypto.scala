@@ -28,13 +28,19 @@ trait CompositeSymmetricCrypto extends Encrypter with Decrypter {
   override def encrypt(value: PlainContent): Crypted =
     encrypt(value, currentCrypto)
 
+  override def encrypt(valueToEncrypt: String, associatedText: String): EncryptedValue =
+    currentCrypto.encrypt(valueToEncrypt, associatedText)
+
   override def decrypt(scrambled: Crypted): PlainText =
     decrypt(d => Try(d.decrypt(scrambled)))
 
   override def decryptAsBytes(scrambled: Crypted): PlainBytes =
     decrypt(d => Try(d.decryptAsBytes(scrambled)))
 
-  private def decrypt[T <: PlainContent](tryDecryption: Decrypter => Try[T]): T = {
+  override def decrypt(valueToDecrypt: EncryptedValue, associatedText: String): String =
+    decrypt(d => Try(d.decrypt(valueToDecrypt, associatedText)))
+
+  private def decrypt[T](tryDecryption: Decrypter => Try[T]): T = {
     val decrypterStream = (currentCrypto +: previousCryptos).to(LazyList)
 
     val message =
