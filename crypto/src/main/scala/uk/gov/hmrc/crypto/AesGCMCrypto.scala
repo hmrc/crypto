@@ -49,6 +49,14 @@ trait AesGCMCrypto extends Encrypter with Decrypter {
     new String(Base64.getEncoder.encode(combined))
   }
 
+  override def encrypt(valueToEncrypt: String, associatedText: String): EncryptedValue = {
+    val encryptedValue = crypto.encrypt(valueToEncrypt.getBytes, associatedText.getBytes)
+    EncryptedValue(
+      value = new String(Base64.getEncoder.encode(encryptedValue.value)),
+      nonce = new String(Base64.getEncoder.encode(encryptedValue.nonce))
+    )
+  }
+
   override def decrypt(encrypted: Crypted): PlainText =
     PlainText(crypto.decrypt(toEncryptedValue(encrypted.value), emptyAssociatedData))
 
@@ -61,5 +69,14 @@ trait AesGCMCrypto extends Encrypter with Decrypter {
       nonce = encryptedBytes.take(nonceLength),
       value = encryptedBytes.drop(nonceLength)
     )
+  }
+
+  override def decrypt(valueToDecrypt: EncryptedValue, associatedText: String): String = {
+    val encryptedBytes =
+      EncryptedBytes(
+        value = Base64.getDecoder.decode(valueToDecrypt.value.getBytes),
+        nonce = Base64.getDecoder.decode(valueToDecrypt.nonce.getBytes)
+      )
+    crypto.decrypt(encryptedBytes, associatedText.getBytes)
   }
 }

@@ -40,9 +40,15 @@ trait AesCrypto extends Encrypter with Decrypter {
       case PlainText(text)   => Crypted(encrypter.encrypt(text))
     }
 
+  override def encrypt(valueToEncrypt: String, associatedText: String): EncryptedValue =
+    EncryptedValue(encrypter.encrypt(valueToEncrypt), "")
+
   override def decrypt(encrypted: Crypted): PlainText =
     PlainText(decrypter.decrypt(encrypted.value))
 
   override def decryptAsBytes(encrypted: Crypted): PlainBytes =
     PlainBytes(decrypter.decryptAsBytes(encrypted.value))
+
+  override def decrypt(valueToDecrypt: EncryptedValue, associatedText: String): String =
+    decrypter.decrypt(valueToDecrypt.value)
 }
