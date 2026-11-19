@@ -51,21 +51,9 @@ class ApplicationCrypto @Inject()(config: Config) {
   lazy val QueryParameterCrypto =
     SymmetricCryptoFactory.aesCryptoFromConfig(baseConfigKey = "queryParameter.encryption", config)
 
-  @deprecated(
-    "This will be removed since it's intention was ambiguous. Create and manage your own crypto instead.\n" +
-    "For encrypting mongo data, create your own crypto with the key `mongodb.encryption`."
-  , "8.3.0"
-  )
-  lazy val JsonCrypto =
-    SymmetricCryptoFactory.aesCryptoFromConfig(baseConfigKey = "json.encryption", config)
-
   def verifyConfiguration(): Unit = {
     SessionCookieCrypto
     QueryParameterCrypto
     SsoPayloadCrypto
   }
-
-  @deprecated("For encrypting mongo data, use `MongoCrypto`. For encrypting http payloads, use `QueryParameterCrypto`", "8.3.0")
-  def verifyJsonConfiguration(): Unit =
-    JsonCrypto
 }

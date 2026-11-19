@@ -16,12 +16,14 @@
 
 package uk.gov.hmrc.crypto
 
-import uk.gov.hmrc.crypto.secure.{SymmetricDecrypter, SymmetricEncrypter}
-
+import uk.gov.hmrc.crypto.secure.SymmetricDecrypter
 import java.util.Base64
 import javax.crypto.spec.SecretKeySpec
 
-trait AesCrypto extends Encrypter with Decrypter {
+/** This cypher now encrypts using the GCM algorithm and decrypts using symmetric decryption.
+ * This is to enable dual-running while teams migrate
+*/
+trait AesCrypto extends AesGCMCrypto {
 
   protected val encryptionKey: String
 
@@ -30,19 +32,17 @@ trait AesCrypto extends Encrypter with Decrypter {
 
   private lazy val secretKey = new SecretKeySpec(encryptionKeyBytes, "AES")
 
-  private lazy val encrypter = new SymmetricEncrypter(secretKey)
-
   private lazy val decrypter = new SymmetricDecrypter(secretKey)
 
-  override def encrypt(plain: PlainContent): Crypted =
-    plain match {
-      case PlainBytes(bytes) => Crypted(encrypter.encrypt(bytes))
-      case PlainText(text)   => Crypted(encrypter.encrypt(text))
+  override def decrypt(encrypted: Crypted): PlainText =
+    try PlainText(decrypter.decrypt(encrypted.value))
+    catch { 
+      case _: Exception => super.decrypt(encrypted)
     }
 
-  override def decrypt(encrypted: Crypted): PlainText =
-    PlainText(decrypter.decrypt(encrypted.value))
-
   override def decryptAsBytes(encrypted: Crypted): PlainBytes =
-    PlainBytes(decrypter.decryptAsBytes(encrypted.value))
+    try PlainBytes(decrypter.decryptAsBytes(encrypted.value))
+    catch {
+      case _: Exception => super.decryptAsBytes(encrypted) 
+    }
 }

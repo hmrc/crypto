@@ -66,10 +66,10 @@ class CryptoWithKeysFromConfigSpec extends AnyWordSpec with Matchers with Mockit
       )
 
       val crypto = new CryptoWithKeysFromConfig(baseConfigKey, config)
-      crypto.encrypt(CurrentKey.plainMessage)     shouldBe CurrentKey.encryptedMessage
+      crypto.decrypt(crypto.encrypt(CurrentKey.plainMessage)) shouldBe CurrentKey.plainMessage
       crypto.decrypt(CurrentKey.encryptedMessage) shouldBe CurrentKey.plainMessage
 
-      crypto.encrypt(CurrentKey.plainByteMessage)                  shouldBe CurrentKey.encryptedByteMessage
+      crypto.decryptAsBytes(crypto.encrypt(CurrentKey.plainByteMessage)).value shouldBe CurrentKey.plainByteMessage.value
       crypto.decryptAsBytes(CurrentKey.encryptedByteMessage).value shouldBe CurrentKey.plainByteMessage.value
 
       val previousKey1Crypto        = CompositeSymmetricCrypto.aes(PreviousKey1.encryptionKey, Seq.empty)
@@ -90,10 +90,10 @@ class CryptoWithKeysFromConfigSpec extends AnyWordSpec with Matchers with Mockit
       )
 
       val crypto = new CryptoWithKeysFromConfig(baseConfigKey, config)
-      crypto.encrypt(CurrentKey.plainMessage)     shouldBe CurrentKey.encryptedMessage
+      crypto.decrypt(crypto.encrypt(CurrentKey.plainMessage)) shouldBe CurrentKey.plainMessage
       crypto.decrypt(CurrentKey.encryptedMessage) shouldBe CurrentKey.plainMessage
 
-      crypto.encrypt(CurrentKey.plainByteMessage)                  shouldBe CurrentKey.encryptedByteMessage
+      crypto.decryptAsBytes(crypto.encrypt(CurrentKey.plainByteMessage)).value shouldBe CurrentKey.plainByteMessage.value
       crypto.decryptAsBytes(CurrentKey.encryptedByteMessage).value shouldBe CurrentKey.plainByteMessage.value
 
       val previousKey1Crypto        = CompositeSymmetricCrypto.aes(PreviousKey1.encryptionKey, Seq.empty)

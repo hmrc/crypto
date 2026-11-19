@@ -40,10 +40,10 @@ class CryptoFormatsSpec
 
       val json = Json.toJson(e)(SensitiveTestEntity.formats)
 
-      (json \ "normalString"    ).get shouldBe JsString("unencrypted")
-      (json \ "encryptedString" ).get shouldBe JsString("3TW3L1raxsKBYuKvtKqPEQ==")
-      (json \ "encryptedBoolean").get shouldBe JsString("YhWm43Ad3rW5Votdy855Kg==")
-      (json \ "encryptedNumber" ).get shouldBe JsString("Z/ipDOvm7C3ck/TBkiteAg==")
+      (json \ "normalString").get shouldBe JsString("unencrypted")
+      (json \ "encryptedString").get should not be JsString("encrypted")
+      (json \ "encryptedBoolean").get should not be JsString("true")
+      (json \ "encryptedNumber").get should not be JsString("234")
     }
 
     "decrypt the elements" in {
@@ -74,8 +74,7 @@ class CryptoFormatsSpec
       val protectd       = SensitiveTestForm(form)
       val encryptedValue = sensitiveTestFormCrypto.writes(protectd)
 
-      encryptedValue shouldBe
-        JsString("TeYgL3TgD8e0XnvjhQlZDl0E9imdEjgyHHHSizAcKuUBZwh2ITwo34Ud8XNE88QKzfGOgAOpbMMKwcx+gwaGaA==")
+      encryptedValue should not be JsString(form.toString)
 
       val decrypted = sensitiveTestFormCrypto.reads(encryptedValue)
       decrypted.asOpt.value shouldBe protectd

@@ -39,7 +39,6 @@ class ApplicationCryptoSpec extends AnyWordSpec with Matchers {
       val applicationCrypto: ApplicationCrypto = new ApplicationCrypto(config)
 
       applicationCrypto.verifyConfiguration()
-      applicationCrypto.verifyJsonConfiguration()
     }
   }
 }
