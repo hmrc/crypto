@@ -22,6 +22,7 @@ import org.scalatest.matchers.should.Matchers
 import play.api.libs.json.{Format, JsString, Json}
 import uk.gov.hmrc.crypto._
 import Sensitive._
+import uk.gov.hmrc.crypto.json.utils.AesCrypto
 
 class CryptoFormatsSpec
   extends AnyWordSpec
@@ -85,8 +86,10 @@ class CryptoFormatsSpec
 
 object CryptoFormatsSpec {
   implicit val crypto: Encrypter with Decrypter =
-    SymmetricCryptoFactory.aesCrypto("P5xsJ9Nt+quxGZzB4DeLfw==")
-
+    new AesCrypto {
+      override protected val encryptionKey: String = "P5xsJ9Nt+quxGZzB4DeLfw=="
+    }
+    
   case class SensitiveTestEntity(
     normalString    : String,
     encryptedString : SensitiveString,
