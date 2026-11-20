@@ -23,7 +23,6 @@ import play.api.libs.json.{Format, JsString, Json}
 import uk.gov.hmrc.crypto._
 import Sensitive._
 import uk.gov.hmrc.crypto.json.utils.AesCrypto
-import play.api.libs.json.JsValue
 
 class CryptoFormatsSpec
   extends AnyWordSpec
