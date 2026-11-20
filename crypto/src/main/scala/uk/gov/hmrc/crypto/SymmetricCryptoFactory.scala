@@ -45,27 +45,6 @@ object SymmetricCryptoFactory {
       }
     }
 
-  /** An implementation of "AES" Cipher.
-   *  Prefer `aesGcmCrypto` for any new usage, which will not produce repeatable encryptions.
-   */
-  def aesCrypto(secretKey: String): Encrypter with Decrypter =
-    new AesCrypto {
-      override protected val encryptionKey: String = secretKey
-    }
-
-  /** An implementation of "AES" Cipher.
-   *  Prefer `aesGcmCryptoFromConfig` for any new usage, which will not produce repeatable encryptions.
-   */
-  def aesCryptoFromConfig(baseConfigKey: String, config: Config): Encrypter with Decrypter = {
-    val currentEncryptionKey   = config.getString(baseConfigKey + ".key")
-    val previousEncryptionKeys = config.get[List[String]](baseConfigKey + ".previousKeys", ifMissing = List.empty)
-    composeCrypto(
-      currentCrypto      = aesCrypto(currentEncryptionKey),
-      previousDecrypters = previousEncryptionKeys.map(aesCrypto)
-    )
-  }
-
-
   /** An implementation of "AES" Cipher, with "GCM" algorithm.
     * Note, the associated data is always set to an empty array. Use `aesGcmAdCrypto` if you want to provide your own associated data.
     */

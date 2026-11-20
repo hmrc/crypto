@@ -14,8 +14,32 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.crypto.secure
+package uk.gov.hmrc.crypto.json.utils
+
+import uk.gov.hmrc.crypto._
+
+import java.util.Base64
+import javax.crypto.spec.SecretKeySpec
 
 import javax.crypto.SecretKey
+import uk.gov.hmrc.crypto.secure.Encrypter
 
 class SymmetricEncrypter(override protected val key: SecretKey) extends Encrypter
+
+trait AesCrypto extends AesGCMCrypto {
+
+  protected val encryptionKey: String
+
+  private lazy val encryptionKeyBytes =
+    Base64.getDecoder.decode(encryptionKey.getBytes("UTF-8"))
+
+  private lazy val secretKey = new SecretKeySpec(encryptionKeyBytes, "AES")
+
+  private lazy val encrypter = new SymmetricEncrypter(secretKey)
+
+  override def encrypt(plain: PlainContent): Crypted =
+    plain match {
+      case PlainBytes(bytes) => Crypted(encrypter.encrypt(bytes))
+      case PlainText(text)   => Crypted(encrypter.encrypt(text))
+    }
+}

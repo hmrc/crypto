@@ -19,7 +19,10 @@ package uk.gov.hmrc.crypto
 import uk.gov.hmrc.crypto.secure.{EncryptedBytes, GCMEncrypterDecrypter}
 
 import java.util.Base64
+import javax.crypto.spec.SecretKeySpec
+import uk.gov.hmrc.crypto.secure.SymmetricDecrypter
 
+// In deprecating the ECB cypher, this cypher now decrypts both GCM and legacy ECB encrypted data.
 // Note: The result of the GSM encryption is {nonce:16bytes}{encrypted GCM result}. To decrypt the encrypted value, the
 // nonce is first extracted which is then used to decrypt the remaining GCM encrypted value.
 
@@ -36,6 +39,9 @@ trait AesGCMCrypto extends Encrypter with Decrypter {
   private lazy val crypto =
     new GCMEncrypterDecrypter(encryptionKeyBytes, nonceLength = nonceLength)
 
+  private lazy val legacySecretKey = new SecretKeySpec(encryptionKeyBytes, "AES")
+  private lazy val legacyDecrypter = new SymmetricDecrypter(legacySecretKey)
+
   override def encrypt(plain: PlainContent): Crypted =
     plain match {
       case PlainBytes(bytes) => Crypted(fromEncryptedValue(crypto.encrypt(bytes        , emptyAssociatedData)))
@@ -50,10 +56,16 @@ trait AesGCMCrypto extends Encrypter with Decrypter {
   }
 
   override def decrypt(encrypted: Crypted): PlainText =
-    PlainText(crypto.decrypt(toEncryptedValue(encrypted.value), emptyAssociatedData))
+    try PlainText(crypto.decrypt(toEncryptedValue(encrypted.value), emptyAssociatedData))
+    catch {
+      case _: SecurityException => PlainText(legacyDecrypter.decrypt(encrypted.value))
+    }
 
   override def decryptAsBytes(encrypted: Crypted): PlainBytes =
-    PlainBytes(crypto.decrypt(toEncryptedValue(encrypted.value), emptyAssociatedData).getBytes)
+    try PlainBytes(crypto.decrypt(toEncryptedValue(encrypted.value), emptyAssociatedData).getBytes)
+    catch {
+      case _: SecurityException => PlainBytes(legacyDecrypter.decryptAsBytes(encrypted.value))
+    }
 
   private def toEncryptedValue(encryptedString: String): EncryptedBytes = {
     val encryptedBytes: Array[Byte] = Base64.getDecoder.decode(encryptedString)
