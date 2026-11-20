@@ -31,7 +31,7 @@ class SymmetricSpec extends AnyWordSpec with Matchers {
       val secretKey = new SecretKeySpec("kr*r4k?3%p-bEgR1".getBytes(StandardCharsets.UTF_8), "AES")
       val decrypter = new SymmetricDecrypter(secretKey)
 
-      val encrypted = "JLyHMVoZFqQ65GNNI1I9Ww==" // "test" encrypted using ECB and secretKey
+      val encrypted = "JLyHMVoZFqQ65GNNI1I9Ww==" // string "test" ECB-encrypted
       val decrypted = decrypter.decrypt(encrypted)
 
       encrypted should not be rawText
@@ -44,7 +44,7 @@ class SymmetricSpec extends AnyWordSpec with Matchers {
 
       val decrypter = new SymmetricDecrypter(secretKey)
 
-      val encrypted = "zwc9o3/McHQ=" // "test" encrypted using ECB and secretKey
+      val encrypted = "zwc9o3/McHQ="
       val decrypted = decrypter.decrypt(encrypted)
 
       encrypted should not be rawText
