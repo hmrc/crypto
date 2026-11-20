@@ -45,7 +45,7 @@ class SymmetricSpec extends AnyWordSpec with Matchers {
 
       val decrypter = new SymmetricDecrypter(secretKey)
 
-      val original = "pweoitpwjgpwoiejxgpwoijgpwoiejgpwojg9t0934876034976034ugjgp3i4u6pti3j4tk3gvm3;f"
+      val original = "test"
 
       val encrypted = "zwc9o3/McHQ="
       val decrypted = decrypter.decrypt(encrypted)
