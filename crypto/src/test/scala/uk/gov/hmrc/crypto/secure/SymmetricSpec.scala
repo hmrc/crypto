@@ -25,18 +25,17 @@ import org.scalatest.wordspec.AnyWordSpec
 class SymmetricSpec extends AnyWordSpec with Matchers {
 
   "Symmetric encrypter/decrypter" should {
+    val rawText = "test"
+
     "be symmetric using fixed secret key using AES" in {
       val secretKey = new SecretKeySpec("kr*r4k?3%p-bEgR1".getBytes(StandardCharsets.UTF_8), "AES")
-
       val decrypter = new SymmetricDecrypter(secretKey)
 
-      val original = "test"
-
-      val encrypted = "JLyHMVoZFqQ65GNNI1I9Ww=="
+      val encrypted = "JLyHMVoZFqQ65GNNI1I9Ww==" // "test" encrypted using ECB and secretKey
       val decrypted = decrypter.decrypt(encrypted)
 
-      encrypted should not be original
-      decrypted shouldBe original
+      encrypted should not be rawText
+      decrypted shouldBe rawText
     }
 
     "be symmetric using fixed secret key using DES" in {
@@ -45,13 +44,11 @@ class SymmetricSpec extends AnyWordSpec with Matchers {
 
       val decrypter = new SymmetricDecrypter(secretKey)
 
-      val original = "test"
-
-      val encrypted = "zwc9o3/McHQ="
+      val encrypted = "zwc9o3/McHQ=" // "test" encrypted using ECB and secretKey
       val decrypted = decrypter.decrypt(encrypted)
 
-      encrypted should not be original
-      decrypted shouldBe original
+      encrypted should not be rawText
+      decrypted shouldBe rawText
     }
 
     "throw exception if decryption attempted without a secret key" in {

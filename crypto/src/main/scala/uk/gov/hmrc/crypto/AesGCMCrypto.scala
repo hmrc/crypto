@@ -58,13 +58,13 @@ trait AesGCMCrypto extends Encrypter with Decrypter {
   override def decrypt(encrypted: Crypted): PlainText =
     try PlainText(crypto.decrypt(toEncryptedValue(encrypted.value), emptyAssociatedData))
     catch {
-      case _: Exception => PlainText(legacyDecrypter.decrypt(encrypted.value))
+      case _: SecurityException => PlainText(legacyDecrypter.decrypt(encrypted.value))
     }
 
   override def decryptAsBytes(encrypted: Crypted): PlainBytes =
     try PlainBytes(crypto.decrypt(toEncryptedValue(encrypted.value), emptyAssociatedData).getBytes)
     catch {
-      case _: Exception => PlainBytes(legacyDecrypter.decryptAsBytes(encrypted.value))
+      case _: SecurityException => PlainBytes(legacyDecrypter.decryptAsBytes(encrypted.value))
     }
 
   private def toEncryptedValue(encryptedString: String): EncryptedBytes = {
