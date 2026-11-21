@@ -39,9 +39,7 @@ The supported types are:
 
 - `AesGCMCrypto`
 
-   An implementation of AES encryption using the GCM algorithm. This includes the use of a nonce to prevent repeatable encryptions.
-
-   Note, the associated data is always set to an empty array. Use `AesGcmAdCrypto` if setting the associated data is required.
+   An implementation of AES encryption using the GCM algorithm. This includes the use of a nonce to prevent repeatable encryptions. Note, the associated data is always set to an empty array. Use `AesGcmAdCrypto` if setting the associated data is required.
 
   It represents the encypted data as `Crypted`, which contains a single base64 encoded String.
 
@@ -174,6 +172,8 @@ See [spec](crypto-json/src/test/scala/uk/gov/hmrc/crypto/json/AdCryptoUtilsSpec.
   - `AesCrypto`, `CompositeSymmetricCrypto`, `CompositeOneWayCrypto`, `CryptoWithKeysFromConfig` and `CryptoGCMWithKeysFromConfig`.
   - `SymmetricCryptoFactory.aesCrypto` and `SymmetricCryptoFactory.aesCryptoFromConfig`. Use GCM alternatives instead.
   - `ApplicationCrypto`. Frontends should use the implementation provided by `bootstrap-frontend-play`.
+
+See this [summary]("https://github.com/hmrc/crypto/pull/34#issue-6510163202") for further context.
 
 ### Version 8.4.0
 
