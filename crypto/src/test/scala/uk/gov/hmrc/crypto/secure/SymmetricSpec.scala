@@ -24,42 +24,31 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class SymmetricSpec extends AnyWordSpec with Matchers {
 
-  "Symetric encrypter/decrypter" should {
+  "Symmetric encrypter/decrypter" should {
+    val rawText = "test"
+
     "be symmetric using fixed secret key using AES" in {
       val secretKey = new SecretKeySpec("kr*r4k?3%p-bEgR1".getBytes(StandardCharsets.UTF_8), "AES")
-
-      val encrypter = new SymmetricEncrypter(secretKey)
       val decrypter = new SymmetricDecrypter(secretKey)
 
-      val original = "pweoitpwjgpwoiejxgpwoijgpwoiejgpwojg9t0934876034976034ugjgp3i4u6pti3j4tk3gvm3;f"
-
-      val encrypted = encrypter.encrypt(original)
+      val encrypted = "JLyHMVoZFqQ65GNNI1I9Ww==" // string "test" ECB-encrypted
       val decrypted = decrypter.decrypt(encrypted)
 
-      encrypted should not be original
-      decrypted shouldBe original
+      encrypted should not be rawText
+      decrypted shouldBe rawText
     }
 
     "be symmetric using fixed secret key using DES" in {
       // DES has 64 bit key size
       val secretKey = new SecretKeySpec("kr*r4/?3".getBytes(StandardCharsets.UTF_8), "DES")
 
-      val encrypter = new SymmetricEncrypter(secretKey)
       val decrypter = new SymmetricDecrypter(secretKey)
 
-      val original = "pweoitpwjgpwoiejxgpwoijgpwoiejgpwojg9t0934876034976034ugjgp3i4u6pti3j4tk3gvm3;f"
-
-      val encrypted = encrypter.encrypt(original)
+      val encrypted = "zwc9o3/McHQ="
       val decrypted = decrypter.decrypt(encrypted)
 
-      encrypted should not be original
-      decrypted shouldBe original
-    }
-
-    "throw exception if encryption attempted without a secret key" in {
-      an [IllegalStateException] should be thrownBy {
-        new SymmetricEncrypter(null)
-      }
+      encrypted should not be rawText
+      decrypted shouldBe rawText
     }
 
     "throw exception if decryption attempted without a secret key" in {

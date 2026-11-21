@@ -8,13 +8,13 @@ object LibDependencies {
   )
 
   val cryptoTest = Seq(
-    "org.scalatest"        %% "scalatest"       % "3.2.17"   % Test,
+    "org.scalatest"        %% "scalatest"       % "3.2.20"   % Test,
     "com.vladsch.flexmark" %  "flexmark-all"    % "0.64.8"   % Test,
-    "org.scalatestplus"    %% "scalacheck-1-17" % "3.2.17.0" % Test,
-    "org.scalatestplus"    %% "mockito-4-11"    % "3.2.17.0" % Test
+    "org.scalatestplus"    %% "scalacheck-1-17" % "3.2.18.0" % Test,
+    "org.scalatestplus"    %% "mockito-4-11"    % "3.2.18.0" % Test
   )
 
   val cryptoJsonPlay30Compile = Seq(
-    "org.playframework" %% "play-json" % "3.0.5" // version provided by Play 3.0
+    "org.playframework" %% "play-json" % "3.0.6" // version provided by Play 3.0
   )
 }

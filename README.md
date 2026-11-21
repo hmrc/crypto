@@ -37,19 +37,11 @@ The different variants are provided by `SymmetricCryptoFactory`.
 
 The supported types are:
 
-- `AesCrypto`
-
-  An implementation of "AES" Cipher.
-
-  It represents the encypted data as `Crypted`, which contains a single base64 encoded String.
-
-  Note, it is recommended to use `AesGCMCrypto` instead which uses a nonce to prevent repeatable encryptions.
-
-  To create, either call `SymmetricCryptoFactory.aesCrypto` with the secret key, or `SymmetricCryptoFactory.aesCryptoFromConfig` to look up the keys from config. `SymmetricCryptoFactory.aesCryptoFromConfig` additionally supports decrypting with any available previous keys, to support key rotation.
-
 - `AesGCMCrypto`
 
-  Similar to AesCrypto, but uses the GCM algorithm. This includes the use of a nonce, to prevent repeatable encryptions. Note, the associated data is always set to an empty array. Use `AesGcmAdCrypto` if setting the associated data is required.
+   An implementation of AES encryption using the GCM algorithm. This includes the use of a nonce to prevent repeatable encryptions.
+
+   Note, the associated data is always set to an empty array. Use `AesGcmAdCrypto` if setting the associated data is required.
 
   It represents the encypted data as `Crypted`, which contains a single base64 encoded String.
 
@@ -174,6 +166,14 @@ Contains utilities for working with associated data.
 See [spec](crypto-json/src/test/scala/uk/gov/hmrc/crypto/json/AdCryptoUtilsSpec.scala) for an example.
 
 ## Changes
+
+### Version 9.0.0
+
+- Deterministic AES (ECB) encryption has been removed. AES-GCM is now the only supported symmetric encryption algorithm. Existing data encrypted using AES (ECB) can still be decrypted using `AesGCMCrypto`.
+- Deprecated logic removed:
+  - `AesCrypto`, `CompositeSymmetricCrypto`, `CompositeOneWayCrypto`, `CryptoWithKeysFromConfig` and `CryptoGCMWithKeysFromConfig`.
+  - `SymmetricCryptoFactory.aesCrypto` and `SymmetricCryptoFactory.aesCryptoFromConfig`. Use GCM alternatives instead.
+  - `ApplicationCrypto`. Frontends should use the implementation provided by `bootstrap-frontend-play`.
 
 ### Version 8.4.0
 

@@ -72,7 +72,6 @@ class GCMConcurrencySpec extends AnyWordSpec with Matchers {
         val response = cipher.encrypt(valueToEncrypt.getBytes, "additional".getBytes)
         val decrypt  = cipher.decrypt(response, "additional".getBytes)
         val equal    = java.util.Arrays.equals(valueToEncrypt.getBytes, decrypt.getBytes)
-        println(s"Encrypted/Decrypted successfully: $equal")
         if (!equal) {
           result.failed = true
         }
