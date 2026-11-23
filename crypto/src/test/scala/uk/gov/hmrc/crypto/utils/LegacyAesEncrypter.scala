@@ -14,14 +14,19 @@
  * limitations under the License.
  */
 
-package uk.gov.hmrc.crypto
+package uk.gov.hmrc.crypto.json.utils
 
-import uk.gov.hmrc.crypto.secure.{SymmetricDecrypter, SymmetricEncrypter}
+import uk.gov.hmrc.crypto._
 
 import java.util.Base64
 import javax.crypto.spec.SecretKeySpec
 
-trait AesCrypto extends Encrypter with Decrypter {
+import javax.crypto.SecretKey
+import uk.gov.hmrc.crypto.secure.Encrypter
+
+class SymmetricEncrypter(override protected val key: SecretKey) extends Encrypter
+
+trait AesCrypto extends AesGCMCrypto {
 
   protected val encryptionKey: String
 
@@ -32,17 +37,9 @@ trait AesCrypto extends Encrypter with Decrypter {
 
   private lazy val encrypter = new SymmetricEncrypter(secretKey)
 
-  private lazy val decrypter = new SymmetricDecrypter(secretKey)
-
   override def encrypt(plain: PlainContent): Crypted =
     plain match {
       case PlainBytes(bytes) => Crypted(encrypter.encrypt(bytes))
       case PlainText(text)   => Crypted(encrypter.encrypt(text))
     }
-
-  override def decrypt(encrypted: Crypted): PlainText =
-    PlainText(decrypter.decrypt(encrypted.value))
-
-  override def decryptAsBytes(encrypted: Crypted): PlainBytes =
-    PlainBytes(decrypter.decryptAsBytes(encrypted.value))
 }

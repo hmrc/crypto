@@ -22,6 +22,7 @@ import org.scalatest.matchers.should.Matchers
 import play.api.libs.json.{Format, JsString, Json}
 import uk.gov.hmrc.crypto._
 import Sensitive._
+import uk.gov.hmrc.crypto.json.utils.AesCrypto
 
 class CryptoFormatsSpec
   extends AnyWordSpec
@@ -29,8 +30,11 @@ class CryptoFormatsSpec
      with OptionValues {
   import CryptoFormatsSpec._
 
-  "sensitiveEncrypterDecrypter" should {
+  "legacy Encrypter/Decrypter" should {
+  implicit val crypto: Encrypter with Decrypter = legacyCypher
+
     "encrypt/decrypt primitives" in {
+
       val e = SensitiveTestEntity(
         "unencrypted",
         SensitiveString("encrypted"),
@@ -81,12 +85,54 @@ class CryptoFormatsSpec
       decrypted.asOpt.value shouldBe protectd
     }
   }
+
+  "Encrypter/Decrypter" should {
+    implicit val crypto: Encrypter with Decrypter = cypher
+
+    "encrypt/decrypt primitives" in {
+      val e = SensitiveTestEntity(
+        "unencrypted",
+        SensitiveString("encrypted"),
+        SensitiveBoolean(true),
+        SensitiveBigDecimal(BigDecimal("234"))
+      )
+
+      val firstRun = Json.toJson(e)(SensitiveTestEntity.formats)
+      val secondRun = Json.toJson(e)(SensitiveTestEntity.formats)
+
+      (firstRun \ "normalString").get shouldBe JsString("unencrypted")
+      (secondRun \ "normalString").get shouldBe JsString("unencrypted")
+      (firstRun \ "encryptedString").get should not be (secondRun \ "normalString").get
+      (firstRun \ "encryptedBoolean").get should not be (secondRun \ "normalString").get
+      (firstRun \ "encryptedNumber").get should not be (secondRun \ "normalString").get
+    }
+
+    "encrypt/decrypt custom entity" in {
+      val sensitiveTestFormCrypto: Format[SensitiveTestForm] = {
+        implicit val s = TestForm.formats
+        JsonEncryption.sensitiveEncrypterDecrypter(SensitiveTestForm.apply)
+      }
+
+      val form           = TestForm("abdu", "sahin", 100, false)
+      val protectd       = SensitiveTestForm(form)
+      val encryptedValue = sensitiveTestFormCrypto.writes(protectd)
+
+      encryptedValue should not be protectd
+
+      val decrypted = sensitiveTestFormCrypto.reads(encryptedValue)
+      decrypted.asOpt.value shouldBe protectd
+    }
+  }
 }
 
 object CryptoFormatsSpec {
-  implicit val crypto: Encrypter with Decrypter =
-    SymmetricCryptoFactory.aesCrypto("P5xsJ9Nt+quxGZzB4DeLfw==")
-
+  val key = "P5xsJ9Nt+quxGZzB4DeLfw=="
+  val cypher: Encrypter with Decrypter = SymmetricCryptoFactory.aesGcmCrypto(key)
+  val legacyCypher: Encrypter with Decrypter =
+    new AesCrypto {
+      override protected val encryptionKey: String = key
+    }
+    
   case class SensitiveTestEntity(
     normalString    : String,
     encryptedString : SensitiveString,
@@ -94,14 +140,14 @@ object CryptoFormatsSpec {
     encryptedNumber : SensitiveBigDecimal
   )
 
-  object SensitiveTestEntity {
-    implicit val formats: Format[SensitiveTestEntity] = {
-      implicit val sensitiveStringCrypto    : Format[SensitiveString]     = JsonEncryption.sensitiveEncrypterDecrypter(SensitiveString.apply)
-      implicit val sensitiveBooleanCrypto   : Format[SensitiveBoolean]    = JsonEncryption.sensitiveEncrypterDecrypter(SensitiveBoolean.apply)
-      implicit val sensitiveBigDecimalCrypto: Format[SensitiveBigDecimal] = JsonEncryption.sensitiveEncrypterDecrypter(SensitiveBigDecimal.apply)
-      Json.format[SensitiveTestEntity]
-    }
+object SensitiveTestEntity {
+  def formats(implicit crypto: Encrypter with Decrypter): Format[SensitiveTestEntity] = {
+    implicit val sensitiveStringCrypto: Format[SensitiveString] = JsonEncryption.sensitiveEncrypterDecrypter(SensitiveString.apply)
+    implicit val sensitiveBooleanCrypto: Format[SensitiveBoolean] = JsonEncryption.sensitiveEncrypterDecrypter(SensitiveBoolean.apply)
+    implicit val sensitiveBigDecimalCrypto: Format[SensitiveBigDecimal] = JsonEncryption.sensitiveEncrypterDecrypter(SensitiveBigDecimal.apply)
+    Json.format[SensitiveTestEntity]
   }
+}
 
   case class TestForm(
     name   : String,
